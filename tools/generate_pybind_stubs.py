@@ -153,8 +153,9 @@ def patch_stubgen():
 
 
 def main() -> None:
-    package_path = get_package_dir("amulet.utils")
-    src_path = os.path.dirname(package_path)
+    package_name = "amulet.utils"
+    package_path = get_package_dir(package_name)
+    src_path = os.path.dirname(os.path.dirname(package_path))
 
     # Remove all existing stub files
     print("Removing stub files...")
@@ -171,13 +172,13 @@ def main() -> None:
     sys.argv = [
         "pybind11_stubgen",
         f"--output-dir={src_path}",
-        "amulet",
+        package_name,
     ]
     pybind11_stubgen.main()
     # If pybind11_stubgen adds args to main
     # pybind11_stubgen.main([
     #     f"--output-dir={src_path}",
-    #     "amulet",
+    #     package_name,
     # ])
 
     # Run normal stubgen on the python files
@@ -192,11 +193,11 @@ def main() -> None:
     # ])
 
     # Remove stub files generated for python modules
-    # for stub_path in glob.iglob(
-    #     os.path.join(glob.escape(package_path), "**", "*.pyi"), recursive=True
-    # ):
-    #     if os.path.isfile(stub_path[:-1]):
-    #         os.remove(stub_path)
+    for stub_path in glob.iglob(
+        os.path.join(glob.escape(package_path), "**", "*.pyi"), recursive=True
+    ):
+        if os.path.isfile(stub_path[:-1]):
+            os.remove(stub_path)
 
     print("Patching stub files...")
     # Fix some issues and reformat the stub files.

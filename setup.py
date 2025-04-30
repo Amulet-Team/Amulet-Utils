@@ -40,7 +40,7 @@ cmdclass: dict[str, type[Command]] = versioneer.get_cmdclass()
 class CMakeBuild(cmdclass.get("build_ext", build_ext)):
     def build_extension(self, ext):
         import pybind11
-        import amulet.io
+        import amulet.pybind11_extensions
 
         ext_fullpath = Path.cwd() / self.get_ext_fullpath("")
         src_dir = ext_fullpath.parent.resolve()
@@ -60,7 +60,7 @@ class CMakeBuild(cmdclass.get("build_ext", build_ext)):
                 *platform_args,
                 f"-DPYTHON_EXECUTABLE={sys.executable}",
                 f"-Dpybind11_DIR={fix_path(pybind11.get_cmake_dir())}",
-                f"-Damulet_io_DIR={fix_path(amulet.io.__path__[0])}",
+                f"-Damulet_pybind11_extensions_DIR={fix_path(amulet.pybind11_extensions.__path__[0])}",
                 f"-DCMAKE_INSTALL_PREFIX=install",
                 f"-DSRC_INSTALL_DIR={src_dir}",
                 "-B",
