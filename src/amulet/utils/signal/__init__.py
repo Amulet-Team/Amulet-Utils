@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol, TypeVarTuple, runtime_checkable
 from collections.abc import Callable
+from . import _connection_mode
 from ._connection_mode import ConnectionMode
 
 

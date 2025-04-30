@@ -38,4 +38,7 @@ void init_signal(py::module m_parent)
         },
         py::name("__repr__"),
         py::is_method(ConnectionMode));
+
+    // Import it so that stubgen picks it up.
+    py::module::import("amulet.utils.signal");
 }
