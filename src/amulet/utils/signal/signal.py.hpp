@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "signal.hpp"
+#include <amulet/pybind11_extensions/pybind11.hpp>
 #include <amulet/pybind11_extensions/nogil_holder.hpp>
 
 namespace py = pybind11;
@@ -30,7 +31,8 @@ class PySignalToken : public py::object {
 template <typename signalT>
 void create_signal_binding()
 {
-    if (!pybind11::detail::get_type_info(typeid(signalT), false)) {
+    if (!pyext::is_class_bound<signalT>())
+        {
         pybind11::class_<typename signalT::tokenT>(pybind11::handle(), "SignalToken", pybind11::module_local());
 
         pybind11::class_<signalT, pyext::nogil_shared_ptr<signalT>>(pybind11::handle(), "Signal", pybind11::module_local())
