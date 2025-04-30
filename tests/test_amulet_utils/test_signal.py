@@ -207,7 +207,7 @@ class SignalTestCase(TestCase):
         def callback():
             nonlocal call_count
             call_count += 1
-            raise Exception()
+            raise Exception("The following output is intended")
 
         token = cls.signal_0.connect(callback)
         cls.signal_0.emit()
