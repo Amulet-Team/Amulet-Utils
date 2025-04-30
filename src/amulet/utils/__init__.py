@@ -1,5 +1,7 @@
 from . import _version
-__version__ = _version.get_versions()['version']
+
+__version__ = _version.get_versions()["version"]
+
 
 def _init() -> None:
     import os
@@ -21,5 +23,6 @@ def _init() -> None:
     from ._utils import init
 
     init(sys.modules[__name__])
+
 
 _init()
