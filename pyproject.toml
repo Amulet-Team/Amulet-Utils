@@ -12,7 +12,7 @@ authors = [
     {name = "James Clare"},
 ]
 description = "A C++ utility library with a python wrapper."
-dynamic = ["version", "readme"]
+dynamic = ["version", "readme", "dependencies"]
 requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",

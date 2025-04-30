@@ -15,8 +15,6 @@ def fix_path(path: str) -> str:
 
 dependencies = [
     "amulet-compiler-target==1.0",
-    "numpy>=1.17,<3.0",
-    "amulet_io==1.0.0a0",
 ]
 setup_args = {}
 
