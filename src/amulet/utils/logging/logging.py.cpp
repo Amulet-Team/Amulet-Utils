@@ -25,14 +25,14 @@ void init_logging(py::module m_parent)
         py::doc("Unregister the default log handler.\n"
                 "Thread safe."));
     m.def(
-        "get_log_level",
-        &Amulet::get_log_level,
+        "get_min_log_level",
+        &Amulet::get_min_log_level,
         py::doc("Get the maximum message level that will be logged.\n"
                 "Registered handlers may be more strict.\n"
                 "Thread safe."));
     m.def(
-        "set_log_level",
-        &Amulet::set_log_level,
+        "set_min_log_level",
+        &Amulet::set_min_log_level,
         py::arg("level"),
         py::doc("Set the maximum message level that will be logged.\n"
                 "Registered handlers may be more strict.\n"
