@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import amulet.utils.signal
 
+from . import _logging
+
 __all__ = [
     "get_logger",
     "get_min_log_level",

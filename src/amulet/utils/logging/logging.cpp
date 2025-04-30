@@ -15,7 +15,8 @@ static void default_log_handler(int level, const std::string& msg)
     std::cout << msg << std::endl;
 }
 
-Amulet::Signal<int, std::string>& get_logger() {
+Amulet::Signal<int, std::string>& get_logger()
+{
     static Amulet::Signal<int, std::string> logger;
     return logger;
 }

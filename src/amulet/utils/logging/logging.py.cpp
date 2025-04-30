@@ -45,4 +45,6 @@ void init_logging(py::module m_parent)
         []() -> Amulet::PySignal<int, std::string> { return py::cast(Amulet::get_logger(), py::return_value_policy::reference); },
         py::doc("Get the logger signal.\n"
                 "This is emitted with the message and its level every time a message is logged."));
+
+    py::module::import("amulet.utils.logging._logging");
 }
