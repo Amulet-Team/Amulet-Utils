@@ -9,15 +9,21 @@ from . import get_logger, unregister_default_log_handler, register_default_log_h
 
 # Connect to python's logging module
 logger = logging.getLogger("amulet.logging")
+
+
 def on_msg(level: int, msg: str) -> None:
     logger.log(level, msg)
+
+
 logging_token = get_logger().connect(on_msg)
+
 
 def python_shutdown() -> None:
     # On python shutdown, disconnect the logger so it can't get called after python has shut down.
     get_logger().disconnect(logging_token)
     # Reconnect the default logger to get logging after python has shut down.
     register_default_log_handler()
+
 
 atexit.register(python_shutdown)
 
