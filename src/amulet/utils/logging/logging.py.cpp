@@ -25,24 +25,24 @@ void init_logging(py::module m_parent)
         py::doc("Unregister the default log handler.\n"
                 "Thread safe."));
     m.def(
-        "get_default_log_level",
-        &Amulet::get_default_log_level,
-        py::doc("Get the log level used by the default logger.\n"
-                "The default logger will only log messages with a level at least this large.\n"
+        "get_log_level",
+        &Amulet::get_log_level,
+        py::doc("Get the maximum message level that will be logged.\n"
+                "Registered handlers may be more strict.\n"
                 "Thread safe."));
     m.def(
-        "set_default_log_level",
-        &Amulet::set_default_log_level,
+        "set_log_level",
+        &Amulet::set_log_level,
         py::arg("level"),
-        py::doc("Set the log level used by the default logger.\n"
-                "The default logger will only log messages with a level at least this large.\n"
+        py::doc("Set the maximum message level that will be logged.\n"
+                "Registered handlers may be more strict.\n"
                 "Thread safe."));
 
     Amulet::create_signal_binding<Amulet::Signal<int, std::string>>();
 
     m.def(
         "get_logger",
-        []() -> Amulet::PySignal<int, std::string> { return py::cast(Amulet::logger, py::return_value_policy::reference); },
+        []() -> Amulet::PySignal<int, std::string> { return py::cast(Amulet::get_logger(), py::return_value_policy::reference); },
         py::doc("Get the logger signal.\n"
                 "This is emitted with the message and its level every time a message is logged."));
 }

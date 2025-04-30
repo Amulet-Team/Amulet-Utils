@@ -16,21 +16,22 @@ AMULET_UTILS_EXPORT void register_default_log_handler();
 // Thread safe.
 AMULET_UTILS_EXPORT void unregister_default_log_handler();
 
-// Get the log level used by the default logger.
-// The default logger will only log messages with a level at least this large.
+// Get the maximum message level that will be logged.
+// Registered handlers may be more strict.
 // Thread safe.
-AMULET_UTILS_EXPORT int get_default_log_level();
+AMULET_UTILS_EXPORT int get_log_level();
 
-// Set the log level used by the default logger.
-// The default logger will only log messages with a level at least this large.
+// Set the maximum message level that will be logged.
+// Registered handlers may be more strict.
 // Thread safe.
-AMULET_UTILS_EXPORT void set_default_log_level(int);
+AMULET_UTILS_EXPORT void set_log_level(int);
 
-// The logger signal.
+// Get the logger signal.
 // This is emitted with the message and its level every time a message is logged.
-AMULET_UTILS_EXPORT extern Signal<int, std::string> logger;
+AMULET_UTILS_EXPORT Signal<int, std::string>& get_logger();
 
 // Log a message with a custom level.
+// If the level is less than the configured log level this will do nothing.
 // Thread safe.
 AMULET_UTILS_EXPORT void log(int level, const std::string& msg);
 

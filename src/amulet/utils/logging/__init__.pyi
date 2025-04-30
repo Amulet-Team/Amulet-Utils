@@ -3,17 +3,17 @@ from __future__ import annotations
 import amulet.utils.signal
 
 __all__ = [
-    "get_default_log_level",
+    "get_log_level",
     "get_logger",
     "register_default_log_handler",
-    "set_default_log_level",
+    "set_log_level",
     "unregister_default_log_handler",
 ]
 
-def get_default_log_level() -> int:
+def get_log_level() -> int:
     """
-    Get the log level used by the default logger.
-    The default logger will only log messages with a level at least this large.
+    Get the maximum message level that will be logged.
+    Registered handlers may be more strict.
     Thread safe.
     """
 
@@ -30,10 +30,10 @@ def register_default_log_handler() -> None:
     Thread safe.
     """
 
-def set_default_log_level(level: int) -> None:
+def set_log_level(level: int) -> None:
     """
-    Set the log level used by the default logger.
-    The default logger will only log messages with a level at least this large.
+    Set the maximum message level that will be logged.
+    Registered handlers may be more strict.
     Thread safe.
     """
 
