@@ -1,5 +1,5 @@
-# Amulet-Logging-Signal
+# Amulet-Utils
 
-A C++ library with a python wrapper containing a basic message logging system and a signal class for event processing.
+A C++ utility library with a python wrapper.
 
-I wanted to release these separately but they depend on each other.
+Included is a basic logging system, a signal class for event processing and weak container classes. 
