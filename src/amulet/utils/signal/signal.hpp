@@ -2,7 +2,6 @@
 
 #include <condition_variable>
 #include <functional>
-#include <iostream>
 #include <list>
 #include <mutex>
 #include <thread>
@@ -206,7 +205,7 @@ public:
         if (!null_storage.empty()) {
             // Remove null storage pointers.
             std::lock_guard lock(_mutex);
-            for (const auto& ptr : null_storage) { 
+            for (const auto& ptr : null_storage) {
                 _callbacks.erase(ptr);
             }
         }

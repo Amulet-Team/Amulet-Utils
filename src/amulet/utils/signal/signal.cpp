@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <iostream>
 
 #include <amulet/utils/logging/logging.hpp>
 
@@ -15,13 +16,17 @@ namespace detail {
 
     EventLoop::~EventLoop()
     {
-        Amulet::debug("EventLoop::~EventLoop() enter");
+        if (get_min_log_level() <= 10) {
+            std::cout << "EventLoop::~EventLoop() enter" << std::endl;
+        }
         exit();
     }
 
     void EventLoop::exit()
     {
-        Amulet::debug("EventLoop::exit()");
+        if (get_min_log_level() <= 10) {
+            std::cout << "EventLoop::exit()" << std::endl;
+        }
         {
             std::unique_lock lock(_mutex);
             if (_exit) {
@@ -30,9 +35,13 @@ namespace detail {
             _exit = true;
             _condition.notify_one();
         }
-        Amulet::debug("EventLoop::exit() join");
+        if (get_min_log_level() <= 10) {
+            std::cout << "EventLoop::exit() join" << std::endl;
+        }
         _thread.join();
-        Amulet::debug("EventLoop::exit() exit");
+        if (get_min_log_level() <= 10) {
+            std::cout << "EventLoop::exit() exit" << std::endl;
+        }
     }
 
     void EventLoop::_event_loop()
@@ -56,6 +65,9 @@ namespace detail {
                 Amulet::error("Unhandled exception in event loop.");
             }
             lock.lock();
+        }
+        if (get_min_log_level() <= 10) {
+            std::cout << "Exiting event loop" << std::endl;
         }
     }
 
