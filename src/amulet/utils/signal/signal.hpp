@@ -11,6 +11,7 @@
 
 namespace Amulet {
 
+AMULET_UTILS_EXPORT void debug(const std::string& msg);
 AMULET_UTILS_EXPORT void error(const std::string& msg);
 
 enum class ConnectionMode {
@@ -163,7 +164,7 @@ public:
             }
             switch (storage->mode) {
             case ConnectionMode::Direct: {
-                Amulet::debug("DirectEmit");
+                debug("DirectEmit");
                 std::lock_guard storage_lock(storage->mutex);
                 if (storage->disconnected) {
                     // The callback was disconnected between getting the callback and processing it.
@@ -178,7 +179,7 @@ public:
                 }
             } break;
             case ConnectionMode::Async: {
-                Amulet::debug("AsyncEmit");
+                debug("AsyncEmit");
                 if (!async_args) {
                     async_args = std::make_shared<std::tuple<Args...>>(std::forward<Args>(args)...);
                 }
