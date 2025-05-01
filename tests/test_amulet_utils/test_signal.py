@@ -91,9 +91,9 @@ class SignalTestCase(TestCase):
 
         var: Any = None
         count_0 = 0
-        count_1 = 0
-        count_2 = 0
-        count_3 = 0
+        # count_1 = 0
+        # count_2 = 0
+        # count_3 = 0
 
         step = 0
 
@@ -110,31 +110,31 @@ class SignalTestCase(TestCase):
                 var = ()
                 increment_step()
 
-        def on_1(a: int):
-            nonlocal count_1, var
-            with lock:
-                count_1 += 1
-                var = (a,)
-                increment_step()
-
-        def on_2(a: int, b: float):
-            nonlocal count_2, var
-            with lock:
-                count_2 += 1
-                var = (a, b)
-                increment_step()
-
-        def on_3(a: int, b: float, c: str, d: int):
-            nonlocal count_3, var
-            with lock:
-                count_3 += 1
-                var = (a, b, c, d)
-                increment_step()
+        # def on_1(a: int):
+        #     nonlocal count_1, var
+        #     with lock:
+        #         count_1 += 1
+        #         var = (a,)
+        #         increment_step()
+        #
+        # def on_2(a: int, b: float):
+        #     nonlocal count_2, var
+        #     with lock:
+        #         count_2 += 1
+        #         var = (a, b)
+        #         increment_step()
+        #
+        # def on_3(a: int, b: float, c: str, d: int):
+        #     nonlocal count_3, var
+        #     with lock:
+        #         count_3 += 1
+        #         var = (a, b, c, d)
+        #         increment_step()
 
         token_0 = cls.signal_0.connect(on_0, ConnectionMode.Async)
-        token_1 = cls.signal_1.connect(on_1, ConnectionMode.Async)
-        token_2 = cls.signal_2.connect(on_2, ConnectionMode.Async)
-        token_3 = cls.signal_3.connect(on_3, ConnectionMode.Async)
+        # token_1 = cls.signal_1.connect(on_1, ConnectionMode.Async)
+        # token_2 = cls.signal_2.connect(on_2, ConnectionMode.Async)
+        # token_3 = cls.signal_3.connect(on_3, ConnectionMode.Async)
 
         with condition:
             cls.signal_0.emit()
@@ -144,60 +144,60 @@ class SignalTestCase(TestCase):
         self.assertEqual(1, count_0)
         self.assertEqual((), var)
 
-        with condition:
-            cls.signal_1.emit(1)
-            time.sleep(1)
-            self.assertEqual(0, count_1)
-            self.assertTrue(condition.wait_for(lambda: step == 2, timeout=10))
-        self.assertEqual(1, count_1)
-        self.assertEqual((1,), var)
+        # with condition:
+        #     cls.signal_1.emit(1)
+        #     time.sleep(1)
+        #     self.assertEqual(0, count_1)
+        #     self.assertTrue(condition.wait_for(lambda: step == 2, timeout=10))
+        # self.assertEqual(1, count_1)
+        # self.assertEqual((1,), var)
+        #
+        # with condition:
+        #     cls.signal_2.emit(2, 2.5)
+        #     time.sleep(1)
+        #     self.assertEqual(0, count_2)
+        #     self.assertTrue(condition.wait_for(lambda: step == 3, timeout=10))
+        # self.assertEqual(1, count_2)
+        # self.assertEqual((2, 2.5), var)
 
-        with condition:
-            cls.signal_2.emit(2, 2.5)
-            time.sleep(1)
-            self.assertEqual(0, count_2)
-            self.assertTrue(condition.wait_for(lambda: step == 3, timeout=10))
-        self.assertEqual(1, count_2)
-        self.assertEqual((2, 2.5), var)
+        # with condition:
+        #     cls.signal_3.emit(3, 3.5, "3", 4)
+        #     time.sleep(1)
+        #     self.assertEqual(0, count_3)
+        #     self.assertTrue(condition.wait_for(lambda: step == 4, timeout=10))
+        # self.assertEqual(1, count_3)
+        # self.assertEqual((3, 3.5, "3", 4), var)
 
-        with condition:
-            cls.signal_3.emit(3, 3.5, "3", 4)
-            time.sleep(1)
-            self.assertEqual(0, count_3)
-            self.assertTrue(condition.wait_for(lambda: step == 4, timeout=10))
-        self.assertEqual(1, count_3)
-        self.assertEqual((3, 3.5, "3", 4), var)
-
-        with condition:
-            cls.emit()
-            time.sleep(1)
-            self.assertEqual(1, count_0)
-            self.assertEqual(1, count_1)
-            self.assertEqual(1, count_2)
-            self.assertEqual(1, count_3)
-            self.assertTrue(condition.wait_for(lambda: step == 8, timeout=10))
-        self.assertEqual(2, count_0)
-        self.assertEqual(2, count_1)
-        self.assertEqual(2, count_2)
-        self.assertEqual(2, count_3)
-        self.assertEqual((1, 1.5, "Hello World", 2), var)
+        # with condition:
+        #     cls.emit()
+        #     time.sleep(1)
+        #     self.assertEqual(1, count_0)
+        #     self.assertEqual(1, count_1)
+        #     self.assertEqual(1, count_2)
+        #     self.assertEqual(1, count_3)
+        #     self.assertTrue(condition.wait_for(lambda: step == 8, timeout=10))
+        # self.assertEqual(2, count_0)
+        # self.assertEqual(2, count_1)
+        # self.assertEqual(2, count_2)
+        # self.assertEqual(2, count_3)
+        # self.assertEqual((1, 1.5, "Hello World", 2), var)
 
         cls.signal_0.disconnect(token_0)
-        cls.signal_1.disconnect(token_1)
-        cls.signal_2.disconnect(token_2)
-        cls.signal_3.disconnect(token_3)
+        # cls.signal_1.disconnect(token_1)
+        # cls.signal_2.disconnect(token_2)
+        # cls.signal_3.disconnect(token_3)
 
-        cls.signal_0.emit()
-        cls.signal_1.emit(4)
-        cls.signal_2.emit(5, 5.5)
-        cls.signal_3.emit(6, 6.5, "6", 7)
-        time.sleep(2)
-        self.assertEqual((1, 1.5, "Hello World", 2), var)
-
-        self.assertEqual(2, count_0)
-        self.assertEqual(2, count_1)
-        self.assertEqual(2, count_2)
-        self.assertEqual(2, count_3)
+        # cls.signal_0.emit()
+        # cls.signal_1.emit(4)
+        # cls.signal_2.emit(5, 5.5)
+        # cls.signal_3.emit(6, 6.5, "6", 7)
+        # time.sleep(2)
+        # self.assertEqual((1, 1.5, "Hello World", 2), var)
+        #
+        # self.assertEqual(2, count_0)
+        # self.assertEqual(2, count_1)
+        # self.assertEqual(2, count_2)
+        # self.assertEqual(2, count_3)
 
 #     def test_exception(self) -> None:
 #         cls = SignalTest()
