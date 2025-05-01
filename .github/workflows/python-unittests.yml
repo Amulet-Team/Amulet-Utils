@@ -45,7 +45,7 @@ jobs:
 
       - name: Build Amulet-Utils
         run: |
-          pip install -vv .[dev]
+          pip install -v .[dev]
           python tests/compile.py
 
       - name: Test with unittest
@@ -109,7 +109,7 @@ jobs:
       env:
         AMULET_FREEZE_COMPILER: 1
       run: |
-        pip install -vv .[dev]
+        pip install -v .[dev]
         python tests/compile.py
 
     - name: Test with unittest
@@ -147,7 +147,7 @@ jobs:
 
       - name: Build Amulet-Utils
         run: |
-          pip install -vv .[dev]
+          pip install -v .[dev]
           python tests/compile.py
 
       - name: Test with unittest
