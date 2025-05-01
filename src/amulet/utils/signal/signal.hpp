@@ -164,6 +164,7 @@ public:
             }
             switch (storage->mode) {
             case ConnectionMode::Direct: {
+                std::cout << "DirectEmit" << std::endl;
                 std::lock_guard storage_lock(storage->mutex);
                 if (storage->disconnected) {
                     // The callback was disconnected between getting the callback and processing it.
@@ -178,6 +179,7 @@ public:
                 }
             } break;
             case ConnectionMode::Async: {
+                std::cout << "AsyncEmit" << std::endl;
                 if (!async_args) {
                     async_args = std::make_shared<std::tuple<Args...>>(std::forward<Args>(args)...);
                 }
@@ -206,7 +208,7 @@ public:
         if (!null_storage.empty()) {
             // Remove null storage pointers.
             std::lock_guard lock(_mutex);
-            for (const auto& ptr : null_storage) { 
+            for (const auto& ptr : null_storage) {
                 _callbacks.erase(ptr);
             }
         }
