@@ -199,7 +199,6 @@ class SignalTestCase(TestCase):
         self.assertEqual(2, count_2)
         self.assertEqual(2, count_3)
 
-
     def test_exception(self) -> None:
         cls = SignalTest()
 
