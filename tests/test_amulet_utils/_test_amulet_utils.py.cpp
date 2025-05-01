@@ -8,6 +8,7 @@ namespace pyext = Amulet::pybind11_extensions;
 
 void init_test_signal(py::module);
 void init_test_logging(py::module);
+void init_test_weak(py::module);
 
 void init_module(py::module m){
     auto amulet_utils = py::module::import("amulet.utils");
@@ -17,6 +18,7 @@ void init_module(py::module m){
 
     init_test_signal(m);
     init_test_logging(m);
+    init_test_weak(m);
 }
 
 PYBIND11_MODULE(_test_amulet_utils, m) {
