@@ -2,6 +2,7 @@
 
 #include <condition_variable>
 #include <functional>
+#include <iostream>
 #include <list>
 #include <mutex>
 #include <thread>
@@ -11,7 +12,6 @@
 
 namespace Amulet {
 
-AMULET_UTILS_EXPORT void debug(const std::string& msg);
 AMULET_UTILS_EXPORT void error(const std::string& msg);
 
 enum class ConnectionMode {
@@ -164,7 +164,7 @@ public:
             }
             switch (storage->mode) {
             case ConnectionMode::Direct: {
-                debug("DirectEmit");
+                std::cout << "DirectEmit" << std::endl;
                 std::lock_guard storage_lock(storage->mutex);
                 if (storage->disconnected) {
                     // The callback was disconnected between getting the callback and processing it.
@@ -179,7 +179,7 @@ public:
                 }
             } break;
             case ConnectionMode::Async: {
-                debug("AsyncEmit");
+                std::cout << "AsyncEmit" << std::endl;
                 if (!async_args) {
                     async_args = std::make_shared<std::tuple<Args...>>(std::forward<Args>(args)...);
                 }
