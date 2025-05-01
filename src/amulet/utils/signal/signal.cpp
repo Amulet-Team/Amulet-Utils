@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <iostream>
 
 #include <amulet/utils/logging/logging.hpp>
 
@@ -15,13 +16,17 @@ namespace detail {
 
     EventLoop::~EventLoop()
     {
-        Amulet::debug("EventLoop::~EventLoop() enter");
+        if (10 <= get_min_log_level()) {
+            std::cout << "EventLoop::~EventLoop() enter" << std::endl;
+        }
         exit();
     }
 
     void EventLoop::exit()
     {
-        Amulet::debug("EventLoop::exit()");
+        if (10 <= get_min_log_level()) {
+            std::cout << "EventLoop::exit()" << std::endl;
+        }
         {
             std::unique_lock lock(_mutex);
             if (_exit) {
@@ -30,9 +35,13 @@ namespace detail {
             _exit = true;
             _condition.notify_one();
         }
-        Amulet::debug("EventLoop::exit() join");
+        if (10 <= get_min_log_level()) {
+            std::cout << "EventLoop::exit() join" << std::endl;
+        }
         _thread.join();
-        Amulet::debug("EventLoop::exit() exit");
+        if (10 <= get_min_log_level()) {
+            std::cout << "EventLoop::exit() exit" << std::endl;
+        }
     }
 
     void EventLoop::_event_loop()
@@ -59,7 +68,9 @@ namespace detail {
                 lock.lock();
             }
         }
-        Amulet::debug("Exiting event loop");
+        if (10 <= get_min_log_level()) {
+            std::cout << "Exiting event loop" << std::endl;
+        }
     }
 
     void EventLoop::submit(std::function<void()> event)
