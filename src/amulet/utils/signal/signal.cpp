@@ -16,7 +16,7 @@ namespace detail {
 
     EventLoop::~EventLoop()
     {
-        if (10 <= get_min_log_level()) {
+        if (get_min_log_level() <= 10) {
             std::cout << "EventLoop::~EventLoop() enter" << std::endl;
         }
         exit();
@@ -24,7 +24,7 @@ namespace detail {
 
     void EventLoop::exit()
     {
-        if (10 <= get_min_log_level()) {
+        if (get_min_log_level() <= 10) {
             std::cout << "EventLoop::exit()" << std::endl;
         }
         {
@@ -35,11 +35,11 @@ namespace detail {
             _exit = true;
             _condition.notify_one();
         }
-        if (10 <= get_min_log_level()) {
+        if (get_min_log_level() <= 10) {
             std::cout << "EventLoop::exit() join" << std::endl;
         }
         _thread.join();
-        if (10 <= get_min_log_level()) {
+        if (get_min_log_level() <= 10) {
             std::cout << "EventLoop::exit() exit" << std::endl;
         }
     }
@@ -68,7 +68,7 @@ namespace detail {
                 lock.lock();
             }
         }
-        if (10 <= get_min_log_level()) {
+        if (get_min_log_level() <= 10) {
             std::cout << "Exiting event loop" << std::endl;
         }
     }
