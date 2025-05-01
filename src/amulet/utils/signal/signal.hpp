@@ -178,7 +178,7 @@ public:
             } break;
             case ConnectionMode::Async: {
                 if (!async_args) {
-                    async_args = std::make_shared<std::tuple<Args...>>(std::forward<Args>(args)...);
+                    async_args = std::make_shared<std::tuple<Args...>>(args...);
                 }
                 detail::get_global_event_loop().submit([async_args, ptr]() {
                     auto storage = ptr.lock();

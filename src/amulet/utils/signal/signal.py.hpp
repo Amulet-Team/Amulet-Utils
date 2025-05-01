@@ -4,9 +4,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/typing.h>
 
+#include <memory>
+
 #include "signal.hpp"
-#include <amulet/pybind11_extensions/pybind11.hpp>
 #include <amulet/pybind11_extensions/nogil_holder.hpp>
+#include <amulet/pybind11_extensions/pybind11.hpp>
 
 namespace py = pybind11;
 namespace pyext = Amulet::pybind11_extensions;
@@ -29,18 +31,35 @@ class PySignalToken : public py::object {
 template <typename signalT>
 void create_signal_binding()
 {
-    if (!pyext::is_class_bound<signalT>())
-        {
+    if (!pyext::is_class_bound<signalT>()) {
         pybind11::class_<typename signalT::tokenT>(pybind11::handle(), "SignalToken", pybind11::module_local());
 
         pybind11::class_<signalT, pyext::nogil_shared_ptr<signalT>>(pybind11::handle(), "Signal", pybind11::module_local())
             .def(
-                "connect", 
-                &signalT::connect, 
+                "connect",
+                [](signalT& self, typename signalT::callbackT callback, ConnectionMode mode) {
+                    // Bad things happen if this is called after python shuts down.
+                    // Add a wrapper to make sure python is still running.
+                    auto py_shut_down = std::make_shared<bool>(false);
+                    auto atexit = py::module::import("atexit");
+                    atexit.attr("register")(
+                        py::cpp_function([py_shut_down]() {
+                            (*py_shut_down) = true;
+                        }));
+                    auto callback_wrapper = [callback, py_shut_down](auto... args) {
+                        if (*py_shut_down) {
+                            throw std::runtime_error(
+                                "Cannot execute Python function connected to signal because the Python interpreter has been shut down. "
+                                "Python callbacks must be disconnected before the interpreter shuts down.");
+                        } else {
+                            callback(args...);
+                        }
+                    };
+                    py::gil_scoped_release nogil;
+                    return self.connect(callback_wrapper, mode);
+                },
                 py::arg("callback"),
-                py::arg("mode") = Amulet::ConnectionMode::Direct,
-                py::call_guard<py::gil_scoped_release>()
-            )
+                py::arg("mode") = Amulet::ConnectionMode::Direct)
             .def("disconnect", &signalT::disconnect, py::call_guard<py::gil_scoped_release>())
             .def("emit", &signalT::emit, py::call_guard<py::gil_scoped_release>());
     }
