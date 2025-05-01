@@ -46,7 +46,6 @@ void create_signal_binding()
                         py::cpp_function([py_shut_down]() {
                             (*py_shut_down) = true;
                         }));
-                    py::gil_scoped_release nogil;
                     auto callback_wrapper = [callback, py_shut_down](auto... args) {
                         if (*py_shut_down) {
                             throw std::runtime_error(
@@ -56,6 +55,7 @@ void create_signal_binding()
                             callback(args...);
                         }
                     };
+                    py::gil_scoped_release nogil;
                     return self.connect(callback_wrapper, mode);
                 },
                 py::arg("callback"),
