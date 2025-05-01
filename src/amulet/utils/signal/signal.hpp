@@ -2,7 +2,6 @@
 
 #include <condition_variable>
 #include <functional>
-#include <iostream>
 #include <list>
 #include <mutex>
 #include <thread>
@@ -164,7 +163,6 @@ public:
             }
             switch (storage->mode) {
             case ConnectionMode::Direct: {
-                std::cout << "DirectEmit" << std::endl;
                 std::lock_guard storage_lock(storage->mutex);
                 if (storage->disconnected) {
                     // The callback was disconnected between getting the callback and processing it.
@@ -179,7 +177,6 @@ public:
                 }
             } break;
             case ConnectionMode::Async: {
-                std::cout << "AsyncEmit" << std::endl;
                 if (!async_args) {
                     async_args = std::make_shared<std::tuple<Args...>>(std::forward<Args>(args)...);
                 }
