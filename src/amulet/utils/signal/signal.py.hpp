@@ -4,7 +4,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/typing.h>
 
-#include <iostream>
 #include <memory>
 
 #include "signal.hpp"
@@ -50,12 +49,10 @@ void create_signal_binding()
                     py::gil_scoped_release nogil;
                     auto callback_wrapper = [callback, py_shut_down](auto... args) {
                         if (*py_shut_down) {
-                            std::cout << "pyfunc invalid" << std::endl;
                             throw std::runtime_error(
                                 "Cannot execute Python function connected to signal because the Python interpreter has been shut down. "
                                 "Python callbacks must be disconnected before the interpreter shuts down.");
                         } else {
-                            std::cout << "calling pyfunc" << std::endl;
                             callback(args...);
                         }
                     };
