@@ -2,43 +2,33 @@
 
 #include <list>
 #include <memory>
+#include <ranges>
 #include <set>
 
-namespace Amulet {
+#include <amulet/utils/memory.hpp>
 
-namespace detail {
-    template <typename C, typename T>
-    void for_each(C& l, std::function<void(T&)> f)
-    {
-        auto it = l.begin();
-        while (it != l.end()) {
-            auto ptr = it->lock();
-            if (ptr) {
-                f(*ptr);
-                it++;
-            } else {
-                it = l.erase(it);
-            }
-        }
-    }
-}
+namespace Amulet {
 
 template <typename T>
 using WeakList = std::list<std::weak_ptr<T>>;
 
 template <typename T>
-void for_each(WeakList<T>& l, std::function<void(T&)> f)
-{
-    detail::for_each(l, f);
-}
-
-template <typename T>
 using WeakSet = std::set<std::weak_ptr<T>, std::owner_less<std::weak_ptr<T>>>;
 
-template <typename T>
-void for_each(WeakSet<T>& s, std::function<void(T&)> f)
+template <typename WeakT>
+    requires std::ranges::input_range<WeakT> && is_weak_ptr_v<std::ranges::range_value_t<WeakT>>
+void for_each(WeakT& sequence, std::function<void(typename std::ranges::range_value_t<WeakT>::element_type&)> callback)
 {
-    detail::for_each(s, f);
+    auto it = sequence.begin();
+    while (it != sequence.end()) {
+        auto ptr = it->lock();
+        if (ptr) {
+            callback(*ptr);
+            it++;
+        } else {
+            it = sequence.erase(it);
+        }
+    }
 }
 
 } // namespace Amulet
