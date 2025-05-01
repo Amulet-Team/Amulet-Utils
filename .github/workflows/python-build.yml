@@ -1,0 +1,69 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Build
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ '3.11', '3.12', '3.13' ]
+        os: [ macos-13, windows-latest ]
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Clone Amulet-Utils
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        pip cache purge
+        python -m pip install --upgrade pip
+        pip install build twine
+
+    - name: Clone Amulet-Compiler-Version
+      uses: actions/checkout@v4
+      with:
+        repository: 'Amulet-Team/Amulet-Compiler-Version'
+        ref: '1.0'
+        path: 'build/pylib/Amulet-Compiler-Version'
+
+    - name: Build Amulet-Compiler-Version
+      env:
+        BUILD_SPECIALISED: 1
+      run: |
+        python -m build build/pylib/Amulet-Compiler-Version
+
+    - name: Publish Amulet-Compiler-Version
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.AMULET_COMPILER_VERSION_PYPI_PASSWORD }}
+      run: |
+        twine upload build/pylib/Amulet-Compiler-Version/dist/* --skip-existing
+
+    - name: Build Amulet-Utils
+      env:
+        AMULET_FREEZE_COMPILER: 1
+      run: |
+        python -m build .
+
+    - name: Publish Amulet-Utils
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.AMULET_UTILS_PYPI_PASSWORD }}
+      run: |
+        twine upload dist/* --skip-existing
