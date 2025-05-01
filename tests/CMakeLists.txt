@@ -21,6 +21,7 @@ endif()
 find_package(pybind11 CONFIG REQUIRED)
 find_package(amulet_pybind11_extensions CONFIG REQUIRED)
 find_package(amulet_utils CONFIG REQUIRED)
+find_package(amulet_test_utils CONFIG REQUIRED)
 
 # Find sources
 file(GLOB_RECURSE TEST_AMULET_SOURCES LIST_DIRECTORIES false "${CMAKE_CURRENT_LIST_DIR}/*.py.cpp")
@@ -32,6 +33,7 @@ target_compile_definitions(_test_amulet_utils PRIVATE COMPILER_ID="${CMAKE_CXX_C
 target_compile_definitions(_test_amulet_utils PRIVATE COMPILER_VERSION="${CMAKE_CXX_COMPILER_VERSION}")
 target_link_libraries(_test_amulet_utils PRIVATE amulet_pybind11_extensions)
 target_link_libraries(_test_amulet_utils PRIVATE amulet_utils)
+target_link_libraries(_test_amulet_utils PRIVATE amulet_test_utils)
 target_sources(_test_amulet_utils PRIVATE ${TEST_AMULET_SOURCES})
 foreach(FILE ${TEST_AMULET_SOURCES})
     file(RELATIVE_PATH REL_PATH ${CMAKE_CURRENT_LIST_DIR} ${FILE})
