@@ -22,7 +22,7 @@ class LoggingTestCase(TestCase):
                 (30, "warning msg"),
                 (40, "error msg"),
                 (50, "critical msg"),
-                *[(i, str(i)) for i in range(0, 60, 5)]
+                *[(i, str(i)) for i in range(0, 60, 5)],
             ],
             messages,
         )
