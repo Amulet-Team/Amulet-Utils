@@ -4,8 +4,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/typing.h>
 
-#include <iostream>
-
 #include "signal.hpp"
 #include <amulet/pybind11_extensions/pybind11.hpp>
 #include <amulet/pybind11_extensions/nogil_holder.hpp>
