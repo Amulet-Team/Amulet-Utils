@@ -38,3 +38,20 @@ class LoggingTestCase(TestCase):
         self.assertEqual(0, get_min_log_level())
         set_min_log_level(10)
         self.assertEqual(10, get_min_log_level())
+
+    def test_recursive(self) -> None:
+        from amulet.utils.logging import get_logger
+
+        count = 0
+
+        def on_msg(level, msg):
+            nonlocal count
+            if count < 3:
+                count += 1
+                get_logger().emit(20, "Hello World!")
+
+        token = get_logger().connect(on_msg)
+
+        get_logger().emit(20, "Hello World")
+
+        self.assertEqual(3, count)
