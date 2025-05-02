@@ -6,6 +6,7 @@
 namespace py = pybind11;
 namespace pyext = Amulet::pybind11_extensions;
 
+void init_task_manager(py::module);
 void init_signal(py::module);
 void init_logging(py::module);
 
@@ -20,6 +21,7 @@ void init_module(py::module m)
 
     // Submodules
     init_signal(m);
+    init_task_manager(m);
     init_logging(m);
 }
 

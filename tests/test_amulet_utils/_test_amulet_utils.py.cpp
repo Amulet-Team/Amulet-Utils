@@ -6,9 +6,10 @@
 namespace py = pybind11;
 namespace pyext = Amulet::pybind11_extensions;
 
+void init_test_weak(py::module);
 void init_test_signal(py::module);
 void init_test_logging(py::module);
-void init_test_weak(py::module);
+void init_test_task_manager(py::module);
 
 void init_module(py::module m){
     auto amulet_utils = py::module::import("amulet.utils");
@@ -16,9 +17,10 @@ void init_module(py::module m){
     pyext::init_compiler_config(m);
     pyext::check_compatibility(amulet_utils, m);
 
+    init_test_weak(m);
     init_test_signal(m);
     init_test_logging(m);
-    init_test_weak(m);
+    init_test_task_manager(m);
 }
 
 PYBIND11_MODULE(_test_amulet_utils, m) {
