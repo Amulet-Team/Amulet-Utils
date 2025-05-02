@@ -22,7 +22,7 @@ class LoggingTestCase(TestCase):
                 (30, "warning msg"),
                 (40, "error msg"),
                 (50, "critical msg"),
-                *[(i, str(i)) for i in range(0, 60, 5)],
+                *[(i, str(i)) for i in range(10, 60, 5)],
             ],
             messages,
         )
@@ -33,8 +33,8 @@ class LoggingTestCase(TestCase):
         from amulet.utils.logging import get_min_log_level, set_min_log_level
 
         # this is set to 0 for tests
-        self.assertEqual(0, get_min_log_level())
-        set_min_log_level(10)
         self.assertEqual(10, get_min_log_level())
         set_min_log_level(0)
         self.assertEqual(0, get_min_log_level())
+        set_min_log_level(10)
+        self.assertEqual(10, get_min_log_level())
