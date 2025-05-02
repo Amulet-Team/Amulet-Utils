@@ -180,7 +180,7 @@ public:
                 } catch (const std::exception& e) {
                     error(std::string("Error in callback: ") + e.what());
                 } catch (...) {
-                    error(std::string("Error in callback."));
+                    error("Error in callback.");
                 }
             } break;
             case ConnectionMode::Async: {
@@ -203,7 +203,7 @@ public:
                     } catch (const std::exception& e) {
                         error(std::string("Error in callback: ") + e.what());
                     } catch (...) {
-                        error(std::string("Error in callback."));
+                        error("Error in callback.");
                     }
                 });
             } break;
