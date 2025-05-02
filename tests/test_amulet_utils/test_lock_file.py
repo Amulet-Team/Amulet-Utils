@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 import os
 from multiprocessing import Queue, Process
 
-from test_amulet.test_util.test_lock_file_ import (
+from test_amulet_utils.test_lock_file_ import (
     test_lock_file,
     create_test_file,
     unlock_test_file,
