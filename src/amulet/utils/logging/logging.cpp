@@ -22,7 +22,7 @@ static std::mutex& get_default_log_mutex() {
     return log_mutex;
 }
 
-static Amulet::SignalToken<int, std::string> get_default_log_handler_token() {
+static Amulet::SignalToken<int, std::string>& get_default_log_handler_token() {
     static Amulet::SignalToken<int, std::string> default_log_handler_token;
     return default_log_handler_token;
 }
