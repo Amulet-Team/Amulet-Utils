@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 
 #include <amulet/utils/dll.hpp>
@@ -59,5 +60,14 @@ AMULET_UTILS_EXPORT void error(const std::string& msg);
 AMULET_UTILS_EXPORT void critical(const std::string& msg);
 
 }
+
+// Some places can't use the normal logging system.
+// This macro can be used to log directly.
+#define Log(level, msg)                     \
+    {                                       \
+        if (get_min_log_level() <= level) { \
+            std::cout << msg << std::endl;  \
+        }                                   \
+    }
 
 #include <amulet/utils/signal/signal.hpp>
