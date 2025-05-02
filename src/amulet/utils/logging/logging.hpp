@@ -1,11 +1,15 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 
 #include <amulet/utils/dll.hpp>
-#include <amulet/utils/signal/signal.hpp>
 
 namespace Amulet {
+
+// Forward declare Signal
+template <typename... Args>
+class Signal;
 
 // Register the default log handler.
 // This is registered by default with a log level of 20.
@@ -19,7 +23,7 @@ AMULET_UTILS_EXPORT void unregister_default_log_handler();
 // Get the maximum message level that will be logged.
 // Registered handlers may be more strict.
 // Thread safe.
-AMULET_UTILS_EXPORT int get_min_log_level();
+AMULET_UTILS_EXPORT int& get_min_log_level();
 
 // Set the maximum message level that will be logged.
 // Registered handlers may be more strict.
@@ -56,3 +60,14 @@ AMULET_UTILS_EXPORT void error(const std::string& msg);
 AMULET_UTILS_EXPORT void critical(const std::string& msg);
 
 }
+
+// Some places can't use the normal logging system.
+// This macro can be used to log directly.
+#define Log(level, msg)                     \
+    {                                       \
+        if (get_min_log_level() <= level) { \
+            std::cout << msg << std::endl;  \
+        }                                   \
+    }
+
+#include <amulet/utils/signal/signal.hpp>
