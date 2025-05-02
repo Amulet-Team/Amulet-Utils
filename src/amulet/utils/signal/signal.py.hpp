@@ -6,9 +6,12 @@
 
 #include <memory>
 
-#include "signal.hpp"
 #include <amulet/pybind11_extensions/nogil_holder.hpp>
 #include <amulet/pybind11_extensions/pybind11.hpp>
+
+#include <amulet/utils/python.hpp>
+
+#include "signal.hpp"
 
 namespace py = pybind11;
 namespace pyext = Amulet::pybind11_extensions;
@@ -40,19 +43,14 @@ void create_signal_binding()
                 [](signalT& self, typename signalT::callbackT callback, ConnectionMode mode) {
                     // Bad things happen if this is called after python shuts down.
                     // Add a wrapper to make sure python is still running.
-                    auto py_shut_down = std::make_shared<bool>(false);
-                    auto atexit = py::module::import("atexit");
-                    atexit.attr("register")(
-                        py::cpp_function([py_shut_down]() {
-                            (*py_shut_down) = true;
-                        }));
-                    auto callback_wrapper = [callback, py_shut_down](auto... args) {
-                        if (*py_shut_down) {
+                    auto py_valid = get_py_valid();
+                    auto callback_wrapper = [callback, py_valid](auto... args) {
+                        if (*py_valid) {
+                            callback(args...);
+                        } else {
                             throw std::runtime_error(
                                 "Cannot execute Python function connected to signal because the Python interpreter has been shut down. "
                                 "Python callbacks must be disconnected before the interpreter shuts down.");
-                        } else {
-                            callback(args...);
                         }
                     };
                     py::gil_scoped_release nogil;
