@@ -12,6 +12,7 @@ void init_test_logging(py::module);
 void init_test_task_manager(py::module);
 void init_test_lock(py::module);
 void init_test_lock_file(py::module);
+void init_test_temp(py::module);
 
 void init_module(py::module m){
     auto amulet_utils = py::module::import("amulet.utils");
@@ -25,6 +26,7 @@ void init_module(py::module m){
     init_test_task_manager(m);
     init_test_lock(m);
     init_test_lock_file(m);
+    init_test_temp(m);
 }
 
 PYBIND11_MODULE(_test_amulet_utils, m) {
