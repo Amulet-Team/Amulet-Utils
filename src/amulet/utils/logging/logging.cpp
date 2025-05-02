@@ -6,13 +6,15 @@
 
 namespace Amulet {
 
-static int min_log_level = 20;
-
-static void default_log_handler(int level, const std::string& msg)
+int& get_min_log_level()
 {
-    static std::mutex log_mutex;
-    std::unique_lock lock(log_mutex);
-    std::cout << msg << std::endl;
+    static int min_log_level = 20;
+    return min_log_level;
+}
+
+void set_min_log_level(int level)
+{
+    get_min_log_level() = level;
 }
 
 Amulet::Signal<int, std::string>& get_logger()
@@ -21,31 +23,9 @@ Amulet::Signal<int, std::string>& get_logger()
     return logger;
 }
 
-static Amulet::SignalToken<int, std::string> default_log_handler_token = get_logger().connect(&default_log_handler);
-
-void register_default_log_handler()
-{
-    default_log_handler_token = get_logger().connect(default_log_handler);
-}
-
-void unregister_default_log_handler()
-{
-    get_logger().disconnect(default_log_handler_token);
-}
-
-int get_min_log_level()
-{
-    return min_log_level;
-}
-
-void set_min_log_level(int level)
-{
-    min_log_level = level;
-}
-
 void log(int level, const std::string& msg)
 {
-    if (min_log_level <= level) {
+    if (get_min_log_level() <= level) {
         get_logger().emit(level, msg);
     }
 }
@@ -73,6 +53,25 @@ void error(const std::string& msg)
 void critical(const std::string& msg)
 {
     log(50, msg);
+}
+
+static void default_log_handler(int level, const std::string& msg)
+{
+    static std::mutex log_mutex;
+    std::unique_lock lock(log_mutex);
+    std::cout << msg << std::endl;
+}
+
+static Amulet::SignalToken<int, std::string> default_log_handler_token = get_logger().connect(&default_log_handler);
+
+void register_default_log_handler()
+{
+    default_log_handler_token = get_logger().connect(default_log_handler);
+}
+
+void unregister_default_log_handler()
+{
+    get_logger().disconnect(default_log_handler_token);
 }
 
 } // namespace Amulet

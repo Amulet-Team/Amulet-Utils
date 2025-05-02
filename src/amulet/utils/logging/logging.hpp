@@ -7,6 +7,10 @@
 
 namespace Amulet {
 
+// Forward declare Signal in case signal.hpp could not be included above.
+template <typename... Args>
+class Signal;
+
 // Register the default log handler.
 // This is registered by default with a log level of 20.
 // Thread safe.
@@ -19,7 +23,7 @@ AMULET_UTILS_EXPORT void unregister_default_log_handler();
 // Get the maximum message level that will be logged.
 // Registered handlers may be more strict.
 // Thread safe.
-AMULET_UTILS_EXPORT int get_min_log_level();
+AMULET_UTILS_EXPORT int& get_min_log_level();
 
 // Set the maximum message level that will be logged.
 // Registered handlers may be more strict.

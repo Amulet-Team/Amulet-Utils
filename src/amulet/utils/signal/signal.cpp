@@ -12,21 +12,20 @@ namespace detail {
     EventLoop::EventLoop()
         : _thread(&EventLoop::_event_loop, this)
     {
+        // This class may call debug during shutdown.
+        // Ensure the logger outlives the EventLoop.
+        Amulet::get_logger();
     }
 
     EventLoop::~EventLoop()
     {
-        if (get_min_log_level() <= 10) {
-            std::cout << "EventLoop::~EventLoop() enter" << std::endl;
-        }
+        debug("EventLoop::~EventLoop() enter");
         exit();
     }
 
     void EventLoop::exit()
     {
-        if (get_min_log_level() <= 10) {
-            std::cout << "EventLoop::exit()" << std::endl;
-        }
+        debug("EventLoop::exit()");
         {
             std::unique_lock lock(_mutex);
             if (_exit) {
@@ -35,13 +34,9 @@ namespace detail {
             _exit = true;
             _condition.notify_one();
         }
-        if (get_min_log_level() <= 10) {
-            std::cout << "EventLoop::exit() join" << std::endl;
-        }
+        debug("EventLoop::exit() join");
         _thread.join();
-        if (get_min_log_level() <= 10) {
-            std::cout << "EventLoop::exit() exit" << std::endl;
-        }
+        debug("EventLoop::exit() exit");
     }
 
     void EventLoop::_event_loop()
@@ -66,9 +61,7 @@ namespace detail {
             }
             lock.lock();
         }
-        if (get_min_log_level() <= 10) {
-            std::cout << "Exiting event loop" << std::endl;
-        }
+        debug("Exiting event loop");
     }
 
     void EventLoop::submit(std::function<void()> event)

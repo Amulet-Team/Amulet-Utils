@@ -7,10 +7,12 @@
 #include <thread>
 
 #include <amulet/utils/dll.hpp>
+#include <amulet/utils/logging/logging.hpp>
 #include <amulet/utils/weak.hpp>
 
 namespace Amulet {
 
+// Forward declare error in case logging.hpp could not be included above.
 AMULET_UTILS_EXPORT void error(const std::string& msg);
 
 enum class ConnectionMode {
