@@ -29,20 +29,17 @@ static Amulet::SignalToken<int, std::string>& get_default_log_handler_token() {
 
 static void default_log_handler(int level, const std::string& msg)
 {
-    std::cout << "log default" << std::endl;
     std::unique_lock lock(get_default_log_mutex());
     std::cout << msg << std::endl;
 }
 
 Amulet::Signal<int, std::string>& get_logger()
 {
-    std::cout << "get_logger" << std::endl;
     // Initialise dependent global variables
     get_min_log_level();
     get_default_log_mutex();
     get_default_log_handler_token();
     static Amulet::Signal<int, std::string> logger;
-    std::cout << "got_logger" << std::endl;
     // Setup the default log handler.
     static bool init_hanler = true;
     if (init_hanler) {
@@ -54,7 +51,6 @@ Amulet::Signal<int, std::string>& get_logger()
 
 void log(int level, const std::string& msg)
 {
-    std::cout << "log" << std::endl;
     if (get_min_log_level() <= level) {
         get_logger().emit(level, msg);
     }
@@ -62,31 +58,26 @@ void log(int level, const std::string& msg)
 
 void debug(const std::string& msg)
 {
-    std::cout << "debug" << std::endl;
     log(10, msg);
 }
 
 void info(const std::string& msg)
 {
-    std::cout << "info" << std::endl;
     log(20, msg);
 }
 
 void warning(const std::string& msg)
 {
-    std::cout << "warning" << std::endl;
     log(30, msg);
 }
 
 void error(const std::string& msg)
 {
-    std::cout << "error" << std::endl;
     log(40, msg);
 }
 
 void critical(const std::string& msg)
 {
-    std::cout << "critical" << std::endl;
     log(50, msg);
 }
 
