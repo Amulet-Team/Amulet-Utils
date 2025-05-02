@@ -59,8 +59,10 @@ namespace detail {
             try {
                 event();
             } catch (const std::exception& e) {
+                std::cout << std::string("Unhandled exception in event loop: ") + e.what() << std::endl;
                 Amulet::error(std::string("Unhandled exception in event loop: ") + e.what());
             } catch (...) {
+                std::cout << "Unhandled exception in event loop." << std::endl;
                 Amulet::error("Unhandled exception in event loop.");
             }
             lock.lock();

@@ -178,8 +178,10 @@ public:
                 try {
                     storage->callback(args...);
                 } catch (const std::exception& e) {
+                    std::cout << std::string("Error in callback: ") + e.what() << std::endl;
                     error(std::string("Error in callback: ") + e.what());
                 } catch (...) {
+                    std::cout << "Error in callback." << std::endl;
                     error("Error in callback.");
                 }
             } break;
@@ -201,9 +203,11 @@ public:
                     try {
                         std::apply(storage->callback, *async_args);
                     } catch (const std::exception& e) {
-                        error(std::string("Error in callback: ") + e.what());
+                        std::cout << std::string("Error in async callback: ") + e.what() << std::endl;
+                        error(std::string("Error in async callback: ") + e.what());
                     } catch (...) {
-                        error("Error in callback.");
+                        std::cout << "Error in async callback." << std::endl;
+                        error("Error in async callback.");
                     }
                 });
             } break;
