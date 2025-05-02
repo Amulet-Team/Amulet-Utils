@@ -50,7 +50,7 @@ namespace detail {
     template <typename... Args>
     class SignalCallbackStorage {
     public:
-        std::mutex mutex;
+        std::recursive_mutex mutex;
         std::function<void(Args...)> callback;
         ConnectionMode mode;
         bool disconnected = false;
