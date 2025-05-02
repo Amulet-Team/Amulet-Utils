@@ -6,6 +6,7 @@
 namespace py = pybind11;
 namespace pyext = Amulet::pybind11_extensions;
 
+void init_numpy(py::module);
 void init_signal(py::module);
 void init_task_manager(py::module);
 void init_lock(py::module);
@@ -21,6 +22,7 @@ void init_module(py::module m)
         py::cpp_function([py_valid]() { *py_valid = false; }));
 
     // Submodules
+    init_numpy(m);
     init_signal(m);
     init_task_manager(m);
     init_lock(m);
