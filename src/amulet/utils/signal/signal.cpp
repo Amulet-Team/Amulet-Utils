@@ -19,12 +19,14 @@ namespace detail {
 
     EventLoop::~EventLoop()
     {
+        std::cout << "EventLoop::~EventLoop() enter" << std::endl;
         debug("EventLoop::~EventLoop() enter");
         exit();
     }
 
     void EventLoop::exit()
     {
+        std::cout << "EventLoop::exit()" << std::endl;
         debug("EventLoop::exit()");
         {
             std::unique_lock lock(_mutex);
@@ -34,8 +36,10 @@ namespace detail {
             _exit = true;
             _condition.notify_one();
         }
+        std::cout << "EventLoop::exit() join" << std::endl;
         debug("EventLoop::exit() join");
         _thread.join();
+        std::cout << "EventLoop::exit() exit" << std::endl;
         debug("EventLoop::exit() exit");
     }
 
@@ -61,7 +65,8 @@ namespace detail {
             }
             lock.lock();
         }
-        debug("Exiting event loop");
+        std::cout << "EventLoop::_event_loop() exit" << std::endl;
+        debug("EventLoop::_event_loop() exit");
     }
 
     void EventLoop::submit(std::function<void()> event)
