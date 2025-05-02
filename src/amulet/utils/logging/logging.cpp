@@ -19,13 +19,16 @@ void set_min_log_level(int level)
 
 Amulet::Signal<int, std::string>& get_logger()
 {
+    std::cout << "get_logger" << std::endl;
     get_min_log_level();
     static Amulet::Signal<int, std::string> logger;
+    std::cout << "got_logger" << std::endl;
     return logger;
 }
 
 void log(int level, const std::string& msg)
 {
+    std::cout << "log" << std::endl;
     if (get_min_log_level() <= level) {
         get_logger().emit(level, msg);
     }
@@ -33,6 +36,7 @@ void log(int level, const std::string& msg)
 
 void debug(const std::string& msg)
 {
+    std::cout << "debug" << std::endl;
     log(10, msg);
 }
 

@@ -2,6 +2,7 @@
 
 #include <condition_variable>
 #include <functional>
+#include <iostream>
 #include <list>
 #include <mutex>
 #include <thread>
@@ -144,6 +145,7 @@ public:
     // Thread safe.
     void emit(Args... args)
     {
+        std::cout << "emit" << std::endl;
         WeakSet<storageT> temp_callbacks;
         {
             // Copy callbacks
@@ -156,15 +158,18 @@ public:
 
         std::shared_ptr<std::tuple<Args...>> async_args;
 
+        std::cout << "calling " << temp_callbacks.size() << " callbacks" << std::endl;
         for (const auto& ptr : temp_callbacks) {
             auto storage = ptr.lock();
             if (!storage) {
+                std::cout << "skipping destroyed callback" << std::endl;
                 // The token was destroyed before calling disconnect.
                 null_storage.emplace_back(ptr);
                 continue;
             }
             switch (storage->mode) {
             case ConnectionMode::Direct: {
+                std::cout << "calling direct" << std::endl;
                 std::lock_guard storage_lock(storage->mutex);
                 if (storage->disconnected) {
                     // The callback was disconnected between getting the callback and processing it.
@@ -179,6 +184,7 @@ public:
                 }
             } break;
             case ConnectionMode::Async: {
+                std::cout << "calling async" << std::endl;
                 if (!async_args) {
                     async_args = std::make_shared<std::tuple<Args...>>(args...);
                 }
