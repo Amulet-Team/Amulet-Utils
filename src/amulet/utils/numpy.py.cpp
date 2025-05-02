@@ -2,11 +2,12 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <pybind11_extensions/numpy.hpp>
+#include <amulet/pybind11_extensions/numpy.hpp>
 
 #include <amulet/utils/numpy.hpp>
 
 namespace py = pybind11;
+namespace pyext = Amulet::pybind11_extensions;
 
 void init_numpy(py::module m_parent)
 {
@@ -32,7 +33,7 @@ void init_numpy(py::module m_parent)
             // create the unique container
             std::vector<std::uint32_t> unique;
             // create the inverse array
-            pybind11_extensions::numpy::array_t<std::uint32_t> inverse_arr(arr_info.shape);
+            pyext::numpy::array_t<std::uint32_t> inverse_arr(arr_info.shape);
             py::buffer_info inverse_info = inverse_arr.request();
             // Get the inverse array as a span
             std::span<std::uint32_t> inverse(
@@ -41,7 +42,7 @@ void init_numpy(py::module m_parent)
             // Call unique
             Amulet::unique_inverse(arr, unique, inverse);
             // create the unique array
-            pybind11_extensions::numpy::array_t<std::uint32_t> unique_arr(unique.size(), unique.data());
+            pyext::numpy::array_t<std::uint32_t> unique_arr(unique.size(), unique.data());
             // Return the new values
             return std::pair(unique_arr, inverse_arr);
         },
