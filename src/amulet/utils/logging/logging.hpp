@@ -3,11 +3,10 @@
 #include <string>
 
 #include <amulet/utils/dll.hpp>
-#include <amulet/utils/signal/signal.hpp>
 
 namespace Amulet {
 
-// Forward declare Signal in case signal.hpp could not be included above.
+// Forward declare Signal
 template <typename... Args>
 class Signal;
 
@@ -60,3 +59,5 @@ AMULET_UTILS_EXPORT void error(const std::string& msg);
 AMULET_UTILS_EXPORT void critical(const std::string& msg);
 
 }
+
+#include <amulet/utils/signal/signal.hpp>

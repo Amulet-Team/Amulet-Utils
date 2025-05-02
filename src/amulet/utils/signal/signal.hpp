@@ -13,9 +13,6 @@
 
 namespace Amulet {
 
-// Forward declare error in case logging.hpp could not be included above.
-AMULET_UTILS_EXPORT void error(const std::string& msg);
-
 enum class ConnectionMode {
     Direct, // Directly called by the emitter.
     Async, // Called asynchronously.
