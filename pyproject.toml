@@ -24,6 +24,7 @@ dev = [
     "setuptools>=42",
     "versioneer",
     "wheel",
+    "numpy~=2.0",
     "pybind11[global]==2.13.6",
     "amulet_pybind11_extensions==1.0a3",
     "amulet-test-utils~=1.0",
