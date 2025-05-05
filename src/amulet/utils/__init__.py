@@ -12,6 +12,7 @@ def _init() -> None:
     os.environ.setdefault(
         "CACHE_DIR", platformdirs.user_cache_dir("AmuletTeam", "AmuletTeam")
     )
+    os.makedirs(os.environ["CACHE_DIR"], exist_ok=True)
 
     if sys.platform == "win32":
         lib_path = os.path.join(os.path.dirname(__file__), "amulet_utils.dll")
