@@ -7,6 +7,11 @@ def _init() -> None:
     import os
     import sys
     import ctypes
+    import platformdirs
+
+    os.environ.setdefault(
+        "CACHE_DIR", platformdirs.user_cache_dir("AmuletTeam", "AmuletTeam")
+    )
 
     if sys.platform == "win32":
         lib_path = os.path.join(os.path.dirname(__file__), "amulet_utils.dll")

@@ -15,6 +15,7 @@ def fix_path(path: str) -> str:
 
 dependencies = [
     "amulet-compiler-target==1.0",
+    "platformdirs~=3.1",
 ]
 setup_args = {}
 
