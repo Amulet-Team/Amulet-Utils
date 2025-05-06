@@ -31,7 +31,10 @@ namespace Amulet {
 class AMULET_UTILS_EXPORT_EXCEPTION Deadlock : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
-    Deadlock();
+    Deadlock()
+        : Deadlock("Deadlock")
+    {
+    }
 };
 
 enum class ThreadAccessMode {
