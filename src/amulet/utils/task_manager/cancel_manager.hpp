@@ -36,6 +36,12 @@ using CancelCallback = std::function<void()>;
 
 class AbstractCancelManager {
 public:
+    AbstractCancelManager() = default;
+    AbstractCancelManager(const AbstractCancelManager&) = default;
+    AbstractCancelManager& operator=(const AbstractCancelManager&) = default;
+    AbstractCancelManager(AbstractCancelManager&&) = default;
+    AbstractCancelManager& operator=(AbstractCancelManager&&) = default;
+
     virtual ~AbstractCancelManager() = default;
 
     // Request the operation be cancelled.
@@ -61,6 +67,9 @@ class VoidCancelManager : public AbstractCancelManager {
 public:
     AMULET_UTILS_EXPORT VoidCancelManager();
     AMULET_UTILS_EXPORT VoidCancelManager(const VoidCancelManager&);
+    AMULET_UTILS_EXPORT VoidCancelManager(VoidCancelManager&&);
+    AMULET_UTILS_EXPORT VoidCancelManager& operator=(const VoidCancelManager&);
+    AMULET_UTILS_EXPORT VoidCancelManager& operator=(VoidCancelManager&&);
     AMULET_UTILS_EXPORT ~VoidCancelManager() override;
     AMULET_UTILS_EXPORT void cancel() override;
     AMULET_UTILS_EXPORT bool is_cancel_requested() override;
@@ -78,7 +87,11 @@ private:
 
 public:
     AMULET_UTILS_EXPORT CancelManager();
-    CancelManager(CancelManager&) = delete;
+    CancelManager(const CancelManager&) = delete;
+    CancelManager& operator=(const CancelManager&) = delete;
+    CancelManager(CancelManager&&) = delete;
+    CancelManager& operator=(CancelManager&&) = delete;
+    AMULET_UTILS_EXPORT ~CancelManager() override;
 
     AMULET_UTILS_EXPORT void cancel() override;
     AMULET_UTILS_EXPORT bool is_cancel_requested() override;
