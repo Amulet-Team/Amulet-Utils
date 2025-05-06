@@ -12,6 +12,9 @@ namespace Amulet {
 // VoidCancelManager
 VoidCancelManager::VoidCancelManager() = default;
 VoidCancelManager::VoidCancelManager(const VoidCancelManager&) = default;
+VoidCancelManager::VoidCancelManager(VoidCancelManager&&) = default;
+VoidCancelManager& VoidCancelManager::operator=(const VoidCancelManager&) = default;
+VoidCancelManager& VoidCancelManager::operator=(VoidCancelManager&&) = default;
 VoidCancelManager::~VoidCancelManager() = default;
 void VoidCancelManager::cancel() { }
 bool VoidCancelManager::is_cancel_requested() { return false; }
@@ -25,7 +28,8 @@ void VoidCancelManager::unregister_cancel_callback(SignalToken<> token) { }
 VoidCancelManager global_VoidCancelManager;
 
 // CancelManager
-CancelManager::CancelManager() { }
+CancelManager::CancelManager() = default;
+CancelManager::~CancelManager() = default;
 
 void CancelManager::cancel()
 {
