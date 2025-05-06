@@ -43,4 +43,4 @@ foreach(FILE ${TEST_AMULET_SOURCES})
 endforeach()
 
 # Install
-install(TARGETS _test_amulet_utils DESTINATION ".")
+install(TARGETS _test_amulet_utils DESTINATION ${TEST_AMULET_UTILS_DIR})
