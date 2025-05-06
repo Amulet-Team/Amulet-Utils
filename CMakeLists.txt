@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
 project(amulet_utils LANGUAGES CXX)
-set(SRC_INSTALL_DIR "." CACHE PATH "The path to the src directory to install into.")
 
 # Set C++20
 set(CMAKE_CXX_STANDARD 20)
@@ -64,5 +63,9 @@ foreach(FILE ${EXTENSION_SOURCES} ${EXTENSION_HEADERS})
 endforeach()
 
 # Install
-install(TARGETS amulet_utils DESTINATION "${SRC_INSTALL_DIR}/amulet/utils")
-install(TARGETS _utils DESTINATION "${SRC_INSTALL_DIR}/amulet/utils")
+install(TARGETS amulet_utils DESTINATION ${amulet_utils_DIR})
+install(TARGETS _utils DESTINATION ${amulet_utils_DIR})
+
+if (TEST_AMULET_UTILS_DIR)
+    add_subdirectory(tests)
+endif()
