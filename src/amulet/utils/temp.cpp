@@ -40,6 +40,9 @@ TempDir::TempDir(const std::string& group)
     throw std::runtime_error("Could not create temporary directory.");
 }
 
+TempDir::TempDir(TempDir&&) = default;
+TempDir& TempDir::operator = (TempDir&&) = default;
+
 TempDir::~TempDir() {
     _lock.reset();
     std::filesystem::remove_all(_path);

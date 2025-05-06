@@ -13,7 +13,7 @@ namespace Amulet {
 // Get the directory in which temporary directories will be created.
 // This is configurable by setting the "CACHE_DIR" environment variable.
 // Thread safe.
-std::filesystem::path get_temp_dir();
+AMULET_UTILS_EXPORT std::filesystem::path get_temp_dir();
 
 // A temporary directory to do with as you wish.
 class TempDir {
@@ -25,6 +25,14 @@ public:
     // Construct a new temporary directory.
     // Thread safe.
     AMULET_UTILS_EXPORT TempDir(const std::string& group);
+
+    // Delete copy constructors
+    TempDir(const TempDir&) = delete;
+    TempDir& operator=(const TempDir&) = delete;
+
+    // Move constructors
+    AMULET_UTILS_EXPORT TempDir(TempDir&&);
+    AMULET_UTILS_EXPORT TempDir& operator=(TempDir&&);
 
     // TempDir destructor.
     // This automatically deletes the temporary directory.
