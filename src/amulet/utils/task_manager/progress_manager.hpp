@@ -16,6 +16,13 @@ using ProgressTextCallback = std::function<void(const std::string&)>;
 
 class AbstractProgressManager {
 public:
+    AbstractProgressManager() = default;
+    
+    AbstractProgressManager(const AbstractProgressManager&) = default;
+    AbstractProgressManager(AbstractProgressManager&&) = default;
+    AbstractProgressManager& operator=(const AbstractProgressManager&) = default;
+    AbstractProgressManager& operator=(AbstractProgressManager&&) = default;
+
     virtual ~AbstractProgressManager() = default;
 
     // Register a function to get called when progress changes.
@@ -55,8 +62,14 @@ public:
 
 class VoidProgressManager : public AbstractProgressManager {
 public:
-    AMULET_UTILS_EXPORT VoidProgressManager() = default;
-    AMULET_UTILS_EXPORT VoidProgressManager(VoidProgressManager&) = default;
+    AMULET_UTILS_EXPORT VoidProgressManager();
+    AMULET_UTILS_EXPORT ~VoidProgressManager();
+    
+    AMULET_UTILS_EXPORT VoidProgressManager(const VoidProgressManager&);
+    AMULET_UTILS_EXPORT VoidProgressManager(VoidProgressManager&&);
+    AMULET_UTILS_EXPORT VoidProgressManager& operator=(const VoidProgressManager&);
+    AMULET_UTILS_EXPORT VoidProgressManager& operator=(VoidProgressManager&&);
+
     SignalToken<float> register_progress_callback(ProgressCallback callback) override;
     void unregister_progress_callback(SignalToken<float> token) override;
     void update_progress(float progress) override;
@@ -82,7 +95,11 @@ private:
 public:
     AMULET_UTILS_EXPORT ProgressManager(const std::shared_ptr<ProgressManagerData>& data, float progress_min, float progress_max);
     AMULET_UTILS_EXPORT ProgressManager();
-    ProgressManager(ProgressManager&) = delete;
+
+    ProgressManager(const ProgressManager&) = delete;
+    ProgressManager(ProgressManager&&) = delete;
+    ProgressManager& operator=(const ProgressManager&) = delete;
+    ProgressManager& operator=(ProgressManager&&) = delete;
 
     SignalToken<float> register_progress_callback(ProgressCallback callback) override;
     void unregister_progress_callback(SignalToken<float> token) override;
