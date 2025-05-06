@@ -31,16 +31,14 @@ namespace Amulet {
 class AMULET_UTILS_EXPORT_EXCEPTION Deadlock : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
-    Deadlock()
-        : Deadlock("Deadlock")
-    {
-    }
+    Deadlock();
 };
 
 enum class ThreadAccessMode {
     Read, // This thread can only read.
     ReadWrite // This thread can read and write.
 };
+
 enum class ThreadShareMode {
     Unique, // Other threads can't run in parallel.
     SharedReadOnly, // Other threads can only read in parallel.
@@ -249,12 +247,12 @@ protected:
 
 public:
     // Constructors
-    AMULET_UTILS_EXPORT OrderedMutex();
+    OrderedMutex() = default;
     OrderedMutex(const OrderedMutex&) = delete;
     OrderedMutex(OrderedMutex&&) = delete;
 
     // Destructor
-    AMULET_UTILS_EXPORT ~OrderedMutex();
+    ~OrderedMutex() = default;
 
     // Locks the mutex in the requested mode (default is read write unique).
     // Blocks until the mutex is acquired or the task is cancelled through the cancel manager.
@@ -296,7 +294,49 @@ public:
     // Unlock the mutex.
     // Must be called by the thread that locked it.
     // Thread safe.
-    AMULET_UTILS_EXPORT void unlock();
+    void unlock()
+    {
+        // Lock the state.
+        std::unique_lock lock(mutex);
+
+        // Get the thread id
+        auto id = std::this_thread::get_id();
+
+        // Find the thread state
+        auto it = threads.find(id);
+
+        // Ensure that the mutex is locked in the same mode by the thread.
+        if (it == threads.end() || !it->second->state.has_value()) {
+            throw std::runtime_error("This mutex is not locked by this thread.");
+        }
+
+        switch (it->second->state->first) {
+        case ThreadAccessMode::Read:
+            read_count--;
+            break;
+        case ThreadAccessMode::ReadWrite:
+            read_count--;
+            write_count--;
+            break;
+        }
+
+        switch (it->second->state->second) {
+        case ThreadShareMode::Unique:
+            blocking_read_count--;
+            blocking_write_count--;
+            break;
+        case ThreadShareMode::SharedReadOnly:
+            blocking_write_count--;
+            break;
+        }
+
+        // Remove the thread state
+        locked_threads.erase(it->second);
+        threads.erase(it);
+
+        // Wake up pending threads
+        condition.notify_all();
+    }
 
     // SharedTimedLockable
 
@@ -346,7 +386,8 @@ public:
     {
         mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
     }
-    ~OrderedLockGuard() {
+    ~OrderedLockGuard()
+    {
         mutex.unlock();
     }
 };
