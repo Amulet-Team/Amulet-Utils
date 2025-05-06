@@ -10,6 +10,7 @@
 #include <type_traits>
 
 #include "lock_file.hpp"
+#include "memory.hpp"
 
 #if defined(_WIN32) || defined(_WIN64)
 #define NOMINMAX
@@ -216,22 +217,18 @@ LockFile::LockFile(const std::filesystem::path& path, bool automatically_lock)
 
 LockFile::LockFile(LockFile&& other)
 {
-    ptr = other.ptr;
-    other.ptr = nullptr;
+    move(other.ptr, ptr);
 }
 
 LockFile& LockFile::operator=(LockFile&& other)
 {
-    ptr = other.ptr;
-    other.ptr = nullptr;
+    move(other.ptr, ptr);
     return *this;
 }
 
 LockFile::~LockFile()
 {
-    if (ptr) {
-        delete ptr;
-    }
+    del(ptr);
 }
 
 void LockFile::lock_file()

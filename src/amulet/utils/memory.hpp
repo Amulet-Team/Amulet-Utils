@@ -31,4 +31,24 @@ struct is_weak_ptr<std::weak_ptr<T>> : std::true_type { };
 template <typename T>
 constexpr bool is_weak_ptr_v = is_weak_ptr<T>::value;
 
+template <typename T>
+void del(T* ptr)
+{
+    if (ptr) {
+        delete ptr;
+        ptr = nullptr;
+    }
+}
+
+template <typename T>
+void move(T* src, T* dst)
+{
+    // Delete the original value
+    del(dst);
+    // Copy
+    dst = src;
+    // erase old ptr
+    src = nullptr;
+}
+
 } // namespace Amulet
