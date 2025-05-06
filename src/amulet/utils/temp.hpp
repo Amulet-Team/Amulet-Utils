@@ -26,6 +26,14 @@ public:
     // Thread safe.
     AMULET_UTILS_EXPORT TempDir(const std::string& group);
 
+    // Delete copy constructors
+    TempDir(const TempDir&) = delete;
+    TempDir& operator=(const TempDir&) = delete;
+
+    // Move constructors
+    AMULET_UTILS_EXPORT TempDir(TempDir&&);
+    AMULET_UTILS_EXPORT TempDir& operator=(TempDir&&);
+
     // TempDir destructor.
     // This automatically deletes the temporary directory.
     AMULET_UTILS_EXPORT ~TempDir();
