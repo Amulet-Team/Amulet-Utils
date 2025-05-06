@@ -1,10 +1,11 @@
 #pragma once
 
-#include <condition_variable>
 #include <functional>
-#include <list>
+#include <memory>
 #include <mutex>
-#include <thread>
+#include <stdexcept>
+#include <string>
+#include <utility>
 
 #include <amulet/utils/dll.hpp>
 #include <amulet/utils/logging/logging.hpp>
@@ -18,34 +19,7 @@ enum class ConnectionMode {
 };
 
 namespace detail {
-
-    class EventLoop {
-    private:
-        std::mutex _mutex;
-        std::condition_variable _condition;
-        std::thread _thread;
-        std::list<std::function<void()>> _events;
-        bool _exit = false;
-
-        void _event_loop();
-
-        // Construct a new event loop.
-        AMULET_UTILS_EXPORT EventLoop();
-
-        // Exit out of the event loop.
-        void exit();
-
-        friend AMULET_UTILS_EXPORT EventLoop& get_global_event_loop();
-
-    public:
-        // Destroy the event loop.
-        ~EventLoop();
-
-        // Submit a new job to the event loop.
-        AMULET_UTILS_EXPORT void submit(std::function<void()> event);
-    };
-
-    AMULET_UTILS_EXPORT EventLoop& get_global_event_loop();
+    AMULET_UTILS_EXPORT void submit_async(std::function<void()> event);
 
     template <typename... Args>
     class SignalCallbackStorage {
@@ -184,7 +158,7 @@ public:
                 if (!async_args) {
                     async_args = std::make_shared<std::tuple<Args...>>(args...);
                 }
-                detail::get_global_event_loop().submit([async_args, ptr]() {
+                detail::submit_async([async_args, ptr]() {
                     auto storage = ptr.lock();
                     if (!storage) {
                         return;
