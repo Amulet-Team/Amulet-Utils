@@ -1,5 +1,9 @@
+#include <condition_variable>
 #include <cstdlib>
-#include <iostream>
+#include <functional>
+#include <list>
+#include <mutex>
+#include <thread>
 
 #include <amulet/utils/logging/logging.hpp>
 
@@ -7,7 +11,31 @@
 
 namespace Amulet {
 
-namespace detail {
+namespace {
+
+    class EventLoop {
+    private:
+        std::mutex _mutex;
+        std::condition_variable _condition;
+        std::thread _thread;
+        std::list<std::function<void()>> _events;
+        bool _exit = false;
+
+        void _event_loop();
+
+    public:
+        // Construct a new event loop.
+        EventLoop();
+
+        // Destroy the event loop.
+        ~EventLoop();
+
+        // Exit out of the event loop.
+        void exit();
+
+        // Submit a new job to the event loop.
+        void submit(std::function<void()> event);
+    };
 
     EventLoop::EventLoop()
         : _thread(&EventLoop::_event_loop, this)
@@ -49,7 +77,7 @@ namespace detail {
                 // Re-check the exit condition.
                 continue;
             }
-            auto event = _events.front();
+            auto event = std::move(_events.front());
             _events.pop_front();
             lock.unlock();
             try {
@@ -67,7 +95,7 @@ namespace detail {
     void EventLoop::submit(std::function<void()> event)
     {
         std::unique_lock lock(_mutex);
-        _events.push_back(event);
+        _events.push_back(std::move(event));
         _condition.notify_one();
     }
 
@@ -78,6 +106,14 @@ namespace detail {
         return global_event_loop;
     }
 
-} // namespace detail
+} // namespace
 
+namespace detail {
+
+    void submit_async(std::function<void()> event)
+    {
+        get_global_event_loop().submit(std::move(event));
+    }
+
+} // namespace detail
 } // namespace Amulet
