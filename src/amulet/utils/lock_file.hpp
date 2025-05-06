@@ -11,7 +11,7 @@ class LockFilePrivate;
 
 class AMULET_UTILS_EXPORT LockFile final {
 private:
-    LockFilePrivate* ptr;
+    LockFilePrivate* ptr = nullptr;
 
 public:
     LockFile(const std::filesystem::path& path, bool automatically_lock = true);

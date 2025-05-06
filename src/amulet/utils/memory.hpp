@@ -32,7 +32,7 @@ template <typename T>
 constexpr bool is_weak_ptr_v = is_weak_ptr<T>::value;
 
 template <typename T>
-void del(T* ptr)
+void del(T*& ptr)
 {
     if (ptr) {
         delete ptr;
@@ -41,7 +41,7 @@ void del(T* ptr)
 }
 
 template <typename T>
-void move(T* src, T* dst)
+void move(T*& src, T*& dst)
 {
     // Delete the original value
     del(dst);
