@@ -7,6 +7,14 @@
 
 namespace Amulet {
 
+VoidProgressManager::VoidProgressManager() = default;
+VoidProgressManager::~VoidProgressManager() = default;
+
+VoidProgressManager::VoidProgressManager(const VoidProgressManager&) = default;
+VoidProgressManager::VoidProgressManager(VoidProgressManager&&) = default;
+VoidProgressManager& VoidProgressManager::operator=(const VoidProgressManager&) = default;
+VoidProgressManager& VoidProgressManager::operator=(VoidProgressManager&&) = default;
+
 SignalToken<float> VoidProgressManager::register_progress_callback(ProgressCallback callback) { return {}; }
 void VoidProgressManager::unregister_progress_callback(SignalToken<float> token) { }
 void VoidProgressManager::update_progress(float progress) { }
@@ -29,6 +37,8 @@ ProgressManager::ProgressManager()
     : ProgressManager(std::make_shared<ProgressManagerData>(), 0.0, 1.0)
 {
 }
+
+ProgressManager::~ProgressManager() = default;
 
 SignalToken<float> ProgressManager::register_progress_callback(ProgressCallback callback)
 {
