@@ -38,6 +38,8 @@ ProgressManager::ProgressManager()
 {
 }
 
+ProgressManager::~ProgressManager() = default;
+
 SignalToken<float> ProgressManager::register_progress_callback(ProgressCallback callback)
 {
     return data->progress_changed.connect(callback);
