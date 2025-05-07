@@ -1,5 +1,3 @@
-#pragma once
-
 // MIT Licence
 // Based on https://github.com/KaganCanSit/Cross-Compatible-FileLock-Windows-and-Linux
 

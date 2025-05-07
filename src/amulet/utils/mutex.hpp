@@ -321,6 +321,8 @@ public:
             read_count--;
             write_count--;
             break;
+        default:
+            break;
         }
 
         switch (it->second->state->second) {
@@ -330,6 +332,8 @@ public:
             break;
         case ThreadShareMode::SharedReadOnly:
             blocking_write_count--;
+            break;
+        default:
             break;
         }
 
