@@ -41,8 +41,14 @@ class CMakeBuild(cmdclass.get("build_ext", build_ext)):
         import pybind11
         import amulet.pybind11_extensions
 
-        ext_fullpath = Path.cwd() / self.get_ext_fullpath("")
-        src_dir = ext_fullpath.parent.resolve()
+        ext_dir = (
+                (Path.cwd() / self.get_ext_fullpath("")).parent.resolve()
+                / "amulet"
+                / "utils"
+        )
+        utils_src_dir = (
+            Path.cwd() / "src" / "amulet" / "utils" if self.editable_mode else ext_dir
+        )
 
         platform_args = []
         if sys.platform == "win32":
@@ -60,7 +66,8 @@ class CMakeBuild(cmdclass.get("build_ext", build_ext)):
                 f"-DPYTHON_EXECUTABLE={sys.executable}",
                 f"-Dpybind11_DIR={fix_path(pybind11.get_cmake_dir())}",
                 f"-Damulet_pybind11_extensions_DIR={fix_path(amulet.pybind11_extensions.__path__[0])}",
-                f"-Damulet_utils_DIR={fix_path(os.path.join(src_dir, 'amulet', 'utils'))}",
+                f"-Damulet_utils_DIR={fix_path(utils_src_dir)}",
+                f"-DAMULET_UTILS_EXT_DIR={fix_path(ext_dir)}",
                 f"-DCMAKE_INSTALL_PREFIX=install",
                 "-B",
                 "build",

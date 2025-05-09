@@ -62,9 +62,13 @@ foreach(FILE ${EXTENSION_SOURCES} ${EXTENSION_HEADERS})
     source_group(${GROUP} FILES ${FILE})
 endforeach()
 
+if(NOT DEFINED AMULET_UTILS_EXT_DIR)
+    set(AMULET_UTILS_EXT_DIR ${amulet_utils_DIR})
+endif()
+
 # Install
 install(TARGETS amulet_utils DESTINATION ${amulet_utils_DIR})
-install(TARGETS _utils DESTINATION ${amulet_utils_DIR})
+install(TARGETS _utils DESTINATION ${AMULET_UTILS_EXT_DIR})
 
 if (TEST_AMULET_UTILS_DIR)
     add_subdirectory(tests)
