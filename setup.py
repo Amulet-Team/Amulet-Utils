@@ -113,7 +113,7 @@ cmdclass["build_ext"] = CMakeBuild
 setup(
     version=versioneer.get_version(),
     cmdclass=cmdclass,
-    ext_modules=[Extension("amulet.utils._utils", [])],
+    ext_modules=[Extension("amulet.utils._amulet_utils", [])],
     install_requires=dependencies,
     **setup_args,
 )

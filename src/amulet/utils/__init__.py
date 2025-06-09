@@ -26,7 +26,7 @@ def _init() -> None:
     # Load the shared library
     ctypes.cdll.LoadLibrary(lib_path)
 
-    from ._utils import init
+    from ._amulet_utils import init
 
     init(sys.modules[__name__])
 

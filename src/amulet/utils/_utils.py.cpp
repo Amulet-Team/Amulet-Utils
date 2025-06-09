@@ -29,7 +29,7 @@ void init_module(py::module m)
     init_logging(m);
 }
 
-PYBIND11_MODULE(_utils, m)
+PYBIND11_MODULE(_amulet_utils, m)
 {
     py::options options;
     options.disable_function_signatures();
