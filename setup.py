@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+import datetime
 
 from setuptools import setup, Extension, Command
 from setuptools.command.build_ext import build_ext
@@ -18,7 +19,6 @@ dependencies = [
     "amulet-compiler-target==1.0",
     "platformdirs~=3.1",
 ]
-setup_args = {}
 
 def add_cpp_dependency(lib_name: str, version_str: str) -> None:
     version = Version(version_str)
@@ -43,11 +43,6 @@ else:
     dependencies.append(
         f"amulet-compiler-version=={amulet_compiler_version.__version__}"
     )
-    setup_args["options"] = {
-        "bdist_wheel": {
-            "build_number": f"1.{amulet_compiler_version.compiler_id}.{amulet_compiler_version.compiler_version}"
-        }
-    }
 
 try:
     import amulet.pybind11_extensions
@@ -110,10 +105,36 @@ class CMakeBuild(cmdclass.get("build_ext", build_ext)):
 cmdclass["build_ext"] = CMakeBuild
 
 
+def _get_version() -> str:
+    version_str: str = versioneer.get_version()
+
+    if os.environ.get("AMULET_FREEZE_COMPILER", None):
+        date_format = "%y%m%d%H%M%S"
+        try:
+            with open("build/timestamp.txt", "r") as f:
+                timestamp = datetime.datetime.strptime(f.read(), date_format)
+        except Exception:
+            timestamp = datetime.datetime(1, 1, 1)
+        if datetime.timedelta(minutes=10) < datetime.datetime.now() - timestamp:
+            timestamp = datetime.datetime.now()
+            os.makedirs("build", exist_ok=True)
+            with open("build/timestamp.txt", "w") as f:
+                f.write(timestamp.strftime(date_format))
+
+        version = Version(version_str)
+        epoch = f"{version.epoch}!" if version.epoch else ""
+        release = ".".join(map(str, version.release))
+        pre = "".join(map(str, version.pre)) if version.is_prerelease else ""
+        post = f".post{timestamp.strftime(date_format)}"
+        local = f"+{version.local}" if version.local else ""
+        version_str = f"{epoch}{release}{pre}{post}{local}"
+
+    return version_str
+
+
 setup(
-    version=versioneer.get_version(),
+    version=_get_version(),
     cmdclass=cmdclass,
     ext_modules=[Extension("amulet.utils._amulet_utils", [])],
     install_requires=dependencies,
-    **setup_args,
 )
