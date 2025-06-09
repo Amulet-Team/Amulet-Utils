@@ -1,0 +1,58 @@
+name: 'Install Specialised Amulet-Utils'
+description: 'Build, publish and install this library specialised for the installed compiler. Requires Python, build and twine.'
+inputs:
+  twine-username:
+    description: 'The twine username'
+    required: true
+  twine-password:
+    description: 'The twine password'
+    required: true
+  compiler-specifier:
+    description: 'The PEP 440 version specifier for the compiler library'
+    required: true
+  utils-specifier:
+    description: 'The PEP 440 version specifier for the utils library'
+    required: true
+outputs:
+  version:
+    description: "The version number of the installed library."
+    value: ${{ steps.get-version.outputs.version }}
+runs:
+  using: "composite"
+  steps:
+    - name: Install Prebuilt
+      id: install
+      shell: bash
+      continue-on-error: true
+      run: |
+        python -m pip install --only-binary amulet-utils amulet-compiler-version${{ inputs.compiler-specifier }} amulet-utils${{ inputs.utils-specifier }}
+
+    - name: Build
+      if: steps.install.outcome == 'failure'
+      shell: bash
+      env:
+        AMULET_FREEZE_COMPILER: 1
+      run: |
+        python -m build --wheel "${{ github.action_path }}"/../../..
+
+    - name: Publish
+      if: steps.install.outcome == 'failure'
+      shell: bash
+      env:
+        TWINE_USERNAME: ${{ inputs.twine-username }}
+        TWINE_PASSWORD: ${{ inputs.twine-password }}
+      run: |
+        twine upload "${{ github.action_path }}"/../../../dist/* --skip-existing
+
+    - name: Install
+      if: steps.install.outcome == 'failure'
+      shell: bash
+      run: |
+        python -m pip install "${{ github.action_path }}"/../../../dist/amulet_utils-*.whl
+
+    - name: Get __version__
+      id: get-version
+      shell: bash
+      run: |
+        version=$(python -c "import amulet.utils; print(amulet.utils.__version__)")
+        echo "version=$version" >> "$GITHUB_OUTPUT"
