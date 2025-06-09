@@ -43,4 +43,4 @@ foreach(FILE ${TEST_AMULET_SOURCES})
 endforeach()
 
 # Install
-install(TARGETS _test_amulet_utils DESTINATION ${TEST_AMULET_UTILS_DIR})
+install(TARGETS _test_amulet_utils DESTINATION "${CMAKE_CURRENT_LIST_DIR}/test_amulet_utils")
