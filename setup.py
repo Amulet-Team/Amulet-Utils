@@ -25,6 +25,7 @@ if (
 def fix_path(path: str) -> str:
     return os.path.realpath(path).replace(os.sep, "/")
 
+
 cmdclass: dict[str, type[Command]] = versioneer.get_cmdclass()
 
 
@@ -34,9 +35,9 @@ class CMakeBuild(cmdclass.get("build_ext", build_ext)):
         import amulet.pybind11_extensions
 
         ext_dir = (
-                (Path.cwd() / self.get_ext_fullpath("")).parent.resolve()
-                / "amulet"
-                / "utils"
+            (Path.cwd() / self.get_ext_fullpath("")).parent.resolve()
+            / "amulet"
+            / "utils"
         )
         utils_src_dir = (
             Path.cwd() / "src" / "amulet" / "utils" if self.editable_mode else ext_dir

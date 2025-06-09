@@ -23,6 +23,7 @@ def get_specifier_set(version_str: str) -> str:
 if os.environ.get("AMULET_FREEZE_COMPILER", None):
     AMULET_COMPILER_VERSION_REQUIREMENT = f"=={amulet_compiler_version.__version__}"
 
+
 def get_build_dependencies() -> list:
     return [
         f"pybind11{PYBIND11_REQUIREMENT}",
