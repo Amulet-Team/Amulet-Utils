@@ -37,6 +37,7 @@ list(REMOVE_ITEM HEADERS ${EXTENSION_HEADERS})
 # Add implementation
 add_library(amulet_utils SHARED)
 target_compile_definitions(amulet_utils PRIVATE ExportAmuletUtils)
+target_link_libraries( amulet_utils PRIVATE pybind11::module )
 target_include_directories(amulet_utils PUBLIC "src")
 target_sources(amulet_utils PRIVATE ${SOURCES} ${HEADERS})
 foreach(FILE ${SOURCES} ${HEADERS})

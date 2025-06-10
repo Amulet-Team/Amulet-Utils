@@ -37,7 +37,7 @@ jobs:
 
       - name: Install
         run: |
-          pip install -v .[dev,numpy]
+          pip install -v .[dev,numpy,pillow]
           python tools/compile_tests.py
 
       - name: Test with unittest

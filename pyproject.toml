@@ -39,6 +39,9 @@ dev = [
 numpy = [
     "numpy~=2.0",
 ]
+pillow = [
+    "pillow~=11.0",
+]
 
 [project.urls]
 Homepage = "https://www.amuletmc.com"
@@ -56,6 +59,7 @@ include-package-data = false
     "**/*.so",
     "**/*.dylib",
     "**/*.lib",
+    "**/*.png",
 ]
 
 [tool.setuptools.dynamic]
