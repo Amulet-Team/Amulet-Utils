@@ -115,7 +115,7 @@ public:
     // Thread safe.
     void emit(Args... args)
     {
-        Log(5, "emit");
+        AmuletLog(5, "emit");
         WeakSet<storageT> temp_callbacks;
         {
             // Copy callbacks
@@ -128,18 +128,18 @@ public:
 
         std::shared_ptr<std::tuple<Args...>> async_args;
 
-        Log(5, "calling " + std::to_string(temp_callbacks.size()) + " callbacks");
+        AmuletLog(5, "calling " + std::to_string(temp_callbacks.size()) + " callbacks");
         for (const auto& ptr : temp_callbacks) {
             auto storage = ptr.lock();
             if (!storage) {
-                Log(5, "skipping destroyed callback");
+                AmuletLog(5, "skipping destroyed callback");
                 // The token was destroyed before calling disconnect.
                 null_storage.emplace_back(ptr);
                 continue;
             }
             switch (storage->mode) {
             case ConnectionMode::Direct: {
-                Log(5, "calling direct");
+                AmuletLog(5, "calling direct");
                 std::lock_guard storage_lock(storage->mutex);
                 if (storage->disconnected) {
                     // The callback was disconnected between getting the callback and processing it.
@@ -148,13 +148,13 @@ public:
                 try {
                     storage->callback(args...);
                 } catch (const std::exception& e) {
-                    Log(40, "Error in callback: " << e.what());
+                    AmuletLog(40, "Error in callback: " << e.what());
                 } catch (...) {
-                    Log(40, "Error in callback.");
+                    AmuletLog(40, "Error in callback.");
                 }
             } break;
             case ConnectionMode::Async: {
-                Log(5, "calling async");
+                AmuletLog(5, "calling async");
                 if (!async_args) {
                     async_args = std::make_shared<std::tuple<Args...>>(args...);
                 }
@@ -171,9 +171,9 @@ public:
                     try {
                         std::apply(storage->callback, *async_args);
                     } catch (const std::exception& e) {
-                        Log(40, "Error in async callback: " << e.what());
+                        AmuletLog(40, "Error in async callback: " << e.what());
                     } catch (...) {
-                        Log(40, "Error in async callback.");
+                        AmuletLog(40, "Error in async callback.");
                     }
                 });
             } break;
