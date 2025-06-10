@@ -11,6 +11,16 @@ namespace pyext = Amulet::pybind11_extensions;
 
 void init_numpy(py::module m_parent)
 {
+    try {
+        py::module::import("numpy");
+    } catch (py::error_already_set& e) {
+        if (e.matches(PyExc_ImportError)) {
+            return;
+        } else {
+            throw;
+        }
+    }
+
     auto m = m_parent.def_submodule("numpy");
     m.def(
         "unique_inverse",
