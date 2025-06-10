@@ -59,6 +59,7 @@ include-package-data = false
     "**/*.so",
     "**/*.dylib",
     "**/*.lib",
+    "**/*.png",
 ]
 
 [tool.setuptools.dynamic]
