@@ -36,6 +36,9 @@ dev = [
     "types-pyinstaller",
     "amulet-test-utils~=1.1",
 ]
+numpy = [
+    "numpy~=2.0",
+]
 
 [project.urls]
 Homepage = "https://www.amuletmc.com"

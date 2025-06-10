@@ -38,5 +38,4 @@ def get_runtime_dependencies() -> list[str]:
         f"amulet-compiler-target{AMULET_COMPILER_TARGET_REQUIREMENT}",
         f"amulet-compiler-version{AMULET_COMPILER_VERSION_REQUIREMENT}",
         "platformdirs~=3.1",
-        'numpy~=2.0;extra=="numpy"',
     ]
