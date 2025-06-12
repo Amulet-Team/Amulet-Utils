@@ -249,7 +249,7 @@ void init_lock(py::module m_parent)
             ":param thread_mode: The permissions for the current and other parallel threads.\n"
             ":return: contextlib.AbstractContextManager[None]"));
 
-    py::class_<std::mutex> Lock(m, "Lock", py::module_local(),
+    py::class_<std::mutex> Lock(m, "Lock",
         "A wrapper for std::mutex.");
     Lock.def(py::init());
     Lock.def(
@@ -282,7 +282,7 @@ void init_lock(py::module m_parent)
         &std::mutex::unlock,
         py::call_guard<py::gil_scoped_release>());
 
-    py::class_<std::recursive_mutex> RLock(m, "RLock", py::module_local(),
+    py::class_<std::recursive_mutex> RLock(m, "RLock",
         "A wrapper for std::recursive_mutex.");
     RLock.def(py::init());
     RLock.def(
@@ -315,7 +315,7 @@ void init_lock(py::module m_parent)
         &std::recursive_mutex::unlock,
         py::call_guard<py::gil_scoped_release>());
 
-    py::class_<std::shared_mutex> SharedLock(m, "SharedLock", py::module_local(),
+    py::class_<std::shared_mutex> SharedLock(m, "SharedLock",
         "A wrapper for std::shared_mutex.");
     SharedLock.def(py::init());
     SharedLock.def(
