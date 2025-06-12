@@ -20,6 +20,14 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Validate Inputs
+      shell: bash
+      run: |
+        [ -z "${{ inputs.twine-username }}" ] && echo "Missing input: twine-username" && exit 1
+        [ -z "${{ inputs.twine-password }}" ] && echo "Missing input: twine-password" && exit 1
+        [ -z "${{ inputs.compiler-specifier }}" ] && echo "Missing input: compiler-specifier" && exit 1
+        [ -z "${{ inputs.utils-specifier }}" ] && echo "Missing input: utils-specifier" && exit 1
+
     - name: Install Prebuilt
       id: install
       shell: bash
