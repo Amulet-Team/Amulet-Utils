@@ -1,7 +1,6 @@
 #include <pybind11/pybind11.h>
 
 #include <amulet/pybind11_extensions/compatibility.hpp>
-#include <amulet/pybind11_extensions/py_module.hpp>
 
 namespace py = pybind11;
 namespace pyext = Amulet::pybind11_extensions;
@@ -15,10 +14,8 @@ void init_test_lock_file(py::module);
 void init_test_temp(py::module);
 
 void init_module(py::module m){
-    auto amulet_utils = py::module::import("amulet.utils");
-
     pyext::init_compiler_config(m);
-    pyext::check_compatibility(amulet_utils, m);
+    pyext::check_compatibility(py::module::import("amulet.utils"), m);
 
     init_test_weak(m);
     init_test_signal(m);

@@ -30,7 +30,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
         username: ${{ secrets.PYPI_USERNAME }}
         compiler-version-password: ${{ secrets.AMULET_COMPILER_VERSION_PYPI_PASSWORD }}
-        rest-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build SDist
       run: |
@@ -42,7 +41,7 @@ jobs:
       run: |
         python -m build --wheel .
 
-    - name: Publish Amulet-Utils
+    - name: Publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.AMULET_UTILS_PYPI_PASSWORD }}

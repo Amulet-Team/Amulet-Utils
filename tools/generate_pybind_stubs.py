@@ -7,6 +7,7 @@ import re
 import pybind11_stubgen
 from pybind11_stubgen.structs import Identifier
 from pybind11_stubgen.parser.mixins.filter import FilterClassMembers
+from pybind11_stubgen import main as pybind11_stubgen_main
 
 UnionPattern = re.compile(
     r"^(?P<variable>[a-zA-Z_][a-zA-Z0-9_]*): types\.UnionType\s*#\s*value = (?P<value>.*)$",
@@ -16,6 +17,16 @@ UnionPattern = re.compile(
 
 def union_sub_func(match: re.Match) -> str:
     return f'{match.group("variable")}: typing.TypeAlias = {match.group("value")}'
+
+
+ClassVarUnionPattern = re.compile(
+    r"(?P<variable>[a-zA-Z_][a-zA-Z0-9_]*): typing\.ClassVar\[types\.UnionType]\s*#\s*value = (?P<value>.*)$",
+    flags=re.MULTILINE,
+)
+
+
+def class_var_union_sub_func(match: re.Match) -> str:
+    return f'{match.group("variable")}: typing.ClassVar[typing.TypeAlias] = {match.group("value")}'
 
 
 VersionPattern = re.compile(r"(?P<var>[a-zA-Z0-9_].*): str = '.*?'")
@@ -153,33 +164,41 @@ def patch_stubgen():
 
 
 def main() -> None:
-    package_name = "amulet.utils"
-    package_path = get_package_dir(package_name)
-    src_path = os.path.dirname(os.path.dirname(package_path))
+    root_path = os.path.dirname(os.path.dirname(__file__))
+    src_path = os.path.join(root_path, "src")
+    amulet_utils_path = get_package_dir("amulet.utils")
+    tests_path = os.path.join(root_path, "tests")
+    test_amulet_utils_path = os.path.join(tests_path, "test_amulet_utils")
+
+    # make tests importable
+    sys.path.append(tests_path)
+
+    # out_dir, module_dir, module_name
+    modules: list[tuple[str, str, str]] = [
+        (src_path, amulet_utils_path, "amulet.utils"),
+        (tests_path, test_amulet_utils_path, "test_amulet_utils"),
+    ]
 
     # Remove all existing stub files
     print("Removing stub files...")
-    for stub_path in glob.iglob(
-        os.path.join(glob.escape(package_path), "**", "*.pyi"), recursive=True
-    ):
-        os.remove(stub_path)
+    for _, module_dir, _ in modules:
+        for stub_path in glob.iglob(
+            os.path.join(glob.escape(module_dir), "**", "*.pyi"), recursive=True
+        ):
+            os.remove(stub_path)
 
     # Extend pybind11-stubgen
     patch_stubgen()
 
     # Call pybind11-stubgen
     print("Running pybind11-stubgen...")
-    sys.argv = [
-        "pybind11_stubgen",
-        f"--output-dir={src_path}",
-        package_name,
-    ]
-    pybind11_stubgen.main()
-    # If pybind11_stubgen adds args to main
-    # pybind11_stubgen.main([
-    #     f"--output-dir={src_path}",
-    #     package_name,
-    # ])
+    for out_dir, _, module_name in modules:
+        pybind11_stubgen.main(
+            [
+                f"--output-dir={out_dir}",
+                module_name,
+            ]
+        )
 
     # Run normal stubgen on the python files
     # print("Running stubgen...")
@@ -193,21 +212,29 @@ def main() -> None:
     # ])
 
     # Remove stub files generated for python modules
-    for stub_path in glob.iglob(
-        os.path.join(glob.escape(package_path), "**", "*.pyi"), recursive=True
-    ):
-        if os.path.isfile(stub_path[:-1]):
-            os.remove(stub_path)
+    for _, module_dir, _ in modules:
+        for stub_path in glob.iglob(
+            os.path.join(glob.escape(module_dir), "**", "*.pyi"), recursive=True
+        ):
+            if os.path.isfile(stub_path[:-1]) and not stub_path.endswith(
+                "__init__.pyi"
+            ):
+                os.remove(stub_path)
 
     print("Patching stub files...")
     # Fix some issues and reformat the stub files.
-    stub_paths = glob.glob(
-        os.path.join(glob.escape(package_path), "**", "*.pyi"), recursive=True
-    )
+    stub_paths = []
+    for _, module_dir, _ in modules:
+        stub_paths.extend(
+            glob.glob(
+                os.path.join(glob.escape(module_dir), "**", "*.pyi"), recursive=True
+            )
+        )
     for stub_path in stub_paths:
         with open(stub_path, encoding="utf-8") as f:
             pyi = f.read()
         pyi = UnionPattern.sub(union_sub_func, pyi)
+        pyi = ClassVarUnionPattern.sub(class_var_union_sub_func, pyi)
         pyi = VersionPattern.sub(str_sub_func, pyi)
         pyi = GenericAliasPattern.sub(generic_alias_sub_func, pyi)
         pyi = pyi.replace(
@@ -244,7 +271,9 @@ def main() -> None:
         ]
     )
 
-    subprocess.run([sys.executable, "-m", "black", package_path])
+    subprocess.run(
+        [sys.executable, "-m", "black", *[module_dir for _, module_dir, _ in modules]]
+    )
 
 
 if __name__ == "__main__":

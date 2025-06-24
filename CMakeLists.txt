@@ -21,7 +21,7 @@ if (MSVC)
     add_definitions("/MP")
 endif()
 
-# Add pybind11
+# Find libraries
 find_package(pybind11 CONFIG REQUIRED)
 find_package(amulet_pybind11_extensions CONFIG REQUIRED)
 
@@ -37,8 +37,9 @@ list(REMOVE_ITEM HEADERS ${EXTENSION_HEADERS})
 # Add implementation
 add_library(amulet_utils SHARED)
 target_compile_definitions(amulet_utils PRIVATE ExportAmuletUtils)
-target_link_libraries( amulet_utils PRIVATE pybind11::module )
-target_include_directories(amulet_utils PUBLIC "src")
+target_link_libraries(amulet_utils PUBLIC pybind11::module)
+target_link_libraries(amulet_utils PUBLIC amulet_pybind11_extensions)
+target_include_directories(amulet_utils PUBLIC ${SOURCE_PATH})
 target_sources(amulet_utils PRIVATE ${SOURCES} ${HEADERS})
 foreach(FILE ${SOURCES} ${HEADERS})
     file(RELATIVE_PATH REL_PATH ${SOURCE_PATH} ${FILE})
@@ -49,12 +50,12 @@ endforeach()
 
 # Add python extension
 pybind11_add_module(_amulet_utils)
-target_link_libraries( _amulet_utils PRIVATE amulet_pybind11_extensions )
+target_link_libraries(_amulet_utils PRIVATE amulet_pybind11_extensions)
+target_link_libraries(_amulet_utils PRIVATE amulet_utils)
 target_compile_definitions(_amulet_utils PRIVATE PYBIND11_DETAILED_ERROR_MESSAGES)
 target_compile_definitions(_amulet_utils PRIVATE PYBIND11_VERSION="${pybind11_VERSION}")
 target_compile_definitions(_amulet_utils PRIVATE COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
 target_compile_definitions(_amulet_utils PRIVATE COMPILER_VERSION="${CMAKE_CXX_COMPILER_VERSION}")
-target_link_libraries(_amulet_utils PRIVATE amulet_utils)
 target_sources(_amulet_utils PRIVATE ${EXTENSION_SOURCES} ${EXTENSION_HEADERS})
 foreach(FILE ${EXTENSION_SOURCES} ${EXTENSION_HEADERS})
     file(RELATIVE_PATH REL_PATH ${SOURCE_PATH} ${FILE})

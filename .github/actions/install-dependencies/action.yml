@@ -10,9 +10,6 @@ inputs:
   compiler-version-password:
     description: 'The password for the compiler-version library'
     required: true
-  rest-token:
-    description: 'The Github authentication token to use to access the REST API.'
-    required: true
 runs:
   using: "composite"
   steps:
@@ -23,23 +20,18 @@ runs:
           echo "python-version is empty"
           exit 1
         fi
-        
+
         if [ -z "${{ inputs.username }}" ]; then
           echo "username is empty"
           exit 1
         fi
-        
+
         if [ -z "${{ inputs.compiler-version-password }}" ]; then
           echo "compiler-version-password is empty"
           exit 1
         fi
-        
-        if [ -z "${{ inputs.rest-token }}" ]; then
-          echo "rest-token is empty"
-          exit 1
-        fi
 
-    - name: Set up Python ${{ inputs.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}

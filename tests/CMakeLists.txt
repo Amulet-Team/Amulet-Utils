@@ -24,7 +24,7 @@ find_package(amulet_utils CONFIG REQUIRED)
 find_package(amulet_test_utils CONFIG REQUIRED)
 
 # Find sources
-file(GLOB_RECURSE TEST_AMULET_SOURCES LIST_DIRECTORIES false "${CMAKE_CURRENT_LIST_DIR}/*.py.cpp")
+file(GLOB_RECURSE SOURCES LIST_DIRECTORIES false "${CMAKE_CURRENT_LIST_DIR}/*.py.cpp")
 
 pybind11_add_module(_test_amulet_utils)
 target_compile_definitions(_test_amulet_utils PRIVATE PYBIND11_DETAILED_ERROR_MESSAGES)
@@ -34,8 +34,8 @@ target_compile_definitions(_test_amulet_utils PRIVATE COMPILER_VERSION="${CMAKE_
 target_link_libraries(_test_amulet_utils PRIVATE amulet_pybind11_extensions)
 target_link_libraries(_test_amulet_utils PRIVATE amulet_utils)
 target_link_libraries(_test_amulet_utils PRIVATE amulet_test_utils)
-target_sources(_test_amulet_utils PRIVATE ${TEST_AMULET_SOURCES})
-foreach(FILE ${TEST_AMULET_SOURCES})
+target_sources(_test_amulet_utils PRIVATE ${SOURCES})
+foreach(FILE ${SOURCES})
     file(RELATIVE_PATH REL_PATH ${CMAKE_CURRENT_LIST_DIR} ${FILE})
     get_filename_component(GROUP ${REL_PATH} DIRECTORY)
     string(REPLACE "/" "\\" GROUP "${GROUP}")
