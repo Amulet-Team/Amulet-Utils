@@ -5,8 +5,8 @@ import os
 
 import pybind11
 import amulet.pybind11_extensions
-import amulet.utils
 import amulet.test_utils
+import amulet.utils
 
 
 def fix_path(path: str) -> str:
@@ -30,30 +30,31 @@ def main() -> None:
     os.chdir(TestsDir)
     shutil.rmtree(os.path.join(TestsDir, "build", "CMakeFiles"), ignore_errors=True)
 
+    if subprocess.run(["cmake", "--version"]).returncode:
+        raise RuntimeError("Could not find cmake")
     if subprocess.run(
         [
             "cmake",
             *platform_args,
             f"-DPYTHON_EXECUTABLE={sys.executable}",
-            f"-Dpybind11_DIR={pybind11.get_cmake_dir().replace(os.sep, '/')}",
+            f"-Dpybind11_DIR={fix_path(pybind11.get_cmake_dir())}",
             f"-Damulet_pybind11_extensions_DIR={fix_path(amulet.pybind11_extensions.__path__[0])}",
+            f"-Damulet_test_utils_DIR={fix_path(amulet.test_utils.__path__[0])}",
             f"-Damulet_utils_DIR={fix_path(amulet.utils.__path__[0])}",
             f"-DCMAKE_INSTALL_PREFIX=install",
-            # test args
-            f"-Damulet_test_utils_DIR={fix_path(amulet.test_utils.__path__[0])}",
             "-B",
             "build",
         ]
     ).returncode:
-        raise RuntimeError("Error configuring test_amulet_utils")
+        raise RuntimeError("Error configuring test-amulet-utils")
     if subprocess.run(
         ["cmake", "--build", "build", "--config", "RelWithDebInfo"]
     ).returncode:
-        raise RuntimeError("Error installing test_amulet_utils")
+        raise RuntimeError("Error installing test-amulet-utils")
     if subprocess.run(
         ["cmake", "--install", "build", "--config", "RelWithDebInfo"]
     ).returncode:
-        raise RuntimeError("Error installing test_amulet_utils")
+        raise RuntimeError("Error installing test-amulet-utils")
 
 
 if __name__ == "__main__":

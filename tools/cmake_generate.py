@@ -28,6 +28,8 @@ def main():
     os.chdir(RootDir)
     shutil.rmtree(os.path.join(RootDir, "build", "CMakeFiles"), ignore_errors=True)
 
+    if subprocess.run(["cmake", "--version"]).returncode:
+        raise RuntimeError("Could not find cmake")
     if subprocess.run(
         [
             "cmake",
@@ -35,16 +37,15 @@ def main():
             f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-Dpybind11_DIR={fix_path(pybind11.get_cmake_dir())}",
             f"-Damulet_pybind11_extensions_DIR={fix_path(amulet.pybind11_extensions.__path__[0])}",
-            f"-Damulet_utils_DIR={os.path.join(RootDir, 'src', 'amulet', 'utils')}",
-            f"-DCMAKE_INSTALL_PREFIX=install",
-            # test args
             f"-Damulet_test_utils_DIR={fix_path(amulet.test_utils.__path__[0])}",
+            f"-Damulet_utils_DIR={fix_path(os.path.join(RootDir, 'src', 'amulet', 'utils'))}",
+            f"-DCMAKE_INSTALL_PREFIX=install",
             f"-DBUILD_AMULET_UTILS_TESTS=",
             "-B",
             "build",
         ]
     ).returncode:
-        raise RuntimeError("Error configuring amulet_utils")
+        raise RuntimeError("Error configuring amulet-utils")
 
 
 if __name__ == "__main__":

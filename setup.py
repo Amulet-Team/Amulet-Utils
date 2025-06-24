@@ -55,6 +55,8 @@ class CMakeBuild(cmdclass.get("build_ext", build_ext)):
             if platform.machine() == "arm64":
                 platform_args.append("-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64")
 
+        if subprocess.run(["cmake", "--version"]).returncode:
+            raise RuntimeError("Could not find cmake")
         if subprocess.run(
             [
                 "cmake",
@@ -69,15 +71,15 @@ class CMakeBuild(cmdclass.get("build_ext", build_ext)):
                 "build",
             ]
         ).returncode:
-            raise RuntimeError("Error configuring amulet_utils")
+            raise RuntimeError("Error configuring amulet-utils")
         if subprocess.run(
             ["cmake", "--build", "build", "--config", "Release"]
         ).returncode:
-            raise RuntimeError("Error installing amulet_utils")
+            raise RuntimeError("Error installing amulet-utils")
         if subprocess.run(
             ["cmake", "--install", "build", "--config", "Release"]
         ).returncode:
-            raise RuntimeError("Error installing amulet_utils")
+            raise RuntimeError("Error installing amulet-utils")
 
 
 cmdclass["build_ext"] = CMakeBuild
