@@ -115,6 +115,7 @@ def _get_version() -> str:
 setup(
     version=_get_version(),
     cmdclass=cmdclass,
-    ext_modules=[Extension("amulet.utils._amulet_utils", [])],
+    ext_modules=[Extension("amulet.utils._amulet_utils", [])]
+    * (not os.environ.get("AMULET_SKIP_COMPILE", None)),
     install_requires=requirements.get_runtime_dependencies(),
 )
