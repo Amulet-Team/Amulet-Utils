@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import faulthandler as faulthandler
+import faulthandler as _faulthandler
 
 from . import (
     _test_amulet_utils,
@@ -15,7 +15,6 @@ from . import (
 
 __all__ = [
     "compiler_config",
-    "faulthandler",
     "test_lock_",
     "test_lock_file_",
     "test_logging_",
