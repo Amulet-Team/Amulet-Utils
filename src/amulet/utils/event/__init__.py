@@ -36,7 +36,7 @@ class Event(_typing.Protocol[*_Args]):
         Thread safe.
         """
 
-    def emit(self, *args: *_Args) -> None:
+    def dispatch(self, *args: *_Args) -> None:
         """
         Call all callbacks with the given arguments from this thread.
         Blocks until all callbacks are processed.

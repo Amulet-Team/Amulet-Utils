@@ -45,23 +45,23 @@ class EventTestCase(TestCase):
         token_2 = cls.event_2.connect(on_2)
         token_3 = cls.event_3.connect(on_3)
 
-        cls.event_0.emit()
+        cls.event_0.dispatch()
         self.assertEqual(1, count_0)
         self.assertEqual((), var)
 
-        cls.event_1.emit(1)
+        cls.event_1.dispatch(1)
         self.assertEqual(1, count_1)
         self.assertEqual((1,), var)
 
-        cls.event_2.emit(2, 2.5)
+        cls.event_2.dispatch(2, 2.5)
         self.assertEqual(1, count_2)
         self.assertEqual((2, 2.5), var)
 
-        cls.event_3.emit(3, 3.5, "3", 4)
+        cls.event_3.dispatch(3, 3.5, "3", 4)
         self.assertEqual(1, count_3)
         self.assertEqual((3, 3.5, "3", 4), var)
 
-        cls.emit()
+        cls.dispatch()
         self.assertEqual(2, count_0)
         self.assertEqual(2, count_1)
         self.assertEqual(2, count_2)
@@ -73,10 +73,10 @@ class EventTestCase(TestCase):
         cls.event_2.disconnect(token_2)
         cls.event_3.disconnect(token_3)
 
-        cls.event_0.emit()
-        cls.event_1.emit(4)
-        cls.event_2.emit(5, 5.5)
-        cls.event_3.emit(6, 6.5, "6", 7)
+        cls.event_0.dispatch()
+        cls.event_1.dispatch(4)
+        cls.event_2.dispatch(5, 5.5)
+        cls.event_3.dispatch(6, 6.5, "6", 7)
         self.assertEqual((1, 1.5, "Hello World", 2), var)
 
         self.assertEqual(2, count_0)
@@ -137,7 +137,7 @@ class EventTestCase(TestCase):
         token_3 = cls.event_3.connect(on_3, ConnectionMode.Async)
 
         with condition:
-            cls.event_0.emit()
+            cls.event_0.dispatch()
             time.sleep(1)
             self.assertEqual(0, count_0)
             self.assertTrue(condition.wait_for(lambda: step == 1, timeout=10))
@@ -145,7 +145,7 @@ class EventTestCase(TestCase):
         self.assertEqual((), var)
 
         with condition:
-            cls.event_1.emit(1)
+            cls.event_1.dispatch(1)
             time.sleep(1)
             self.assertEqual(0, count_1)
             self.assertTrue(condition.wait_for(lambda: step == 2, timeout=10))
@@ -153,7 +153,7 @@ class EventTestCase(TestCase):
         self.assertEqual((1,), var)
 
         with condition:
-            cls.event_2.emit(2, 2.5)
+            cls.event_2.dispatch(2, 2.5)
             time.sleep(1)
             self.assertEqual(0, count_2)
             self.assertTrue(condition.wait_for(lambda: step == 3, timeout=10))
@@ -161,7 +161,7 @@ class EventTestCase(TestCase):
         self.assertEqual((2, 2.5), var)
 
         with condition:
-            cls.event_3.emit(3, 3.5, "3", 4)
+            cls.event_3.dispatch(3, 3.5, "3", 4)
             time.sleep(1)
             self.assertEqual(0, count_3)
             self.assertTrue(condition.wait_for(lambda: step == 4, timeout=10))

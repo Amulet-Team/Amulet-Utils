@@ -48,10 +48,10 @@ class LoggingTestCase(TestCase):
             nonlocal count
             if count < 3:
                 count += 1
-                get_logger().emit(20, "Hello World!")
+                get_logger().dispatch(20, "Hello World!")
 
         token = get_logger().connect(on_msg)
 
-        get_logger().emit(20, "Hello World")
+        get_logger().dispatch(20, "Hello World")
 
         self.assertEqual(3, count)

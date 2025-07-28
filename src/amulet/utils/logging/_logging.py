@@ -21,20 +21,20 @@ def on_msg(level: int, msg: str) -> None:
 
 
 if get_min_log_level() <= 10:
-    get_logger().emit(10, "Connecting python logger.")
+    get_logger().dispatch(10, "Connecting python logger.")
 
 logging_token = get_logger().connect(on_msg)
 
 
 def python_shutdown() -> None:
     if get_min_log_level() <= 10:
-        get_logger().emit(10, "Disconnecting python logger.")
+        get_logger().dispatch(10, "Disconnecting python logger.")
     # On python shutdown, disconnect the logger so it can't get called after python has shut down.
     get_logger().disconnect(logging_token)
     # Reconnect the default logger to get logging after python has shut down.
     register_default_log_handler()
     if get_min_log_level() <= 10:
-        get_logger().emit(10, "Disconnected python logger.")
+        get_logger().dispatch(10, "Disconnected python logger.")
 
 
 atexit.register(python_shutdown)
@@ -44,4 +44,4 @@ atexit.register(python_shutdown)
 unregister_default_log_handler()
 
 if get_min_log_level() <= 10:
-    get_logger().emit(10, "Connected python logger.")
+    get_logger().dispatch(10, "Connected python logger.")
