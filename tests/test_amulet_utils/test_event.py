@@ -169,7 +169,7 @@ class EventTestCase(TestCase):
         self.assertEqual((3, 3.5, "3", 4), var)
 
         with condition:
-            cls.emit()
+            cls.dispatch()
             time.sleep(1)
             self.assertEqual(1, count_0)
             self.assertEqual(1, count_1)
@@ -187,10 +187,10 @@ class EventTestCase(TestCase):
         cls.event_2.disconnect(token_2)
         cls.event_3.disconnect(token_3)
 
-        cls.event_0.emit()
-        cls.event_1.emit(4)
-        cls.event_2.emit(5, 5.5)
-        cls.event_3.emit(6, 6.5, "6", 7)
+        cls.event_0.dispatch()
+        cls.event_1.dispatch(4)
+        cls.event_2.dispatch(5, 5.5)
+        cls.event_3.dispatch(6, 6.5, "6", 7)
         time.sleep(2)
         self.assertEqual((1, 1.5, "Hello World", 2), var)
 
@@ -210,7 +210,7 @@ class EventTestCase(TestCase):
             raise Exception("The following output is intended")
 
         token = cls.event_0.connect(callback)
-        cls.event_0.emit()
+        cls.event_0.dispatch()
         self.assertEqual(1, call_count)
         cls.event_0.disconnect(token)
 
@@ -227,7 +227,7 @@ class EventTestCase(TestCase):
         # Synchronous
         token = cls.event_0.connect(callback)
         t = time.time()
-        cls.event_0.emit()
+        cls.event_0.dispatch()
         dt = time.time() - t
         self.assertEqual(1, count)
         self.assertLess(0.99, dt)
@@ -237,7 +237,7 @@ class EventTestCase(TestCase):
         # Asynchronous
         token = cls.event_0.connect(callback, ConnectionMode.Async)
         t = time.time()
-        cls.event_0.emit()
+        cls.event_0.dispatch()
         dt = time.time() - t
         self.assertGreater(0.1, dt)
         self.assertEqual(1, count)
