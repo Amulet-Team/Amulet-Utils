@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import typing
+import collections.abc
 
 import amulet.utils.event
 
@@ -26,7 +26,7 @@ class AbstractCancelManager:
         """
 
     def register_cancel_callback(
-        self, callback: typing.Callable[[], None]
+        self, callback: collections.abc.Callable[[], None]
     ) -> amulet.utils.event.EventToken[()]:
         """
         Register a function to get called when cancel is called.

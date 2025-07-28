@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+import typing
+
 import amulet.utils.lock
 
 __all__ = ["lock_ordered_mutex", "lock_shared_mutex", "throw_deadlock"]
 
-def lock_ordered_mutex(arg0: amulet.utils.lock.OrderedLock, arg1: int) -> None: ...
-def lock_shared_mutex(arg0: amulet.utils.lock.SharedLock, arg1: int) -> None: ...
+def lock_ordered_mutex(
+    arg0: amulet.utils.lock.OrderedLock, arg1: typing.SupportsInt
+) -> None: ...
+def lock_shared_mutex(
+    arg0: amulet.utils.lock.SharedLock, arg1: typing.SupportsInt
+) -> None: ...
 def throw_deadlock() -> None: ...

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import typing
+
 import amulet.utils.event
 
 from . import _logging
@@ -32,7 +34,7 @@ def register_default_log_handler() -> None:
     Thread safe.
     """
 
-def set_min_log_level(level: int) -> None:
+def set_min_log_level(level: typing.SupportsInt) -> None:
     """
     Set the maximum message level that will be logged.
     Registered handlers may be more strict.
