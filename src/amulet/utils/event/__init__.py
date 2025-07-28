@@ -11,25 +11,25 @@ if _typing.TYPE_CHECKING:
 _Args = _typing.TypeVarTuple("_Args")
 
 
-class SignalToken(_typing.Protocol[*_Args]):
+class EventToken(_typing.Protocol[*_Args]):
     pass
 
 
 @_typing.runtime_checkable
-class Signal(_typing.Protocol[*_Args]):
+class Event(_typing.Protocol[*_Args]):
     def connect(
         self,
         callback: collections.abc.Callable[[*_Args], None],
         mode: ConnectionMode = ConnectionMode.Direct,
-    ) -> SignalToken[*_Args]:
+    ) -> EventToken[*_Args]:
         """
-        Connect a callback to this signal and return a token.
+        Connect a callback to this event and return a token.
         The token must be kept alive for the callback to work.
         The token is used to disconnect the callback when it is not needed.
         Thread safe.
         """
 
-    def disconnect(self, token: SignalToken[*_Args]) -> None:
+    def disconnect(self, token: EventToken[*_Args]) -> None:
         """
         Disconnect a callback.
         Token is the value returned by connect.

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-import amulet.utils.signal
+import amulet.utils.event
 
 __all__ = ["AbstractProgressManager", "ProgressManager", "VoidProgressManager"]
 
@@ -18,7 +18,7 @@ class AbstractProgressManager:
 
     def register_progress_callback(
         self, callback: typing.Callable[[float], None]
-    ) -> amulet.utils.signal.SignalToken[float]:
+    ) -> amulet.utils.event.EventToken[float]:
         """
         Register a function to get called when progress changes.
         The callback will be called from the thread `update_progress` is called in.
@@ -27,7 +27,7 @@ class AbstractProgressManager:
 
     def register_progress_text_callback(
         self, callback: typing.Callable[[str], None]
-    ) -> amulet.utils.signal.SignalToken[str]:
+    ) -> amulet.utils.event.EventToken[str]:
         """
         Register a function to get called when progress changes.
         The callback will be called from the thread `update_progress` is called in.
@@ -35,7 +35,7 @@ class AbstractProgressManager:
         """
 
     def unregister_progress_callback(
-        self, token: amulet.utils.signal.SignalToken[float]
+        self, token: amulet.utils.event.EventToken[float]
     ) -> None:
         """
         Unregister a registered function from being called when update_progress is called.
@@ -43,7 +43,7 @@ class AbstractProgressManager:
         """
 
     def unregister_progress_text_callback(
-        self, token: amulet.utils.signal.SignalToken[str]
+        self, token: amulet.utils.event.EventToken[str]
     ) -> None:
         """
         Unregister a registered function from being called when update_progress is called.

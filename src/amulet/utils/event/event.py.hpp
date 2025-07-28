@@ -11,7 +11,7 @@
 
 #include <amulet/utils/python.hpp>
 
-#include "signal.hpp"
+#include "event.hpp"
 
 namespace py = pybind11;
 namespace pyext = Amulet::pybind11_extensions;
@@ -19,28 +19,28 @@ namespace pyext = Amulet::pybind11_extensions;
 namespace Amulet {
 
 template <typename... Args>
-class PySignal : public py::object {
-    PYBIND11_OBJECT_DEFAULT(PySignal, object, PyObject_Type)
+class PyEvent : public py::object {
+    PYBIND11_OBJECT_DEFAULT(PyEvent, object, PyObject_Type)
     using object::object;
 };
 
 template <typename... Args>
-class PySignalToken : public py::object {
-    PYBIND11_OBJECT_DEFAULT(PySignalToken, object, PyObject_Type)
+class PyEventToken : public py::object {
+    PYBIND11_OBJECT_DEFAULT(PyEventToken, object, PyObject_Type)
     using object::object;
 };
 
-// Create a python binding for the signal class.
-template <typename signalT>
-void create_signal_binding()
+// Create a python binding for the event class.
+template <typename eventT>
+void create_event_binding()
 {
-    if (!pyext::is_class_bound<signalT>()) {
-        pybind11::class_<typename signalT::tokenT>(pybind11::handle(), "SignalToken", pybind11::module_local());
+    if (!pyext::is_class_bound<eventT>()) {
+        pybind11::class_<typename eventT::tokenT>(pybind11::handle(), "EventToken", pybind11::module_local());
 
-        pybind11::class_<signalT, pyext::nogil_shared_ptr<signalT>>(pybind11::handle(), "Signal", pybind11::module_local())
+        pybind11::class_<eventT, pyext::nogil_shared_ptr<eventT>>(pybind11::handle(), "Event", pybind11::module_local())
             .def(
                 "connect",
-                [](signalT& self, typename signalT::callbackT callback, ConnectionMode mode) {
+                [](eventT& self, typename eventT::callbackT callback, ConnectionMode mode) {
                     // Bad things happen if this is called after python shuts down.
                     // Add a wrapper to make sure python is still running.
                     auto py_valid = get_py_valid();
@@ -49,7 +49,7 @@ void create_signal_binding()
                             callback(args...);
                         } else {
                             throw std::runtime_error(
-                                "Cannot execute Python function connected to signal because the Python interpreter has been shut down. "
+                                "Cannot execute Python function connected to Event because the Python interpreter has been shut down. "
                                 "Python callbacks must be disconnected before the interpreter shuts down.");
                         }
                     };
@@ -58,21 +58,21 @@ void create_signal_binding()
                 },
                 py::arg("callback"),
                 py::arg("mode") = Amulet::ConnectionMode::Direct)
-            .def("disconnect", &signalT::disconnect, py::call_guard<py::gil_scoped_release>())
-            .def("emit", &signalT::emit, py::call_guard<py::gil_scoped_release>());
+            .def("disconnect", &eventT::disconnect, py::call_guard<py::gil_scoped_release>())
+            .def("dispatch", &eventT::dispatch, py::call_guard<py::gil_scoped_release>());
     }
 }
 
-// Define a signal getter on a class.
+// Define an event getter on a class.
 // This automatically creates the binding class.
 template <typename PyCls, typename CppCls, typename... Args, typename... Extra>
-void def_signal(PyCls& cls, const char* name, const Signal<Args...> CppCls::*attr, const Extra&... extra)
+void def_event(PyCls& cls, const char* name, const Event<Args...> CppCls::*attr, const Extra&... extra)
 {
-    create_signal_binding<Signal<Args...>>();
+    create_event_binding<Event<Args...>>();
     cls.def_property_readonly(
         name,
         py::cpp_function(
-            [attr](const typename PyCls::type& self) -> PySignal<Args...> {
+            [attr](const typename PyCls::type& self) -> PyEvent<Args...> {
                 return pybind11::cast(self.*attr, py::return_value_policy::reference);
             },
             py::keep_alive<0, 1>()),
@@ -98,23 +98,23 @@ namespace detail {
     }
 
     template <>
-    struct handle_type_name<Amulet::PySignal<>> {
-        static constexpr auto name = const_name("amulet.utils.signal.Signal[()]");
+    struct handle_type_name<Amulet::PyEvent<>> {
+        static constexpr auto name = const_name("amulet.utils.event.Event[()]");
     };
 
     template <typename T, typename... Ts>
-    struct handle_type_name<Amulet::PySignal<T, Ts...>> {
-        static constexpr auto name = const_name("amulet.utils.signal.Signal[") + get_args_str<T, Ts...>() + const_name("]");
+    struct handle_type_name<Amulet::PyEvent<T, Ts...>> {
+        static constexpr auto name = const_name("amulet.utils.event.Event[") + get_args_str<T, Ts...>() + const_name("]");
     };
 
     template <>
-    struct handle_type_name<Amulet::PySignalToken<>> {
-        static constexpr auto name = const_name("amulet.utils.signal.SignalToken[()]");
+    struct handle_type_name<Amulet::PyEventToken<>> {
+        static constexpr auto name = const_name("amulet.utils.event.EventToken[()]");
     };
 
     template <typename T, typename... Ts>
-    struct handle_type_name<Amulet::PySignalToken<T, Ts...>> {
-        static constexpr auto name = const_name("amulet.utils.signal.SignalToken[") + get_args_str<T, Ts...>() + const_name("]");
+    struct handle_type_name<Amulet::PyEventToken<T, Ts...>> {
+        static constexpr auto name = const_name("amulet.utils.event.EventToken[") + get_args_str<T, Ts...>() + const_name("]");
     };
 }
 }

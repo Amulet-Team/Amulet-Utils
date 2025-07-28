@@ -15,13 +15,13 @@ class ConnectionMode:
 
     Async: typing.ClassVar[
         ConnectionMode
-    ]  # value = amulet.utils.signal._connection_mode.ConnectionMode.Async
+    ]  # value = amulet.utils.event._connection_mode.ConnectionMode.Async
     Direct: typing.ClassVar[
         ConnectionMode
-    ]  # value = amulet.utils.signal._connection_mode.ConnectionMode.Direct
+    ]  # value = amulet.utils.event._connection_mode.ConnectionMode.Direct
     __members__: typing.ClassVar[
         dict[str, ConnectionMode]
-    ]  # value = {'Direct': amulet.utils.signal._connection_mode.ConnectionMode.Direct, 'Async': amulet.utils.signal._connection_mode.ConnectionMode.Async}
+    ]  # value = {'Direct': amulet.utils.event._connection_mode.ConnectionMode.Direct, 'Async': amulet.utils.event._connection_mode.ConnectionMode.Async}
     def __eq__(self, other: typing.Any) -> bool: ...
     def __hash__(self) -> int: ...
     def __index__(self) -> int: ...

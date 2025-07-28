@@ -22,14 +22,14 @@ namespace detail {
     AMULET_UTILS_EXPORT void submit_async(std::function<void()> event);
 
     template <typename... Args>
-    class SignalCallbackStorage {
+    class EventCallbackStorage {
     public:
         std::recursive_mutex mutex;
         std::function<void(Args...)> callback;
         ConnectionMode mode;
         bool disconnected = false;
 
-        SignalCallbackStorage(
+        EventCallbackStorage(
             std::function<void(Args...)> callback,
             ConnectionMode mode)
             : callback(std::move(callback))
@@ -41,50 +41,50 @@ namespace detail {
 } // namespace detail
 
 template <typename... Args>
-class Signal;
+class Event;
 
-// A token returned when connecting a callback to a signal.
+// A token returned when connecting a callback to an event.
 // The token must be kept alive and used to disconnect the callback when it is no longer needed.
 template <typename... Args>
-class SignalToken {
+class EventToken {
 private:
-    std::shared_ptr<detail::SignalCallbackStorage<Args...>> storage;
+    std::shared_ptr<detail::EventCallbackStorage<Args...>> storage;
 
     // Constructor.
-    SignalToken(std::shared_ptr<detail::SignalCallbackStorage<Args...>> storage)
+    EventToken(std::shared_ptr<detail::EventCallbackStorage<Args...>> storage)
         : storage(storage)
     {
     }
 
-    // Allow Signal to construct SignalToken.
-    friend class Signal<Args...>;
+    // Allow Event to construct EventToken.
+    friend class Event<Args...>;
 
 public:
     // Default constructor.
-    SignalToken() = default;
+    EventToken() = default;
 };
 
 template <typename... Args>
-class Signal {
+class Event {
 private:
-    using storageT = detail::SignalCallbackStorage<Args...>;
+    using storageT = detail::EventCallbackStorage<Args...>;
 
     std::mutex _mutex;
     WeakSet<storageT> _callbacks;
 
 public:
-    // The callback type for this signal.
+    // The callback type for this event.
     using callbackT = std::function<void(Args...)>;
 
-    // The token type for this signal.
-    using tokenT = SignalToken<Args...>;
+    // The token type for this event.
+    using tokenT = EventToken<Args...>;
 
     // Constructors.
-    Signal() = default;
-    Signal(const Signal&) = delete;
-    Signal(Signal&&) = delete;
+    Event() = default;
+    Event(const Event&) = delete;
+    Event(Event&&) = delete;
 
-    // Connect a callback to this signal and return a token.
+    // Connect a callback to this event and return a token.
     // The token must be kept alive for the callback to work.
     // The token is used to disconnect the callback when it is not needed.
     // Thread safe.
@@ -113,9 +113,9 @@ public:
     // Call all callbacks with the given arguments from this thread.
     // Blocks until all callbacks are processed.
     // Thread safe.
-    void emit(Args... args)
+    void dispatch(Args... args)
     {
-        AmuletLog(5, "emit");
+        AmuletLog(5, "dispatch");
         WeakSet<storageT> temp_callbacks;
         {
             // Copy callbacks
@@ -190,7 +190,7 @@ public:
     }
 
     // Destructor.
-    ~Signal()
+    ~Event()
     {
         std::lock_guard lock(_mutex);
         for (const auto& ptr : _callbacks) {

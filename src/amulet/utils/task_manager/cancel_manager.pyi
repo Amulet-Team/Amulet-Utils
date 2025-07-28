@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing
 
-import amulet.utils.signal
+import amulet.utils.event
 
 __all__ = [
     "AbstractCancelManager",
@@ -27,7 +27,7 @@ class AbstractCancelManager:
 
     def register_cancel_callback(
         self, callback: typing.Callable[[], None]
-    ) -> amulet.utils.signal.SignalToken[()]:
+    ) -> amulet.utils.event.EventToken[()]:
         """
         Register a function to get called when cancel is called.
         The callback will be called from the thread `cancel` is called in.
@@ -35,7 +35,7 @@ class AbstractCancelManager:
         """
 
     def unregister_cancel_callback(
-        self, token: amulet.utils.signal.SignalToken[()]
+        self, token: amulet.utils.event.EventToken[()]
     ) -> None:
         """
         Unregister a registered function from being called when cancel is called.
