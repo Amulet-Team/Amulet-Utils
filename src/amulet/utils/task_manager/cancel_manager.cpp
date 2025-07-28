@@ -18,12 +18,12 @@ VoidCancelManager& VoidCancelManager::operator=(VoidCancelManager&&) = default;
 VoidCancelManager::~VoidCancelManager() = default;
 void VoidCancelManager::cancel() { }
 bool VoidCancelManager::is_cancel_requested() { return false; }
-SignalToken<> VoidCancelManager::register_cancel_callback(CancelCallback callback)
+EventToken<> VoidCancelManager::register_cancel_callback(CancelCallback callback)
 {
     // Construct an empty token to keep the API consistent.
     return {};
 }
-void VoidCancelManager::unregister_cancel_callback(SignalToken<> token) { }
+void VoidCancelManager::unregister_cancel_callback(EventToken<> token) { }
 
 VoidCancelManager global_VoidCancelManager;
 
@@ -40,19 +40,19 @@ void CancelManager::cancel()
         }
         cancelled = true;
     }
-    signal.emit();
+    event.dispatch();
 }
 bool CancelManager::is_cancel_requested()
 {
     return cancelled;
 }
-SignalToken<> CancelManager::register_cancel_callback(CancelCallback callback)
+EventToken<> CancelManager::register_cancel_callback(CancelCallback callback)
 {
-    return signal.connect(callback);
+    return event.connect(callback);
 }
-void CancelManager::unregister_cancel_callback(SignalToken<> token)
+void CancelManager::unregister_cancel_callback(EventToken<> token)
 {
-    signal.disconnect(token);
+    event.disconnect(token);
 }
 
 } // namespace Amulet

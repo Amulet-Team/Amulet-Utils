@@ -7,7 +7,7 @@
 
 #include <amulet/utils/logging/logging.hpp>
 
-#include "signal.hpp"
+#include "event.hpp"
 
 namespace Amulet {
 

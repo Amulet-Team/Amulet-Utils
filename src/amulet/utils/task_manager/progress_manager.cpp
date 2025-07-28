@@ -15,11 +15,11 @@ VoidProgressManager::VoidProgressManager(VoidProgressManager&&) = default;
 VoidProgressManager& VoidProgressManager::operator=(const VoidProgressManager&) = default;
 VoidProgressManager& VoidProgressManager::operator=(VoidProgressManager&&) = default;
 
-SignalToken<float> VoidProgressManager::register_progress_callback(ProgressCallback callback) { return {}; }
-void VoidProgressManager::unregister_progress_callback(SignalToken<float> token) { }
+EventToken<float> VoidProgressManager::register_progress_callback(ProgressCallback callback) { return {}; }
+void VoidProgressManager::unregister_progress_callback(EventToken<float> token) { }
 void VoidProgressManager::update_progress(float progress) { }
-SignalToken<std::string> VoidProgressManager::register_progress_text_callback(ProgressTextCallback callback) { return {}; }
-void VoidProgressManager::unregister_progress_text_callback(SignalToken<std::string> token) { }
+EventToken<std::string> VoidProgressManager::register_progress_text_callback(ProgressTextCallback callback) { return {}; }
+void VoidProgressManager::unregister_progress_text_callback(EventToken<std::string> token) { }
 void VoidProgressManager::update_progress_text(const std::string& text) { }
 std::unique_ptr<AbstractProgressManager> VoidProgressManager::get_child(float progress_min, float progress_max)
 {
@@ -40,12 +40,12 @@ ProgressManager::ProgressManager()
 
 ProgressManager::~ProgressManager() = default;
 
-SignalToken<float> ProgressManager::register_progress_callback(ProgressCallback callback)
+EventToken<float> ProgressManager::register_progress_callback(ProgressCallback callback)
 {
     return data->progress_changed.connect(callback);
 }
 
-void ProgressManager::unregister_progress_callback(SignalToken<float> token)
+void ProgressManager::unregister_progress_callback(EventToken<float> token)
 {
     data->progress_changed.disconnect(token);
 }
@@ -55,22 +55,22 @@ void ProgressManager::update_progress(float progress)
     if (progress < 0.0 || 1.0 < progress) {
         throw std::invalid_argument("progress must be between 0.0 and 1.0");
     }
-    data->progress_changed.emit(_progress_min + progress * (_progress_max - _progress_min));
+    data->progress_changed.dispatch(_progress_min + progress * (_progress_max - _progress_min));
 }
 
-SignalToken<std::string> ProgressManager::register_progress_text_callback(ProgressTextCallback callback)
+EventToken<std::string> ProgressManager::register_progress_text_callback(ProgressTextCallback callback)
 {
     return data->progress_text_changed.connect(callback);
 }
 
-void ProgressManager::unregister_progress_text_callback(SignalToken<std::string> token)
+void ProgressManager::unregister_progress_text_callback(EventToken<std::string> token)
 {
     data->progress_text_changed.disconnect(token);
 }
 
 void ProgressManager::update_progress_text(const std::string& text)
 {
-    data->progress_text_changed.emit(text);
+    data->progress_text_changed.dispatch(text);
 }
 
 std::unique_ptr<AbstractProgressManager> ProgressManager::get_child(

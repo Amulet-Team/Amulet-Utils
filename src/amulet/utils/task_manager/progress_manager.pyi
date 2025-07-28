@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+import collections.abc
 import typing
 
-import amulet.utils.signal
+import amulet.utils.event
 
 __all__ = ["AbstractProgressManager", "ProgressManager", "VoidProgressManager"]
 
 class AbstractProgressManager:
     def get_child(
-        self, progress_min: float, progress_max: float
+        self, progress_min: typing.SupportsFloat, progress_max: typing.SupportsFloat
     ) -> AbstractProgressManager:
         """
         Get a child ProgressManager.
@@ -17,8 +18,8 @@ class AbstractProgressManager:
         """
 
     def register_progress_callback(
-        self, callback: typing.Callable[[float], None]
-    ) -> amulet.utils.signal.SignalToken[float]:
+        self, callback: collections.abc.Callable[[typing.SupportsFloat], None]
+    ) -> amulet.utils.event.EventToken[float]:
         """
         Register a function to get called when progress changes.
         The callback will be called from the thread `update_progress` is called in.
@@ -26,8 +27,8 @@ class AbstractProgressManager:
         """
 
     def register_progress_text_callback(
-        self, callback: typing.Callable[[str], None]
-    ) -> amulet.utils.signal.SignalToken[str]:
+        self, callback: collections.abc.Callable[[str], None]
+    ) -> amulet.utils.event.EventToken[str]:
         """
         Register a function to get called when progress changes.
         The callback will be called from the thread `update_progress` is called in.
@@ -35,7 +36,7 @@ class AbstractProgressManager:
         """
 
     def unregister_progress_callback(
-        self, token: amulet.utils.signal.SignalToken[float]
+        self, token: amulet.utils.event.EventToken[typing.SupportsFloat]
     ) -> None:
         """
         Unregister a registered function from being called when update_progress is called.
@@ -43,14 +44,14 @@ class AbstractProgressManager:
         """
 
     def unregister_progress_text_callback(
-        self, token: amulet.utils.signal.SignalToken[str]
+        self, token: amulet.utils.event.EventToken[str]
     ) -> None:
         """
         Unregister a registered function from being called when update_progress is called.
         Thread safe.
         """
 
-    def update_progress(self, progress: float) -> None:
+    def update_progress(self, progress: typing.SupportsFloat) -> None:
         """
         Notify the caller of the updated progress.
         progress must be in the range 0.0 - 1.0

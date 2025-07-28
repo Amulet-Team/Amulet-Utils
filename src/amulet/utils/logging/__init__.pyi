@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-import amulet.utils.signal
+import typing
+
+import amulet.utils.event
 
 from . import _logging
 
@@ -12,9 +14,9 @@ __all__ = [
     "unregister_default_log_handler",
 ]
 
-def get_logger() -> amulet.utils.signal.Signal[int, str]:
+def get_logger() -> amulet.utils.event.Event[int, str]:
     """
-    Get the logger signal.
+    Get the logger event.
     This is emitted with the message and its level every time a message is logged.
     """
 
@@ -32,7 +34,7 @@ def register_default_log_handler() -> None:
     Thread safe.
     """
 
-def set_min_log_level(level: int) -> None:
+def set_min_log_level(level: typing.SupportsInt) -> None:
     """
     Set the maximum message level that will be logged.
     Registered handlers may be more strict.

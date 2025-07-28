@@ -4,7 +4,7 @@
 
 #include <amulet/pybind11_extensions/py_module.hpp>
 #include <amulet/utils/logging/logging.hpp>
-#include <amulet/utils/signal/signal.py.hpp>
+#include <amulet/utils/event/event.py.hpp>
 
 namespace py = pybind11;
 namespace pyext = Amulet::pybind11_extensions;
@@ -38,12 +38,12 @@ void init_logging(py::module m_parent)
                 "Registered handlers may be more strict.\n"
                 "Thread safe."));
 
-    Amulet::create_signal_binding<Amulet::Signal<int, std::string>>();
+    Amulet::create_event_binding<Amulet::Event<int, std::string>>();
 
     m.def(
         "get_logger",
-        []() -> Amulet::PySignal<int, std::string> { return py::cast(Amulet::get_logger(), py::return_value_policy::reference); },
-        py::doc("Get the logger signal.\n"
+        []() -> Amulet::PyEvent<int, std::string> { return py::cast(Amulet::get_logger(), py::return_value_policy::reference); },
+        py::doc("Get the logger event.\n"
                 "This is emitted with the message and its level every time a message is logged."));
 
     py::module::import("amulet.utils.logging._logging");

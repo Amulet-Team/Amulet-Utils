@@ -7,9 +7,9 @@
 
 namespace Amulet {
 
-// Forward declare Signal
+// Forward declare Event
 template <typename... Args>
-class Signal;
+class Event;
 
 // Register the default log handler.
 // This is registered by default with a log level of 20.
@@ -30,9 +30,9 @@ AMULET_UTILS_EXPORT int& get_min_log_level();
 // Thread safe.
 AMULET_UTILS_EXPORT void set_min_log_level(int);
 
-// Get the logger signal.
+// Get the logger event.
 // This is emitted with the message and its level every time a message is logged.
-AMULET_UTILS_EXPORT Signal<int, std::string>& get_logger();
+AMULET_UTILS_EXPORT Event<int, std::string>& get_logger();
 
 // Log a message with a custom level.
 // If the level is less than the configured log level this will do nothing.
@@ -70,4 +70,4 @@ AMULET_UTILS_EXPORT void critical(const std::string& msg);
         }                                   \
     }
 
-#include <amulet/utils/signal/signal.hpp>
+#include <amulet/utils/event/event.hpp>

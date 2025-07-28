@@ -7,7 +7,7 @@
 #include <stdexcept>
 
 #include <amulet/utils/dll.hpp>
-#include <amulet/utils/signal/signal.hpp>
+#include <amulet/utils/event/event.hpp>
 
 namespace Amulet {
 
@@ -56,11 +56,11 @@ public:
     // Register a function to get called when cancel is called.
     // The callback will be called from the thread `cancel` is called in.
     // Thread safe.
-    virtual SignalToken<> register_cancel_callback(CancelCallback callback) = 0;
+    virtual EventToken<> register_cancel_callback(CancelCallback callback) = 0;
 
     // Unregister a registered function from being called when cancel is called.
     // Thread safe.
-    virtual void unregister_cancel_callback(SignalToken<> token) = 0;
+    virtual void unregister_cancel_callback(EventToken<> token) = 0;
 };
 
 class VoidCancelManager : public AbstractCancelManager {
@@ -73,8 +73,8 @@ public:
     AMULET_UTILS_EXPORT ~VoidCancelManager() override;
     AMULET_UTILS_EXPORT void cancel() override;
     AMULET_UTILS_EXPORT bool is_cancel_requested() override;
-    AMULET_UTILS_EXPORT SignalToken<> register_cancel_callback(CancelCallback callback) override;
-    AMULET_UTILS_EXPORT void unregister_cancel_callback(SignalToken<> token) override;
+    AMULET_UTILS_EXPORT EventToken<> register_cancel_callback(CancelCallback callback) override;
+    AMULET_UTILS_EXPORT void unregister_cancel_callback(EventToken<> token) override;
 };
 
 AMULET_UTILS_EXPORT extern VoidCancelManager global_VoidCancelManager;
@@ -83,7 +83,7 @@ class CancelManager : public AbstractCancelManager {
 private:
     std::mutex mutex;
     bool cancelled = false;
-    Signal<> signal;
+    Event<> event;
 
 public:
     AMULET_UTILS_EXPORT CancelManager();
@@ -95,8 +95,8 @@ public:
 
     AMULET_UTILS_EXPORT void cancel() override;
     AMULET_UTILS_EXPORT bool is_cancel_requested() override;
-    AMULET_UTILS_EXPORT SignalToken<> register_cancel_callback(CancelCallback callback) override;
-    AMULET_UTILS_EXPORT void unregister_cancel_callback(SignalToken<> token) override;
+    AMULET_UTILS_EXPORT EventToken<> register_cancel_callback(CancelCallback callback) override;
+    AMULET_UTILS_EXPORT void unregister_cancel_callback(EventToken<> token) override;
 };
 
 } // namespace Amulet
