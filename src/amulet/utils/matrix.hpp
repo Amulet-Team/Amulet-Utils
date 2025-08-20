@@ -54,7 +54,7 @@ public:
     // Convert to QMatrix4x4
     template <typename T = QMatrix4x4>
         requires std::is_same_v<T, QMatrix4x4>
-    T get_qt_matrix()
+    T get_qt_matrix() const
     {
         return T(
             data[0][0],
@@ -76,20 +76,20 @@ public:
     }
 
     // Accessor with bounds checking
-    double operator()(std::uint8_t i, std::uint8_t j);
+    double operator()(std::uint8_t i, std::uint8_t j) const;
 
     // Multiply with another matrix and return the result
-    Matrix4x4 operator*(const Matrix4x4& other);
+    Matrix4x4 operator*(const Matrix4x4& other) const;
 
     std::vector<std::array<double, 3>> operator*(
-        const std::vector<std::array<double, 3>>& vectors);
+        const std::vector<std::array<double, 3>>& vectors) const;
 
     // Transform
-    Matrix4x4 translate(double dx, double dy, double dz);
-    Matrix4x4 scale(double dx, double dy, double dz);
-    Matrix4x4 rotate_x(double rx);
-    Matrix4x4 rotate_y(double ry);
-    Matrix4x4 rotate_z(double rz);
+    Matrix4x4 translate(double dx, double dy, double dz) const;
+    Matrix4x4 scale(double dx, double dy, double dz) const;
+    Matrix4x4 rotate_x(double rx) const;
+    Matrix4x4 rotate_y(double ry) const;
+    Matrix4x4 rotate_z(double rz) const;
 
     // Decompose into scale, rotation and displacement tuples
     std::tuple<

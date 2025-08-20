@@ -78,7 +78,7 @@ Matrix4x4 Matrix4x4::rotation_z_matrix(double angle)
 }
 
 // Accessor with bounds checking
-double Matrix4x4::operator()(std::uint8_t i, std::uint8_t j)
+double Matrix4x4::operator()(std::uint8_t i, std::uint8_t j) const
 {
     if (i > 3 || j > 3) {
         throw std::runtime_error("Matrix index is out of bounds");
@@ -87,7 +87,7 @@ double Matrix4x4::operator()(std::uint8_t i, std::uint8_t j)
 }
 
 // Multiply with another matrix and return the result
-Matrix4x4 Matrix4x4::operator*(const Matrix4x4& other)
+Matrix4x4 Matrix4x4::operator*(const Matrix4x4& other) const
 {
     Matrix4x4 matrix;
     for (auto i = 0; i < 4; i++) {
@@ -103,7 +103,7 @@ Matrix4x4 Matrix4x4::operator*(const Matrix4x4& other)
 }
 
 std::vector<std::array<double, 3>> Matrix4x4::operator*(
-    const std::vector<std::array<double, 3>>& vectors)
+    const std::vector<std::array<double, 3>>& vectors) const
 {
     std::vector<std::array<double, 3>> out(vectors.size());
 
@@ -116,27 +116,27 @@ std::vector<std::array<double, 3>> Matrix4x4::operator*(
     return out;
 }
 
-Matrix4x4 Matrix4x4::translate(double dx, double dy, double dz)
+Matrix4x4 Matrix4x4::translate(double dx, double dy, double dz) const
 {
     return translation_matrix(dx, dy, dz) * (*this);
 }
 
-Matrix4x4 Matrix4x4::scale(double dx, double dy, double dz)
+Matrix4x4 Matrix4x4::scale(double dx, double dy, double dz) const
 {
     return scale_matrix(dx, dy, dz) * (*this);
 }
 
-Matrix4x4 Matrix4x4::rotate_x(double rx)
+Matrix4x4 Matrix4x4::rotate_x(double rx) const
 {
     return rotation_x_matrix(rx) * (*this);
 }
 
-Matrix4x4 Matrix4x4::rotate_y(double ry)
+Matrix4x4 Matrix4x4::rotate_y(double ry) const
 {
     return rotation_y_matrix(ry) * (*this);
 }
 
-Matrix4x4 Matrix4x4::rotate_z(double rz)
+Matrix4x4 Matrix4x4::rotate_z(double rz) const
 {
     return rotation_z_matrix(rz) * (*this);
 }
