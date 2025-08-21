@@ -41,6 +41,9 @@ numpy = [
 pillow = [
     "pillow~=11.0",
 ]
+pyside6 = [
+    "PySide6-Essentials~=6.9",
+]
 
 [project.urls]
 Homepage = "https://www.amuletmc.com"
