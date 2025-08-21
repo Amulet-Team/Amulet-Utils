@@ -224,7 +224,7 @@ Matrix4x4::decompose() const
     for (auto j = 0; j < 3; j++) {
         if (auto s = scale[j]) {
             for (auto i = 0; i < 3; i++) {
-                m[i][j] *= s;
+                m[i][j] /= s;
             }
         }
     }
