@@ -31,9 +31,9 @@ public:
     Matrix4x4& operator=(const Matrix4x4& other);
 
     // Static construction functions
+    static Matrix4x4 identity_matrix();
     static Matrix4x4 scale_matrix(double sx, double sy, double sz);
     static Matrix4x4 translation_matrix(double dx, double dy, double dz);
-    static Matrix4x4 identity_matrix();
     static Matrix4x4 rotation_x_matrix(double angle);
     static Matrix4x4 rotation_y_matrix(double angle);
     static Matrix4x4 rotation_z_matrix(double angle);

@@ -38,19 +38,29 @@ Matrix4x4& Matrix4x4::operator=(const Matrix4x4& other)
     return *this;
 }
 
+Matrix4x4 Matrix4x4::identity_matrix()
+{
+    return scale_matrix(1, 1, 1);
+}
+
 Matrix4x4 Matrix4x4::scale_matrix(double sx, double sy, double sz)
 {
-    return Matrix4x4 { { { sx, 0, 0, 0 }, { 0, sy, 0, 0 }, { 0, 0, sz, 0 }, { 0, 0, 0, 1 } } };
+    return Matrix4x4 { {
+        { sx, 0, 0, 0 },
+        { 0, sy, 0, 0 },
+        { 0, 0, sz, 0 },
+        { 0, 0, 0, 1 },
+    } };
 }
 
 Matrix4x4 Matrix4x4::translation_matrix(double dx, double dy, double dz)
 {
-    return Matrix4x4 { { { 1, 0, 0, dx }, { 0, 1, 0, dy }, { 0, 0, 1, dz }, { 0, 0, 0, 1 } } };
-}
-
-Matrix4x4 Matrix4x4::identity_matrix()
-{
-    return scale_matrix(1, 1, 1);
+    return Matrix4x4 { {
+        { 1, 0, 0, dx },
+        { 0, 1, 0, dy },
+        { 0, 0, 1, dz },
+        { 0, 0, 0, 1 },
+    } };
 }
 
 Matrix4x4 Matrix4x4::rotation_x_matrix(double angle)
@@ -58,7 +68,12 @@ Matrix4x4 Matrix4x4::rotation_x_matrix(double angle)
     auto s = std::sin(angle);
     auto c = std::cos(angle);
 
-    return Matrix4x4 { { { 1, 0, 0, 0 }, { 0, c, -s, 0 }, { 0, s, c, 0 }, { 0, 0, 0, 1 } } };
+    return Matrix4x4 { {
+        { 1, 0, 0, 0 },
+        { 0, c, -s, 0 },
+        { 0, s, c, 0 },
+        { 0, 0, 0, 1 },
+    } };
 }
 
 Matrix4x4 Matrix4x4::rotation_y_matrix(double angle)
@@ -66,7 +81,12 @@ Matrix4x4 Matrix4x4::rotation_y_matrix(double angle)
     auto s = std::sin(angle);
     auto c = std::cos(angle);
 
-    return Matrix4x4 { { { c, 0, s, 0 }, { 0, 1, 0, 0 }, { -s, 0, c, 0 }, { 0, 0, 0, 1 } } };
+    return Matrix4x4 { {
+        { c, 0, s, 0 },
+        { 0, 1, 0, 0 },
+        { -s, 0, c, 0 },
+        { 0, 0, 0, 1 },
+    } };
 }
 
 Matrix4x4 Matrix4x4::rotation_z_matrix(double angle)
@@ -74,7 +94,12 @@ Matrix4x4 Matrix4x4::rotation_z_matrix(double angle)
     auto s = std::sin(angle);
     auto c = std::cos(angle);
 
-    return Matrix4x4 { { { c, -s, 0, 0 }, { s, c, 0, 0 }, { 0, 0, 1, 0 }, { 0, 0, 0, 1 } } };
+    return Matrix4x4 { {
+        { c, -s, 0, 0 },
+        { s, c, 0, 0 },
+        { 0, 0, 1, 0 },
+        { 0, 0, 0, 1 },
+    } };
 }
 
 // Accessor with bounds checking
