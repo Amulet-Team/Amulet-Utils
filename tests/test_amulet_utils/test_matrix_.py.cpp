@@ -607,6 +607,24 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
             },
             py::name("test_decompose_rotation")));
 
+    tests.append(
+        py::cpp_function(
+            []() {
+                auto m = Amulet::Matrix4x4::identity_matrix().scale(2, 3, 4).rotate_x(0.1).rotate_y(0.2).rotate_z(0.3).translate(10, 20, 30);
+                auto [scale, rotation, displacement] = m.decompose();
+
+                ASSERT_ALMOST_EQUAL(double, std::get<0>(scale), 2);
+                ASSERT_ALMOST_EQUAL(double, std::get<1>(scale), 3);
+                ASSERT_ALMOST_EQUAL(double, std::get<2>(scale), 4);
+                ASSERT_ALMOST_EQUAL(double, std::get<0>(rotation), 0.1);
+                ASSERT_ALMOST_EQUAL(double, std::get<1>(rotation), 0.2);
+                ASSERT_ALMOST_EQUAL(double, std::get<2>(rotation), 0.3);
+                ASSERT_ALMOST_EQUAL(double, std::get<0>(displacement), 10);
+                ASSERT_ALMOST_EQUAL(double, std::get<1>(displacement), 20);
+                ASSERT_ALMOST_EQUAL(double, std::get<2>(displacement), 30);
+            },
+            py::name("test_decompose_full")));
+
     return tests;
 }
 
