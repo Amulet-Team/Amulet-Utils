@@ -1,6 +1,16 @@
 from __future__ import annotations
 
-from . import _amulet_utils, _version, event, image, lock, logging, numpy, task_manager
+from . import (
+    _amulet_utils,
+    _version,
+    event,
+    image,
+    lock,
+    logging,
+    matrix,
+    numpy,
+    task_manager,
+)
 
 __all__ = [
     "compiler_config",
@@ -8,6 +18,7 @@ __all__ = [
     "image",
     "lock",
     "logging",
+    "matrix",
     "numpy",
     "task_manager",
 ]

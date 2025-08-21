@@ -12,6 +12,7 @@ void init_task_manager(py::module);
 void init_lock(py::module);
 void init_logging(py::module);
 void init_image(py::module);
+void init_matrix(py::module);
 
 void init_module(py::module m)
 {
@@ -29,6 +30,7 @@ void init_module(py::module m)
     init_lock(m);
     init_logging(m);
     init_image(m);
+    init_matrix(m);
 }
 
 PYBIND11_MODULE(_amulet_utils, m)
