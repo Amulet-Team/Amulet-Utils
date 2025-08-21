@@ -76,7 +76,7 @@ public:
     }
 
     // Accessor with bounds checking
-    double operator()(std::uint8_t i, std::uint8_t j) const;
+    double get_element(std::uint8_t i, std::uint8_t j) const;
 
     // Multiply with another matrix and return the result
     Matrix4x4 operator*(const Matrix4x4& other) const;

@@ -113,12 +113,12 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
                     for (auto j = 0; j < 4; j++) {
                         if (i == j) {
                             if (i == 3) {
-                                ASSERT_ALMOST_EQUAL(double, m(i, j), 1);
+                                ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), 1);
                             } else {
-                                ASSERT_ALMOST_EQUAL(double, m(i, j), i + 1);
+                                ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), i + 1);
                             }
                         } else {
-                            ASSERT_ALMOST_EQUAL(double, m(i, j), 0);
+                            ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), 0);
                         }
                     }
                 }
@@ -132,11 +132,11 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
                 for (auto i = 0; i < 4; i++) {
                     for (auto j = 0; j < 4; j++) {
                         if (i == j) {
-                            ASSERT_ALMOST_EQUAL(double, m(i, j), 1);
+                            ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), 1);
                         } else if (j == 3) {
-                            ASSERT_ALMOST_EQUAL(double, m(i, j), (i + 1) * 10);
+                            ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), (i + 1) * 10);
                         } else {
-                            ASSERT_ALMOST_EQUAL(double, m(i, j), 0);
+                            ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), 0);
                         }
                     }
                 }
@@ -150,9 +150,9 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
                 for (auto i = 0; i < 4; i++) {
                     for (auto j = 0; j < 4; j++) {
                         if (i == j) {
-                            ASSERT_ALMOST_EQUAL(double, m(i, j), 1);
+                            ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), 1);
                         } else {
-                            ASSERT_ALMOST_EQUAL(double, m(i, j), 0);
+                            ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), 0);
                         }
                     }
                 }
@@ -166,9 +166,9 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
                 for (auto i = 0; i < 4; i++) {
                     for (auto j = 0; j < 4; j++) {
                         if (i == j) {
-                            ASSERT_ALMOST_EQUAL(double, m(i, j), 1);
+                            ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), 1);
                         } else {
-                            ASSERT_ALMOST_EQUAL(double, m(i, j), 0);
+                            ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), 0);
                         }
                     }
                 }
@@ -186,11 +186,11 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
                 }
                 for (auto i = 0; i < 4; i++) {
                     for (auto j = 0; j < 4; j++) {
-                        ASSERT_ALMOST_EQUAL(double, m(i, j), i + j * 4);
+                        ASSERT_ALMOST_EQUAL(double, m.get_element(i, j), i + j * 4);
                     }
                 }
-                ASSERT_RAISES(std::runtime_error, m(4, 0));
-                ASSERT_RAISES(std::runtime_error, m(0, 4));
+                ASSERT_RAISES(std::runtime_error, m.get_element(4, 0));
+                ASSERT_RAISES(std::runtime_error, m.get_element(0, 4));
             },
             py::name("test_accessor")));
 
@@ -201,22 +201,22 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
                 Amulet::Matrix4x4 m2 { { { 17, 18, 19, 20 }, { 21, 22, 23, 24 }, { 25, 26, 27, 28 }, { 29, 30, 31, 32 } } };
                 auto m3 = m1 * m2;
 
-                ASSERT_ALMOST_EQUAL(double, m3(0, 0), 1 * 17 + 2 * 21 + 3 * 25 + 4 * 29);
-                ASSERT_ALMOST_EQUAL(double, m3(0, 1), 1 * 18 + 2 * 22 + 3 * 26 + 4 * 30);
-                ASSERT_ALMOST_EQUAL(double, m3(0, 2), 1 * 19 + 2 * 23 + 3 * 27 + 4 * 31);
-                ASSERT_ALMOST_EQUAL(double, m3(0, 3), 1 * 20 + 2 * 24 + 3 * 28 + 4 * 32);
-                ASSERT_ALMOST_EQUAL(double, m3(1, 0), 5 * 17 + 6 * 21 + 7 * 25 + 8 * 29);
-                ASSERT_ALMOST_EQUAL(double, m3(1, 1), 5 * 18 + 6 * 22 + 7 * 26 + 8 * 30);
-                ASSERT_ALMOST_EQUAL(double, m3(1, 2), 5 * 19 + 6 * 23 + 7 * 27 + 8 * 31);
-                ASSERT_ALMOST_EQUAL(double, m3(1, 3), 5 * 20 + 6 * 24 + 7 * 28 + 8 * 32);
-                ASSERT_ALMOST_EQUAL(double, m3(2, 0), 9 * 17 + 10 * 21 + 11 * 25 + 12 * 29);
-                ASSERT_ALMOST_EQUAL(double, m3(2, 1), 9 * 18 + 10 * 22 + 11 * 26 + 12 * 30);
-                ASSERT_ALMOST_EQUAL(double, m3(2, 2), 9 * 19 + 10 * 23 + 11 * 27 + 12 * 31);
-                ASSERT_ALMOST_EQUAL(double, m3(2, 3), 9 * 20 + 10 * 24 + 11 * 28 + 12 * 32);
-                ASSERT_ALMOST_EQUAL(double, m3(3, 0), 13 * 17 + 14 * 21 + 15 * 25 + 16 * 29);
-                ASSERT_ALMOST_EQUAL(double, m3(3, 1), 13 * 18 + 14 * 22 + 15 * 26 + 16 * 30);
-                ASSERT_ALMOST_EQUAL(double, m3(3, 2), 13 * 19 + 14 * 23 + 15 * 27 + 16 * 31);
-                ASSERT_ALMOST_EQUAL(double, m3(3, 3), 13 * 20 + 14 * 24 + 15 * 28 + 16 * 32);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(0, 0), 1 * 17 + 2 * 21 + 3 * 25 + 4 * 29);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(0, 1), 1 * 18 + 2 * 22 + 3 * 26 + 4 * 30);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(0, 2), 1 * 19 + 2 * 23 + 3 * 27 + 4 * 31);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(0, 3), 1 * 20 + 2 * 24 + 3 * 28 + 4 * 32);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(1, 0), 5 * 17 + 6 * 21 + 7 * 25 + 8 * 29);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(1, 1), 5 * 18 + 6 * 22 + 7 * 26 + 8 * 30);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(1, 2), 5 * 19 + 6 * 23 + 7 * 27 + 8 * 31);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(1, 3), 5 * 20 + 6 * 24 + 7 * 28 + 8 * 32);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(2, 0), 9 * 17 + 10 * 21 + 11 * 25 + 12 * 29);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(2, 1), 9 * 18 + 10 * 22 + 11 * 26 + 12 * 30);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(2, 2), 9 * 19 + 10 * 23 + 11 * 27 + 12 * 31);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(2, 3), 9 * 20 + 10 * 24 + 11 * 28 + 12 * 32);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(3, 0), 13 * 17 + 14 * 21 + 15 * 25 + 16 * 29);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(3, 1), 13 * 18 + 14 * 22 + 15 * 26 + 16 * 30);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(3, 2), 13 * 19 + 14 * 23 + 15 * 27 + 16 * 31);
+                ASSERT_ALMOST_EQUAL(double, m3.get_element(3, 3), 13 * 20 + 14 * 24 + 15 * 28 + 16 * 32);
             },
             py::name("test_multiply_matrix")));
 
@@ -393,11 +393,11 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
                 for (auto i = 0; i < 4; i++) {
                     for (auto j = 0; j < 4; j++) {
                         if (i == j) {
-                            ASSERT_ALMOST_EQUAL(double, m2(i, j), 1);
+                            ASSERT_ALMOST_EQUAL(double, m2.get_element(i, j), 1);
                         } else if (j == 3) {
-                            ASSERT_ALMOST_EQUAL(double, m2(i, j), (i + 1) * 10);
+                            ASSERT_ALMOST_EQUAL(double, m2.get_element(i, j), (i + 1) * 10);
                         } else {
-                            ASSERT_ALMOST_EQUAL(double, m2(i, j), 0);
+                            ASSERT_ALMOST_EQUAL(double, m2.get_element(i, j), 0);
                         }
                     }
                 }
@@ -415,12 +415,12 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
                     for (auto j = 0; j < 4; j++) {
                         if (i == j) {
                             if (i == 3) {
-                                ASSERT_ALMOST_EQUAL(double, m2(i, j), 1);
+                                ASSERT_ALMOST_EQUAL(double, m2.get_element(i, j), 1);
                             } else {
-                                ASSERT_ALMOST_EQUAL(double, m2(i, j), (i + 1) * 10);
+                                ASSERT_ALMOST_EQUAL(double, m2.get_element(i, j), (i + 1) * 10);
                             }
                         } else {
-                            ASSERT_ALMOST_EQUAL(double, m2(i, j), 0);
+                            ASSERT_ALMOST_EQUAL(double, m2.get_element(i, j), 0);
                         }
                     }
                 }

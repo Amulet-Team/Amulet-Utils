@@ -78,7 +78,7 @@ Matrix4x4 Matrix4x4::rotation_z_matrix(double angle)
 }
 
 // Accessor with bounds checking
-double Matrix4x4::operator()(std::uint8_t i, std::uint8_t j) const
+double Matrix4x4::get_element(std::uint8_t i, std::uint8_t j) const
 {
     if (i > 3 || j > 3) {
         throw std::runtime_error("Matrix index is out of bounds");
