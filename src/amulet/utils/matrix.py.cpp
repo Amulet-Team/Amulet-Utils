@@ -228,7 +228,10 @@ void init_matrix(py::module m_parent)
 
     Matrix4x4.def(
         "__mul__",
-        [](const Amulet::Matrix4x4& self, py::typing::List<py::typing::Tuple<double, double, double>> py_other) {
+        [](
+            const Amulet::Matrix4x4& self,
+            py::typing::List<py::typing::Tuple<double, double, double>> py_other)
+            -> py::typing::List<py::typing::Tuple<double, double, double>> {
             auto other_size = py_other.size();
             std::vector<std::array<double, 3>> other(other_size);
             for (auto v = 0; v < other_size; v++) {
@@ -237,7 +240,12 @@ void init_matrix(py::module m_parent)
                 other[v][1] = t[1].cast<double>();
                 other[v][2] = t[2].cast<double>();
             }
-            return self * other;
+            auto transformed = self * other;
+            py::list py_transformed;
+            for (const auto& vec : transformed) {
+                py_transformed.append(py::make_tuple(vec[0], vec[1], vec[2]));
+            }
+            return py_transformed;
         },
         py::arg("other"),
         py::doc("Multiply this matrix with a sequence of vectors."));
