@@ -111,6 +111,14 @@ double Matrix4x4::get_element(std::uint8_t i, std::uint8_t j) const
     return data[i][j];
 }
 
+void Matrix4x4::set_element(std::uint8_t i, std::uint8_t j, double value)
+{
+    if (i > 3 || j > 3) {
+        throw std::runtime_error("Matrix index is out of bounds");
+    }
+    data[i][j] = value;
+}
+
 // Multiply with another matrix and return the result
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& other) const
 {
