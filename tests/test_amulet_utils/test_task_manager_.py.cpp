@@ -1,7 +1,6 @@
 #include <pybind11/pybind11.h>
 
 #include <stdexcept>
-#include <iostream>
 
 #include <amulet/pybind11_extensions/py_module.hpp>
 
