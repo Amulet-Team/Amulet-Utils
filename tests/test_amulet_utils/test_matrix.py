@@ -285,7 +285,14 @@ class MatrixTestCase(unittest.TestCase):
         self.assertIsInstance(Matrix4x4.identity_matrix().rotate_z(1), Matrix4x4)
 
     def test_decompose(self) -> None:
-        m = Matrix4x4.identity_matrix().scale(1, 2, 3).rotate_x(0.1).rotate_y(0.2).rotate_z(0.3).translate(10, 20, 30)
+        m = (
+            Matrix4x4.identity_matrix()
+            .scale(1, 2, 3)
+            .rotate_x(0.1)
+            .rotate_y(0.2)
+            .rotate_z(0.3)
+            .translate(10, 20, 30)
+        )
 
         decomp = m.decompose()
 
