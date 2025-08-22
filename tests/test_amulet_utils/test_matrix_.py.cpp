@@ -656,6 +656,49 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
             },
             py::name("test_decompose_full")));
 
+    tests.append(
+        py::cpp_function(
+            []() {
+                Amulet::Matrix4x4 m1;
+                for (auto i = 0; i < 4; i++) {
+                    for (auto j = 0; j < 4; j++) {
+                        m1.data[i][j] = i + j * 4;
+                    }
+                }
+                Amulet::Matrix4x4 m2;
+                for (auto i = 0; i < 4; i++) {
+                    for (auto j = 0; j < 4; j++) {
+                        m2.data[i][j] = i + j * 4 + 0.00000001;
+                    }
+                }
+                ASSERT_EQUAL(bool, true, m1.almost_equal(m2));
+            },
+            py::name("test_almost_equal")));
+
+    tests.append(
+        py::cpp_function(
+            []() {
+                // Test not equal
+                for (auto i2 = 0; i2 < 4; i2++) {
+                    for (auto j2 = 0; j2 < 4; j2++) {
+                        Amulet::Matrix4x4 m1;
+                        Amulet::Matrix4x4 m2;
+                        for (auto i = 0; i < 4; i++) {
+                            for (auto j = 0; j < 4; j++) {
+                                m1.data[i][j] = i + j * 4;
+                                if (i == i2 && j == j2) {
+                                    m2.data[i][j] = i + j * 4 + 0.001;
+                                } else {
+                                    m2.data[i][j] = i + j * 4;
+                                }
+                            }
+                        }
+                        ASSERT_EQUAL(bool, false, m1.almost_equal(m2));
+                    }
+                }
+            },
+            py::name("test_not_almost_equal")));
+
     return tests;
 }
 

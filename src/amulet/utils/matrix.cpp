@@ -273,4 +273,16 @@ Matrix4x4::decompose() const
         displacement);
 }
 
+bool Matrix4x4::almost_equal(const Matrix4x4& other, double err)
+{
+    for (auto i = 0; i < 4; i++) {
+        for (auto j = 0; j < 4; j++) {
+            if (err < std::abs(data[i][j] - other.data[i][j])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 } // namespace Amulet

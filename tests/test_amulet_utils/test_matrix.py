@@ -328,6 +328,11 @@ class MatrixTestCase(unittest.TestCase):
         self.assertAlmostEqual(20.0, decomp[2][1])
         self.assertAlmostEqual(30.0, decomp[2][2])
 
+    def test_almost_equal(self) -> None:
+        m1 = Matrix4x4.translation_matrix(1, 2, 3)
+        m2 = Matrix4x4.translation_matrix(1, 2, 3.00000001)
+        self.assertTrue(m1.almost_equal(m2))
+
     def test_construct_from_qt(self) -> None:
         q = QMatrix4x4()
         q.translate(10, 20, 30)

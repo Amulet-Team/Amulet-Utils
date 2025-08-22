@@ -136,6 +136,11 @@ class Matrix4x4:
         """
 
     def __repr__(self) -> str: ...
+    def almost_equal(self, other: Matrix4x4, err: typing.SupportsFloat = 1e-06) -> bool:
+        """
+        Check if this matrix is almost equal to another matrix.
+        """
+
     def decompose(
         self,
     ) -> tuple[

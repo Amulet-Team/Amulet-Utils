@@ -303,6 +303,13 @@ void init_matrix(py::module m_parent)
         &Amulet::Matrix4x4::decompose,
         py::doc("Decompose the matrix into scale, rotation and displacement tuples."));
 
+    Matrix4x4.def(
+        "almost_equal",
+        &Amulet::Matrix4x4::almost_equal,
+        py::arg("other"),
+        py::arg("err") = 0.000001,
+        py::doc("Check if this matrix is almost equal to another matrix."));
+
     if (auto QMatrix4x4 = get_class("PySide6.QtGui", "QMatrix4x4")) {
         Matrix4x4.def(
             py::init([](pyext::PyObjectStr<"PySide6.QtGui.QMatrix4x4"> other) {
