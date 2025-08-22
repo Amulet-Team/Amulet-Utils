@@ -40,5 +40,10 @@ jobs:
         pip install -v .[dev,numpy,pillow,pyside6]
         python tools/compile_tests.py
 
+    - name: Install Ubuntu Extra
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        apt install libegl1
+
     - name: Test with unittest
       run: python -m unittest discover -v -s tests
