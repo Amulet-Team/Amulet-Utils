@@ -43,7 +43,7 @@ jobs:
     - name: Install Ubuntu Extra
       if: matrix.os == 'ubuntu-latest'
       run: |
-        apt install libegl1
+        sudo apt install libegl1
 
     - name: Test with unittest
       run: python -m unittest discover -v -s tests
