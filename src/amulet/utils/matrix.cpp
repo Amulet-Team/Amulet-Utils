@@ -290,7 +290,7 @@ Matrix4x4::decompose() const
         displacement);
 }
 
-bool Matrix4x4::almost_equal(const Matrix4x4& other, double err)
+bool Matrix4x4::almost_equal(const Matrix4x4& other, double err) const
 {
     for (auto i = 0; i < 4; i++) {
         for (auto j = 0; j < 4; j++) {

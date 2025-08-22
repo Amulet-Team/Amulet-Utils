@@ -114,7 +114,7 @@ public:
     decompose() const;
 
     // Is this matrix the same as another matrix within an error tolerance
-    bool almost_equal(const Matrix4x4&, double err = 0.000001);
+    bool almost_equal(const Matrix4x4&, double err = 0.000001) const;
 };
 
 } // namespace Amulet
