@@ -19,19 +19,19 @@ class Matrix4x4:
         """
 
     @staticmethod
-    def rotation_x_matrix(angle: typing.SupportsFloat) -> Matrix4x4:
+    def rotation_x_matrix(rx: typing.SupportsFloat) -> Matrix4x4:
         """
         Construct a new rotation matrix in the x axis.
         """
 
     @staticmethod
-    def rotation_y_matrix(angle: typing.SupportsFloat) -> Matrix4x4:
+    def rotation_y_matrix(ry: typing.SupportsFloat) -> Matrix4x4:
         """
         Construct a new rotation matrix in the y axis.
         """
 
     @staticmethod
-    def rotation_z_matrix(angle: typing.SupportsFloat) -> Matrix4x4:
+    def rotation_z_matrix(rz: typing.SupportsFloat) -> Matrix4x4:
         """
         Construct a new rotation matrix in the z axis.
         """

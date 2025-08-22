@@ -188,19 +188,19 @@ void init_matrix(py::module m_parent)
     Matrix4x4.def_static(
         "rotation_x_matrix",
         &Amulet::Matrix4x4::rotation_x_matrix,
-        py::arg("angle"),
+        py::arg("rx"),
         py::doc("Construct a new rotation matrix in the x axis."));
 
     Matrix4x4.def_static(
         "rotation_y_matrix",
         &Amulet::Matrix4x4::rotation_y_matrix,
-        py::arg("angle"),
+        py::arg("ry"),
         py::doc("Construct a new rotation matrix in the y axis."));
 
     Matrix4x4.def_static(
         "rotation_z_matrix",
         &Amulet::Matrix4x4::rotation_z_matrix,
-        py::arg("angle"),
+        py::arg("rz"),
         py::doc("Construct a new rotation matrix in the z axis."));
 
     Matrix4x4.def_static(
