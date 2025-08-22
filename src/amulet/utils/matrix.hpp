@@ -46,7 +46,7 @@ public:
         const float* data = matrix.data();
         for (auto i = 0; i < 4; i++) {
             for (auto j = 0; j < 4; j++) {
-                data[i][j] = matrix(i, j);
+                *(data + i * 4 + j) = matrix(i, j);
             }
         }
     }
