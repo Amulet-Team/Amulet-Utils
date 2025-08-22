@@ -5,7 +5,7 @@ import typing
 
 import PySide6.QtGui
 
-__all__ = ["Matrix4x4"]
+__all__: list[str] = ["Matrix4x4"]
 
 class Matrix4x4:
     """

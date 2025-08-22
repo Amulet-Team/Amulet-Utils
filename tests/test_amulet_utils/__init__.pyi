@@ -14,7 +14,7 @@ from . import (
     test_weak_,
 )
 
-__all__ = [
+__all__: list[str] = [
     "compiler_config",
     "test_event_",
     "test_lock_",

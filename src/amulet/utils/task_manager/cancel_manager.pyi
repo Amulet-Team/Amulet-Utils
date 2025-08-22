@@ -4,7 +4,7 @@ import collections.abc
 
 import amulet.utils.event
 
-__all__ = [
+__all__: list[str] = [
     "AbstractCancelManager",
     "CancelManager",
     "TaskCancelled",

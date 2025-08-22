@@ -5,7 +5,11 @@ import typing
 
 import amulet.utils.event
 
-__all__ = ["AbstractProgressManager", "ProgressManager", "VoidProgressManager"]
+__all__: list[str] = [
+    "AbstractProgressManager",
+    "ProgressManager",
+    "VoidProgressManager",
+]
 
 class AbstractProgressManager:
     def get_child(

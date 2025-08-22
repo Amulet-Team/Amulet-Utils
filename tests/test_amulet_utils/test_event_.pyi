@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import amulet.utils.event
 
-__all__ = ["EventTest"]
+__all__: list[str] = ["EventTest"]
 
 class EventTest:
     def __init__(self) -> None: ...

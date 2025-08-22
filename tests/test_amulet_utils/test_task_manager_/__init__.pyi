@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ["cpp_test_task_cancelled", "throw_task_cancelled"]
+__all__: list[str] = ["cpp_test_task_cancelled", "throw_task_cancelled"]
 
 def cpp_test_task_cancelled() -> None: ...
 def throw_task_cancelled() -> None: ...

@@ -4,7 +4,7 @@ import typing
 
 import amulet.utils.lock
 
-__all__ = ["lock_ordered_mutex", "lock_shared_mutex", "throw_deadlock"]
+__all__: list[str] = ["lock_ordered_mutex", "lock_shared_mutex", "throw_deadlock"]
 
 def lock_ordered_mutex(
     arg0: amulet.utils.lock.OrderedLock, arg1: typing.SupportsInt

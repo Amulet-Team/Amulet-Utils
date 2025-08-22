@@ -6,7 +6,7 @@ import amulet.utils.event
 
 from . import _logging
 
-__all__ = [
+__all__: list[str] = [
     "get_logger",
     "get_min_log_level",
     "register_default_log_handler",

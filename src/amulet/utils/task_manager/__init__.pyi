@@ -14,7 +14,7 @@ from amulet.utils.task_manager.progress_manager import (
 
 from . import cancel_manager, progress_manager
 
-__all__ = [
+__all__: list[str] = [
     "AbstractCancelManager",
     "AbstractProgressManager",
     "CancelManager",

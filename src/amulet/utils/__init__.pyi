@@ -12,7 +12,7 @@ from . import (
     task_manager,
 )
 
-__all__ = [
+__all__: list[str] = [
     "compiler_config",
     "event",
     "image",
