@@ -102,6 +102,25 @@ Matrix4x4 Matrix4x4::rotation_z_matrix(double angle)
     } };
 }
 
+Matrix4x4 Matrix4x4::transformation_matrix(
+    double sx,
+    double sy,
+    double sz,
+    double rx,
+    double ry,
+    double rz,
+    double dx,
+    double dy,
+    double dz)
+{
+    return Matrix4x4::identity_matrix()
+        .scale(sx, sy, sz)
+        .rotate_x(rx)
+        .rotate_y(ry)
+        .rotate_z(rz)
+        .translate(dx, dy, dz);
+}
+
 // Accessor with bounds checking
 double Matrix4x4::get_element(std::uint8_t i, std::uint8_t j) const
 {

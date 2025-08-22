@@ -45,6 +45,22 @@ class Matrix4x4:
         """
 
     @staticmethod
+    def transformation_matrix(
+        sx: typing.SupportsFloat,
+        sy: typing.SupportsFloat,
+        sz: typing.SupportsFloat,
+        rx: typing.SupportsFloat,
+        ry: typing.SupportsFloat,
+        rz: typing.SupportsFloat,
+        dx: typing.SupportsFloat,
+        dy: typing.SupportsFloat,
+        dz: typing.SupportsFloat,
+    ) -> Matrix4x4:
+        """
+        Construct a new transformation matrix made from scale, rotation and translation.
+        """
+
+    @staticmethod
     def translation_matrix(
         dx: typing.SupportsFloat, dy: typing.SupportsFloat, dz: typing.SupportsFloat
     ) -> Matrix4x4:

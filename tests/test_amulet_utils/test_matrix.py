@@ -194,6 +194,19 @@ class MatrixTestCase(unittest.TestCase):
         self.assertIsInstance(Matrix4x4.rotation_y_matrix(1), Matrix4x4)
         self.assertIsInstance(Matrix4x4.rotation_z_matrix(1), Matrix4x4)
 
+    def test_transformation_matrix(self) -> None:
+        m = Matrix4x4.transformation_matrix(1, 2, 3, 0.1, 0.2, 0.3, 10, 20, 30)
+        (sx, sy, sz), (rx, ry, rz), (dx, dy, dz) = m.decompose()
+        self.assertAlmostEqual(sx, 1.0)
+        self.assertAlmostEqual(sy, 2.0)
+        self.assertAlmostEqual(sz, 3.0)
+        self.assertAlmostEqual(rx, 0.1)
+        self.assertAlmostEqual(ry, 0.2)
+        self.assertAlmostEqual(rz, 0.3)
+        self.assertAlmostEqual(dx, 10)
+        self.assertAlmostEqual(dy, 20)
+        self.assertAlmostEqual(dz, 30)
+
     def test_get_element(self) -> None:
         m = Matrix4x4(((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, 16)))
 

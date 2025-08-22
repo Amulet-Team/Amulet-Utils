@@ -203,6 +203,20 @@ void init_matrix(py::module m_parent)
         py::arg("angle"),
         py::doc("Construct a new rotation matrix in the z axis."));
 
+    Matrix4x4.def_static(
+        "transformation_matrix",
+        &Amulet::Matrix4x4::transformation_matrix,
+        py::arg("sx"),
+        py::arg("sy"),
+        py::arg("sz"),
+        py::arg("rx"),
+        py::arg("ry"),
+        py::arg("rz"),
+        py::arg("dx"),
+        py::arg("dy"),
+        py::arg("dz"),
+        py::doc("Construct a new transformation matrix made from scale, rotation and translation."));
+
     Matrix4x4.def(
         "get_element",
         &Amulet::Matrix4x4::get_element,

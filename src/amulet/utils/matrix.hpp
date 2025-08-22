@@ -38,6 +38,17 @@ public:
     static Matrix4x4 rotation_x_matrix(double angle);
     static Matrix4x4 rotation_y_matrix(double angle);
     static Matrix4x4 rotation_z_matrix(double angle);
+    static Matrix4x4 transformation_matrix(
+        double sx, 
+        double sy, 
+        double sz, 
+        double rx,
+        double ry,
+        double rz,
+        double dx, 
+        double dy, 
+        double dz
+    );
 
     // Construct from QMatrix4x4
     template <typename T = QMatrix4x4>

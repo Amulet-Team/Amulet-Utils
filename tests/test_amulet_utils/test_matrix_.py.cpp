@@ -386,6 +386,37 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
     tests.append(
         py::cpp_function(
             []() {
+                std::vector<std::array<double, 3>> vectors(
+                    { { 1, 0, 0 },
+                        { 0, 1, 0 },
+                        { 0, 0, 1 },
+                        { -1, 0, 0 },
+                        { 0, -1, 0 },
+                        { 0, 0, -1 } });
+
+                auto m = Amulet::Matrix4x4::transformation_matrix(1, 2, 3, std::numbers::pi / 2, 0, 0, 10, 20, 30);
+
+                auto transformed_vectors = m * vectors;
+
+                std::vector<std::array<double, 3>> expected_vectors(
+                    { { 11, 20, 30 },
+                        { 10, 20, 32 },
+                        { 10, 17, 30 },
+                        { 9, 20, 30 },
+                        { 10, 20, 28 },
+                        { 10, 23, 30 } });
+
+                for (auto v = 0; v < vectors.size(); v++) {
+                    for (auto i = 0; i < 3; i++) {
+                        ASSERT_ALMOST_EQUAL(double, expected_vectors[v][i], transformed_vectors[v][i]);
+                    }
+                }
+            },
+            py::name("test_transformation_matrix")));
+
+    tests.append(
+        py::cpp_function(
+            []() {
                 auto m1 = Amulet::Matrix4x4::identity_matrix();
 
                 auto m2 = m1.translate(10, 20, 30);
