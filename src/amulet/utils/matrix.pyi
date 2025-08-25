@@ -150,6 +150,8 @@ class Matrix4x4:
     ]:
         """
         Decompose the matrix into scale, rotation and displacement tuples.
+        Note that these values may be incorrect if the matrix is more complex
+        Recompose the matrix and compare with the original to check
         """
 
     def get_element(self, i: typing.SupportsInt, j: typing.SupportsInt) -> float:

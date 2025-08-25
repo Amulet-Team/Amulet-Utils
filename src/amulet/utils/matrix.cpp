@@ -226,6 +226,8 @@ static std::array<double, 3> cross_product(const std::array<double, 3>& a, const
 }
 
 // Decompose into scale, rotation and displacement tuples
+// Note that these values may be incorrect if the matrix is more complex
+// Recompose the matrix and compare with the original to check
 std::tuple<
     std::tuple<double, double, double>,
     std::tuple<double, double, double>,
