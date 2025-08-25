@@ -659,6 +659,19 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
     tests.append(
         py::cpp_function(
             []() {
+                auto m1 = Amulet::Matrix4x4::identity_matrix().scale(2, 3, 4).rotate_x(0.1).rotate_y(0.2).rotate_z(0.3).translate(10, 20, 30);
+                auto inv = m1.inverse();
+                auto ident = inv * m1;
+                ASSERT_EQUAL(bool, true, ident.almost_equal(Amulet::Matrix4x4()));
+
+                auto m2 = Amulet::Matrix4x4::scale_matrix(0, 0, 0);
+                ASSERT_RAISES(std::runtime_error, m2.inverse());
+            },
+            py::name("test_inverse")));
+
+    tests.append(
+        py::cpp_function(
+            []() {
                 Amulet::Matrix4x4 m1;
                 for (auto i = 0; i < 4; i++) {
                     for (auto j = 0; j < 4; j++) {

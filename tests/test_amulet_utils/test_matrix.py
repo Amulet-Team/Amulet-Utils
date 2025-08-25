@@ -328,6 +328,23 @@ class MatrixTestCase(unittest.TestCase):
         self.assertAlmostEqual(20.0, decomp[2][1])
         self.assertAlmostEqual(30.0, decomp[2][2])
 
+    def test_inverse(self) -> None:
+        m1 = (
+            Matrix4x4.identity_matrix()
+            .scale(2, 3, 4)
+            .rotate_x(0.1)
+            .rotate_y(0.2)
+            .rotate_z(0.3)
+            .translate(10, 20, 30)
+        )
+        inv = m1.inverse()
+        ident = inv * m1
+        self.assertTrue(ident.almost_equal(Matrix4x4()))
+
+        m2 = Matrix4x4.scale_matrix(0, 0, 0)
+        with self.assertRaises(RuntimeError):
+            m2.inverse()
+
     def test_almost_equal(self) -> None:
         m1 = Matrix4x4.translation_matrix(1, 2, 3)
         m2 = Matrix4x4.translation_matrix(1, 2, 3.00000001)

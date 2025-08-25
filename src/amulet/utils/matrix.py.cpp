@@ -304,6 +304,14 @@ void init_matrix(py::module m_parent)
         py::doc("Decompose the matrix into scale, rotation and displacement tuples."));
 
     Matrix4x4.def(
+        "inverse",
+        &Amulet::Matrix4x4::inverse,
+        py::doc(
+            "Compute the inverse of this matrix.\n"
+            "Raises RuntimeError if the matrix cannot be inverted."
+        ));
+
+    Matrix4x4.def(
         "almost_equal",
         &Amulet::Matrix4x4::almost_equal,
         py::arg("other"),

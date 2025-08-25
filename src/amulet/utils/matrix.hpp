@@ -113,6 +113,10 @@ public:
         std::tuple<double, double, double>>
     decompose() const;
 
+    // Compute the inverse of this matrix.
+    // Throws std::runtime_error if the matrix cannot be inverted.
+    Matrix4x4 inverse() const;
+
     // Is this matrix the same as another matrix within an error tolerance
     bool almost_equal(const Matrix4x4&, double err = 0.000001) const;
 };

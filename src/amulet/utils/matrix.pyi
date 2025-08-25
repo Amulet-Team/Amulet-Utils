@@ -157,6 +157,12 @@ class Matrix4x4:
         Get an element in the matrix.
         """
 
+    def inverse(self) -> Matrix4x4:
+        """
+        Compute the inverse of this matrix.
+        Raises RuntimeError if the matrix cannot be inverted.
+        """
+
     def rotate_x(self, rx: typing.SupportsFloat) -> Matrix4x4:
         """
         Rotate this matrix by the specified amount in the x axis.

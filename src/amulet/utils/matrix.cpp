@@ -5,7 +5,8 @@
 namespace Amulet {
 
 // Uninitialised
-Matrix4x4::Matrix4x4() { 
+Matrix4x4::Matrix4x4()
+{
     data[0][0] = 1;
     data[0][1] = 0;
     data[0][2] = 0;
@@ -288,6 +289,44 @@ Matrix4x4::decompose() const
         std::make_tuple(scale[0], scale[1], scale[2]),
         rotation,
         displacement);
+}
+
+Matrix4x4 Matrix4x4::inverse() const
+{
+    Matrix4x4 m;
+    auto& inv = m.data;
+    inv[0][0] = data[1][1] * data[2][2] * data[3][3] - data[1][1] * data[3][2] * data[2][3] - data[1][2] * data[2][1] * data[3][3] + data[1][2] * data[3][1] * data[2][3] + data[1][3] * data[2][1] * data[3][2] - data[1][3] * data[3][1] * data[2][2];
+    inv[0][1] = -data[0][1] * data[2][2] * data[3][3] + data[0][1] * data[3][2] * data[2][3] + data[0][2] * data[2][1] * data[3][3] - data[0][2] * data[3][1] * data[2][3] - data[0][3] * data[2][1] * data[3][2] + data[0][3] * data[3][1] * data[2][2];
+    inv[0][2] = data[0][1] * data[1][2] * data[3][3] - data[0][1] * data[3][2] * data[1][3] - data[0][2] * data[1][1] * data[3][3] + data[0][2] * data[3][1] * data[1][3] + data[0][3] * data[1][1] * data[3][2] - data[0][3] * data[3][1] * data[1][2];
+    inv[0][3] = -data[0][1] * data[1][2] * data[2][3] + data[0][1] * data[2][2] * data[1][3] + data[0][2] * data[1][1] * data[2][3] - data[0][2] * data[2][1] * data[1][3] - data[0][3] * data[1][1] * data[2][2] + data[0][3] * data[2][1] * data[1][2];
+    inv[1][0] = -data[1][0] * data[2][2] * data[3][3] + data[1][0] * data[3][2] * data[2][3] + data[1][2] * data[2][0] * data[3][3] - data[1][2] * data[3][0] * data[2][3] - data[1][3] * data[2][0] * data[3][2] + data[1][3] * data[3][0] * data[2][2];
+    inv[1][1] = data[0][0] * data[2][2] * data[3][3] - data[0][0] * data[3][2] * data[2][3] - data[0][2] * data[2][0] * data[3][3] + data[0][2] * data[3][0] * data[2][3] + data[0][3] * data[2][0] * data[3][2] - data[0][3] * data[3][0] * data[2][2];
+    inv[1][2] = -data[0][0] * data[1][2] * data[3][3] + data[0][0] * data[3][2] * data[1][3] + data[0][2] * data[1][0] * data[3][3] - data[0][2] * data[3][0] * data[1][3] - data[0][3] * data[1][0] * data[3][2] + data[0][3] * data[3][0] * data[1][2];
+    inv[1][3] = data[0][0] * data[1][2] * data[2][3] - data[0][0] * data[2][2] * data[1][3] - data[0][2] * data[1][0] * data[2][3] + data[0][2] * data[2][0] * data[1][3] + data[0][3] * data[1][0] * data[2][2] - data[0][3] * data[2][0] * data[1][2];
+    inv[2][0] = data[1][0] * data[2][1] * data[3][3] - data[1][0] * data[3][1] * data[2][3] - data[1][1] * data[2][0] * data[3][3] + data[1][1] * data[3][0] * data[2][3] + data[1][3] * data[2][0] * data[3][1] - data[1][3] * data[3][0] * data[2][1];
+    inv[2][1] = -data[0][0] * data[2][1] * data[3][3] + data[0][0] * data[3][1] * data[2][3] + data[0][1] * data[2][0] * data[3][3] - data[0][1] * data[3][0] * data[2][3] - data[0][3] * data[2][0] * data[3][1] + data[0][3] * data[3][0] * data[2][1];
+    inv[2][2] = data[0][0] * data[1][1] * data[3][3] - data[0][0] * data[3][1] * data[1][3] - data[0][1] * data[1][0] * data[3][3] + data[0][1] * data[3][0] * data[1][3] + data[0][3] * data[1][0] * data[3][1] - data[0][3] * data[3][0] * data[1][1];
+    inv[2][3] = -data[0][0] * data[1][1] * data[2][3] + data[0][0] * data[2][1] * data[1][3] + data[0][1] * data[1][0] * data[2][3] - data[0][1] * data[2][0] * data[1][3] - data[0][3] * data[1][0] * data[2][1] + data[0][3] * data[2][0] * data[1][1];
+    inv[3][0] = -data[1][0] * data[2][1] * data[3][2] + data[1][0] * data[3][1] * data[2][2] + data[1][1] * data[2][0] * data[3][2] - data[1][1] * data[3][0] * data[2][2] - data[1][2] * data[2][0] * data[3][1] + data[1][2] * data[3][0] * data[2][1];
+    inv[3][1] = data[0][0] * data[2][1] * data[3][2] - data[0][0] * data[3][1] * data[2][2] - data[0][1] * data[2][0] * data[3][2] + data[0][1] * data[3][0] * data[2][2] + data[0][2] * data[2][0] * data[3][1] - data[0][2] * data[3][0] * data[2][1];
+    inv[3][2] = -data[0][0] * data[1][1] * data[3][2] + data[0][0] * data[3][1] * data[1][2] + data[0][1] * data[1][0] * data[3][2] - data[0][1] * data[3][0] * data[1][2] - data[0][2] * data[1][0] * data[3][1] + data[0][2] * data[3][0] * data[1][1];
+    inv[3][3] = data[0][0] * data[1][1] * data[2][2] - data[0][0] * data[2][1] * data[1][2] - data[0][1] * data[1][0] * data[2][2] + data[0][1] * data[2][0] * data[1][2] + data[0][2] * data[1][0] * data[2][1] - data[0][2] * data[2][0] * data[1][1];
+
+    double det = data[0][0] * inv[0][0] + data[1][0] * inv[0][1] + data[2][0] * inv[0][2] + data[3][0] * inv[0][3];
+
+    if (det == 0) {
+        throw std::runtime_error("This matrix cannot be inverted");
+    }
+
+    det = 1.0 / det;
+
+    for (auto i = 0; i < 4; i++) {
+        for (auto j = 0; j < 4; j++) {
+            inv[i][j] *= det;
+        }
+    }
+
+    return m;
 }
 
 bool Matrix4x4::almost_equal(const Matrix4x4& other, double err) const
