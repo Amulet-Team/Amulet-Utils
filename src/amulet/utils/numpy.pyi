@@ -5,7 +5,7 @@ import collections.abc
 import numpy
 import numpy.typing
 
-__all__ = ["unique_inverse"]
+__all__: list[str] = ["unique_inverse"]
 
 def unique_inverse(
     array: collections.abc.Buffer,

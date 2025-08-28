@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ["create_test_file", "test_lock_file", "unlock_test_file"]
+__all__: list[str] = ["create_test_file", "test_lock_file", "unlock_test_file"]
 
 def create_test_file(arg0: str) -> None: ...
 def test_lock_file(arg0: str) -> None: ...

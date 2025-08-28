@@ -1,5 +1,5 @@
 from __future__ import annotations
 
-__all__ = ["test_temp"]
+__all__: list[str] = ["test_temp"]
 
 def test_temp() -> None: ...

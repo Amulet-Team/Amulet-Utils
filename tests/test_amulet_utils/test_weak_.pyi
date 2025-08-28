@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__all__ = ["test_weak_list", "test_weak_set"]
+__all__: list[str] = ["test_weak_list", "test_weak_set"]
 
 def test_weak_list() -> None: ...
 def test_weak_set() -> None: ...

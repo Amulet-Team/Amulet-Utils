@@ -5,7 +5,7 @@ import typing
 
 import amulet.utils.task_manager.cancel_manager
 
-__all__ = [
+__all__: list[str] = [
     "Deadlock",
     "Lock",
     "LockNotAcquired",
