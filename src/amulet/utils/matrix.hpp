@@ -19,7 +19,7 @@ class AMULET_UTILS_EXPORT Matrix4x4 {
 public:
     double data[4][4];
 
-    // Uninitialised
+    // Identity
     Matrix4x4();
 
     // Construct from raw array
@@ -39,16 +39,15 @@ public:
     static Matrix4x4 rotation_y_matrix(double angle);
     static Matrix4x4 rotation_z_matrix(double angle);
     static Matrix4x4 transformation_matrix(
-        double sx, 
-        double sy, 
-        double sz, 
+        double sx,
+        double sy,
+        double sz,
         double rx,
         double ry,
         double rz,
-        double dx, 
-        double dy, 
-        double dz
-    );
+        double dx,
+        double dy,
+        double dz);
 
     // Construct from QMatrix4x4
     template <typename T = QMatrix4x4>
@@ -99,7 +98,7 @@ public:
 
     // Transform
     Matrix4x4 translate(double dx, double dy, double dz) const;
-    Matrix4x4 scale(double dx, double dy, double dz) const;
+    Matrix4x4 scale(double sx, double sy, double sz) const;
     Matrix4x4 rotate_x(double rx) const;
     Matrix4x4 rotate_y(double ry) const;
     Matrix4x4 rotate_z(double rz) const;
@@ -119,6 +118,7 @@ public:
 
     // Is this matrix the same as another matrix within an error tolerance
     bool almost_equal(const Matrix4x4&, double err = 0.000001) const;
+    bool operator==(const Matrix4x4&) const;
 };
 
 } // namespace Amulet

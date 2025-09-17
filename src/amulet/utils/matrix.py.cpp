@@ -1,6 +1,7 @@
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/operators.h>
 
 #include <cstdint>
 
@@ -51,7 +52,7 @@ void init_matrix(py::module m_parent)
 
     Matrix4x4.def(
         py::init<>(),
-        py::doc("Construct with uninitialised memory."));
+        py::doc("Construct an identity matrix."));
 
     Matrix4x4.def(
         py::init(
@@ -154,15 +155,16 @@ void init_matrix(py::module m_parent)
                 + ")))";
         });
 
-    Matrix4x4.def_buffer([](Amulet::Matrix4x4& self) {
-        return py::buffer_info(
-            self.data,
-            sizeof(double),
-            py::format_descriptor<double>::format(),
-            2,
-            { 4, 4 },
-            { sizeof(double) * 4, sizeof(double) });
-    });
+    Matrix4x4.def_buffer(
+        [](Amulet::Matrix4x4& self) {
+            return py::buffer_info(
+                self.data,
+                sizeof(double),
+                py::format_descriptor<double>::format(),
+                2,
+                { 4, 4 },
+                { sizeof(double) * 4, sizeof(double) });
+        });
 
     Matrix4x4.def_static(
         "identity_matrix",
@@ -318,6 +320,8 @@ void init_matrix(py::module m_parent)
         py::arg("other"),
         py::arg("err") = 0.000001,
         py::doc("Check if this matrix is almost equal to another matrix."));
+
+    Matrix4x4.def(py::self == py::self);
 
     if (auto QMatrix4x4 = get_class("PySide6.QtGui", "QMatrix4x4")) {
         Matrix4x4.def(

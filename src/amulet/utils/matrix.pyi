@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import collections.abc
+import types
 import typing
 
 import PySide6.QtGui
@@ -12,6 +13,7 @@ class Matrix4x4:
     A 4x4 transformation matrix.
     """
 
+    __hash__: typing.ClassVar[None] = None  # type: ignore
     @staticmethod
     def identity_matrix() -> Matrix4x4:
         """
@@ -69,9 +71,13 @@ class Matrix4x4:
         """
 
     @typing.overload
+    def __eq__(self, other: Matrix4x4) -> bool: ...
+    @typing.overload
+    def __eq__(self, other: typing.Any) -> bool | types.NotImplementedType: ...
+    @typing.overload
     def __init__(self) -> None:
         """
-        Construct with uninitialised memory.
+        Construct an identity matrix.
         """
 
     @typing.overload

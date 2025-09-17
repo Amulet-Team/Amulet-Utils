@@ -4,7 +4,7 @@
 
 namespace Amulet {
 
-// Uninitialised
+// Identity
 Matrix4x4::Matrix4x4()
 {
     data[0][0] = 1;
@@ -191,9 +191,9 @@ Matrix4x4 Matrix4x4::translate(double dx, double dy, double dz) const
     return translation_matrix(dx, dy, dz) * (*this);
 }
 
-Matrix4x4 Matrix4x4::scale(double dx, double dy, double dz) const
+Matrix4x4 Matrix4x4::scale(double sx, double sy, double sz) const
 {
-    return scale_matrix(dx, dy, dz) * (*this);
+    return scale_matrix(sx, sy, sz) * (*this);
 }
 
 Matrix4x4 Matrix4x4::rotate_x(double rx) const
@@ -336,6 +336,17 @@ bool Matrix4x4::almost_equal(const Matrix4x4& other, double err) const
     for (auto i = 0; i < 4; i++) {
         for (auto j = 0; j < 4; j++) {
             if (err < std::abs(data[i][j] - other.data[i][j])) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool Matrix4x4::operator==(const Matrix4x4& other) const {
+    for (auto i = 0; i < 4; i++) {
+        for (auto j = 0; j < 4; j++) {
+            if (data[i][j] != other.data[i][j]) {
                 return false;
             }
         }
