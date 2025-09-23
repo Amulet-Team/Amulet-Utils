@@ -66,14 +66,28 @@ void create_event_binding()
 // Define an event getter on a class.
 // This automatically creates the binding class.
 template <typename PyCls, typename CppCls, typename... Args, typename... Extra>
-void def_event(PyCls& cls, const char* name, const Event<Args...> CppCls::*attr, const Extra&... extra)
+void def_event(PyCls& cls, const char* name, Event<Args...> CppCls::* attr, const Extra&... extra)
 {
     create_event_binding<Event<Args...>>();
     cls.def_property_readonly(
         name,
         py::cpp_function(
-            [attr](const typename PyCls::type& self) -> PyEvent<Args...> {
+            [attr](typename PyCls::type& self) -> PyEvent<Args...> {
                 return pybind11::cast(self.*attr, py::return_value_policy::reference);
+            },
+            py::keep_alive<0, 1>()),
+        extra...);
+}
+
+template <typename PyCls, typename CppCls, typename... Args, typename... Extra>
+void def_event(PyCls& cls, const char* name, Event<Args...>& (CppCls::*getter)(), const Extra&... extra)
+{
+    create_event_binding<Event<Args...>>();
+    cls.def_property_readonly(
+        name,
+        py::cpp_function(
+            [getter](typename PyCls::type& self) -> PyEvent<Args...> {
+                return pybind11::cast((self.*getter)(), py::return_value_policy::reference);
             },
             py::keep_alive<0, 1>()),
         extra...);
