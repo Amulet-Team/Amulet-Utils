@@ -16,6 +16,10 @@ public:
     Amulet::Event<int, float> event_2;
     Amulet::Event<int, float, std::string, int> event_3;
 
+    Amulet::Event<int, float, std::string, int>& get_event_3() {
+        return event_3;
+    }
+
     void dispatch()
     {
         event_0.dispatch();
@@ -37,5 +41,6 @@ void init_test_event(py::module m_parent)
     Amulet::def_event(EventTest, "event_1", &AmuletTest::EventTest::event_1);
     Amulet::def_event(EventTest, "event_2", &AmuletTest::EventTest::event_2);
     Amulet::def_event(EventTest, "event_3", &AmuletTest::EventTest::event_3);
+    Amulet::def_event(EventTest, "event_3b", &AmuletTest::EventTest::get_event_3);
     EventTest.def("dispatch", &AmuletTest::EventTest::dispatch);
 }

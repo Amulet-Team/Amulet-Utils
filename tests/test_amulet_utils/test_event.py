@@ -68,6 +68,11 @@ class EventTestCase(TestCase):
         self.assertEqual(2, count_3)
         self.assertEqual((1, 1.5, "Hello World", 2), var)
 
+        # Test event getter bindings
+        cls.event_3b.dispatch(1, 2.5, "3", 4)
+        self.assertEqual(3, count_3)
+        self.assertEqual((1, 2.5, "3", 4), var)
+
         cls.event_0.disconnect(token_0)
         cls.event_1.disconnect(token_1)
         cls.event_2.disconnect(token_2)
@@ -77,12 +82,12 @@ class EventTestCase(TestCase):
         cls.event_1.dispatch(4)
         cls.event_2.dispatch(5, 5.5)
         cls.event_3.dispatch(6, 6.5, "6", 7)
-        self.assertEqual((1, 1.5, "Hello World", 2), var)
+        self.assertEqual((1, 2.5, "3", 4), var)
 
         self.assertEqual(2, count_0)
         self.assertEqual(2, count_1)
         self.assertEqual(2, count_2)
-        self.assertEqual(2, count_3)
+        self.assertEqual(3, count_3)
 
     def test_event_async(self) -> None:
         cls = EventTest()
@@ -182,6 +187,12 @@ class EventTestCase(TestCase):
         self.assertEqual(2, count_3)
         self.assertEqual((1, 1.5, "Hello World", 2), var)
 
+        # Test event getter bindings
+        cls.event_3b.dispatch(1, 2.5, "3", 4)
+        time.sleep(1)
+        self.assertEqual(3, count_3)
+        self.assertEqual((1, 2.5, "3", 4), var)
+
         cls.event_0.disconnect(token_0)
         cls.event_1.disconnect(token_1)
         cls.event_2.disconnect(token_2)
@@ -192,12 +203,12 @@ class EventTestCase(TestCase):
         cls.event_2.dispatch(5, 5.5)
         cls.event_3.dispatch(6, 6.5, "6", 7)
         time.sleep(2)
-        self.assertEqual((1, 1.5, "Hello World", 2), var)
+        self.assertEqual((1, 2.5, "3", 4), var)
 
         self.assertEqual(2, count_0)
         self.assertEqual(2, count_1)
         self.assertEqual(2, count_2)
-        self.assertEqual(2, count_3)
+        self.assertEqual(3, count_3)
 
     def test_exception(self) -> None:
         cls = EventTest()
