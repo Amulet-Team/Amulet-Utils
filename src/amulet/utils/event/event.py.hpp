@@ -6,7 +6,6 @@
 
 #include <memory>
 
-#include <amulet/pybind11_extensions/nogil_holder.hpp>
 #include <amulet/pybind11_extensions/pybind11.hpp>
 
 #include <amulet/utils/python.hpp>
@@ -35,9 +34,9 @@ template <typename eventT>
 void create_event_binding()
 {
     if (!pyext::is_class_bound<eventT>()) {
-        pybind11::class_<typename eventT::tokenT>(pybind11::handle(), "EventToken", pybind11::module_local());
+        pybind11::classh<typename eventT::tokenT>(pybind11::handle(), "EventToken", pybind11::module_local());
 
-        pybind11::class_<eventT, pyext::nogil_shared_ptr<eventT>>(pybind11::handle(), "Event", pybind11::module_local())
+        pybind11::classh<eventT>(pybind11::handle(), "Event", pybind11::module_local(), py::release_gil_before_calling_cpp_dtor())
             .def(
                 "connect",
                 [](eventT& self, typename eventT::callbackT callback, ConnectionMode mode) {
