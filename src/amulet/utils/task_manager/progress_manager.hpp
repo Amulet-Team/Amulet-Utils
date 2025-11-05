@@ -16,13 +16,6 @@ using ProgressTextCallback = std::function<void(const std::string&)>;
 
 class AbstractProgressManager {
 public:
-    AbstractProgressManager() = default;
-
-    AbstractProgressManager(const AbstractProgressManager&) = default;
-    AbstractProgressManager(AbstractProgressManager&&) = default;
-    AbstractProgressManager& operator=(const AbstractProgressManager&) = default;
-    AbstractProgressManager& operator=(AbstractProgressManager&&) = default;
-
     virtual ~AbstractProgressManager() = default;
 
     // Register a function to get called when progress changes.
