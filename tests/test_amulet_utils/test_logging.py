@@ -8,7 +8,7 @@ class LoggingTestCase(TestCase):
 
         messages = []
 
-        def on_msg(level: int, msg: str):
+        def on_msg(level: int, msg: str) -> None:
             messages.append((level, msg))
 
         token = get_logger().connect(on_msg)
@@ -44,7 +44,7 @@ class LoggingTestCase(TestCase):
 
         count = 0
 
-        def on_msg(level, msg):
+        def on_msg(level: int, msg: str) -> None:
             nonlocal count
             if count < 3:
                 count += 1

@@ -32,13 +32,13 @@ class MatrixTestCase(unittest.TestCase):
 
     def test_construct_tuple_err(self) -> None:
         with self.assertRaises(TypeError):
-            Matrix4x4(())
+            Matrix4x4(())  # type: ignore
         with self.assertRaises(TypeError):
-            Matrix4x4(((), (), (), ()))
+            Matrix4x4(((), (), (), ()))  # type: ignore
         with self.assertRaises(TypeError):
-            Matrix4x4(((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15)))
+            Matrix4x4(((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15)))  # type: ignore
         with self.assertRaises(RuntimeError):
-            Matrix4x4(((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, "hi")))
+            Matrix4x4(((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, "hi")))  # type: ignore
 
     def test_construct_copy(self) -> None:
         m1 = Matrix4x4(((1, 2, 3, 4), (5, 6, 7, 8), (9, 10, 11, 12), (13, 14, 15, 16)))

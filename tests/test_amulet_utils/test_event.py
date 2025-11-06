@@ -20,22 +20,22 @@ class EventTestCase(TestCase):
         count_2 = 0
         count_3 = 0
 
-        def on_0():
+        def on_0() -> None:
             nonlocal count_0, var
             count_0 += 1
             var = ()
 
-        def on_1(a: int):
+        def on_1(a: int) -> None:
             nonlocal count_1, var
             count_1 += 1
             var = (a,)
 
-        def on_2(a: int, b: float):
+        def on_2(a: int, b: float) -> None:
             nonlocal count_2, var
             count_2 += 1
             var = (a, b)
 
-        def on_3(a: int, b: float, c: str, d: int):
+        def on_3(a: int, b: float, c: str, d: int) -> None:
             nonlocal count_3, var
             count_3 += 1
             var = (a, b, c, d)
@@ -102,34 +102,34 @@ class EventTestCase(TestCase):
 
         step = 0
 
-        def increment_step():
+        def increment_step() -> None:
             nonlocal step
             with condition:
                 step += 1
                 condition.notify_all()
 
-        def on_0():
+        def on_0() -> None:
             nonlocal count_0, var
             with lock:
                 count_0 += 1
                 var = ()
                 increment_step()
 
-        def on_1(a: int):
+        def on_1(a: int) -> None:
             nonlocal count_1, var
             with lock:
                 count_1 += 1
                 var = (a,)
                 increment_step()
 
-        def on_2(a: int, b: float):
+        def on_2(a: int, b: float) -> None:
             nonlocal count_2, var
             with lock:
                 count_2 += 1
                 var = (a, b)
                 increment_step()
 
-        def on_3(a: int, b: float, c: str, d: int):
+        def on_3(a: int, b: float, c: str, d: int) -> None:
             nonlocal count_3, var
             with lock:
                 count_3 += 1
@@ -215,7 +215,7 @@ class EventTestCase(TestCase):
 
         call_count = 0
 
-        def callback():
+        def callback() -> None:
             nonlocal call_count
             call_count += 1
             raise Exception("The following output is intended")
@@ -230,7 +230,7 @@ class EventTestCase(TestCase):
 
         count = 0
 
-        def callback():
+        def callback() -> None:
             nonlocal count
             time.sleep(1)
             count += 1

@@ -10,7 +10,7 @@ from test_amulet_utils.test_lock_file_ import (
 )
 
 
-def write_file(path: str, queue: Queue):
+def write_file(path: str, queue: Queue) -> None:
     with open(path) as f:
         queue.put(f.read())
 
@@ -32,7 +32,7 @@ class LockFileTestCase(TestCase):
             lock_path = os.path.join(temp_dir, "test.lock")
             create_test_file(lock_path)
 
-            queue = Queue()
+            queue: Queue = Queue()
             p = Process(target=write_file, args=(lock_path, queue))
             p.start()
             p.join()
