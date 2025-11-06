@@ -82,7 +82,7 @@ static py::module init_progress_manager(py::module m_parent)
         [](Amulet::AbstractProgressManager& self, Amulet::ProgressCallback callback) -> Amulet::PyEventToken<float> {
             return py::cast(self.register_progress_callback(std::move(callback)), py::return_value_policy::move);
         },
-        py::arg("callback"),
+        py::arg("callback").noconvert(),
         py::doc("Register a function to get called when progress changes.\n"
                 "The callback will be called from the thread `update_progress` is called in.\n"
                 "Thread safe."));

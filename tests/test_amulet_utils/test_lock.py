@@ -1,9 +1,10 @@
 from unittest import TestCase
 import weakref
 import time
-from threading import Thread, Condition, current_thread
+from threading import Thread, Condition
 from typing import Callable, Any
-from contextlib import AbstractContextManager, suppress
+from types import TracebackType
+from contextlib import suppress
 from enum import Enum
 import itertools
 import sys
@@ -58,7 +59,12 @@ class Timer:
     def __enter__(self) -> None:
         self.time = time.time()
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException],
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         print(time.time() - self.time)
 
 
@@ -119,7 +125,7 @@ class LockTestCase(Abstract.LockTestCase):
         lock = Lock()
 
         def ctx(v: int) -> Callable[[ThreadStepManager, list], None]:
-            def f(step: ThreadStepManager, exec_order: list):
+            def f(step: ThreadStepManager, exec_order: list) -> None:
                 with lock:
                     step.increment()
                     exec_order.append(v)
@@ -129,7 +135,7 @@ class LockTestCase(Abstract.LockTestCase):
             return f
 
         def raw(blocking: bool, v: int) -> Callable[[ThreadStepManager, list], None]:
-            def f(step: ThreadStepManager, exec_order: list):
+            def f(step: ThreadStepManager, exec_order: list) -> None:
                 if lock.acquire(blocking):
                     step.increment()
                     exec_order.append(v)

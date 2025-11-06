@@ -22,7 +22,7 @@ class AbstractProgressManager:
         """
 
     def register_progress_callback(
-        self, callback: collections.abc.Callable[[typing.SupportsFloat], None]
+        self, callback: collections.abc.Callable[[float], None]
     ) -> amulet.utils.event.EventToken[float]:
         """
         Register a function to get called when progress changes.
