@@ -2,6 +2,7 @@ import unittest
 
 from test_amulet_utils.test_bytes_ import bytes_passthrough, get_bytes, get_len
 
+
 class BytesTestCase(unittest.TestCase):
     def test_get_bytes(self) -> None:
         b = get_bytes()
