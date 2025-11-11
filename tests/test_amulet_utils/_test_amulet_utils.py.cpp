@@ -13,6 +13,7 @@ void init_test_lock(py::module);
 void init_test_lock_file(py::module);
 void init_test_temp(py::module);
 void init_test_matrix(py::module);
+void init_test_bytes(py::module);
 
 void init_module(py::module m){
     pyext::init_compiler_config(m);
@@ -26,6 +27,7 @@ void init_module(py::module m){
     init_test_lock_file(m);
     init_test_temp(m);
     init_test_matrix(m);
+    init_test_bytes(m);
 }
 
 PYBIND11_MODULE(_test_amulet_utils, m) {

@@ -4,6 +4,7 @@ import faulthandler as _faulthandler
 
 from . import (
     _test_amulet_utils,
+    test_bytes_,
     test_event_,
     test_lock_,
     test_lock_file_,
@@ -16,6 +17,7 @@ from . import (
 
 __all__: list[str] = [
     "compiler_config",
+    "test_bytes_",
     "test_event_",
     "test_lock_",
     "test_lock_file_",
