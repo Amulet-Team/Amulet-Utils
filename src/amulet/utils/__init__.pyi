@@ -10,6 +10,7 @@ from . import (
     matrix,
     numpy,
     task_manager,
+    temp,
 )
 
 __all__: list[str] = [
@@ -21,6 +22,7 @@ __all__: list[str] = [
     "matrix",
     "numpy",
     "task_manager",
+    "temp",
 ]
 
 def _init() -> None: ...

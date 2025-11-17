@@ -3,22 +3,66 @@
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
+#include <mutex>
 
 #include "lock_file.hpp"
 
 namespace Amulet {
 
+std::filesystem::path& _get_temp_dir()
+{
+    static std::filesystem::path _temp_dir = "";
+    return _temp_dir;
+}
+
+std::mutex& _get_temp_dir_mutex()
+{
+    static std::mutex _temp_dir_mutex;
+    return _temp_dir_mutex;
+}
+
+static void clean_temp_dir(const std::filesystem::path& temp_dir)
+{
+    for (const auto& group : std::filesystem::directory_iterator(temp_dir)) {
+        if (!group.is_directory()) {
+            continue;
+        }
+        for (const auto& dir : std::filesystem::directory_iterator(group.path())) {
+            if (!dir.path().filename().string().starts_with("amulettmp-")) {
+                continue;
+            }
+            try {
+                Amulet::LockFile lock(dir.path() / "lock");
+            } catch (const std::runtime_error&) {
+                continue;
+            }
+            std::filesystem::remove_all(dir.path());
+        }
+    }
+};
+
 std::filesystem::path get_temp_dir()
 {
-    auto* path_ptr = std::getenv("CACHE_DIR");
-    if (path_ptr == nullptr) {
-        throw std::runtime_error("Environment variable CACHE_DIR does not exist.");
+    std::lock_guard lock(_get_temp_dir_mutex());
+    auto& temp_dir = _get_temp_dir();
+    if (temp_dir.empty()) {
+        throw std::runtime_error("Temporary directory has not been set.");
     }
-    std::filesystem::path path(path_ptr);
+    return temp_dir;
+}
+
+void set_temp_dir(std::filesystem::path path)
+{
     if (!std::filesystem::is_directory(path)) {
-        throw std::runtime_error("Environment variable CACHE_DIR is not a directory.");
+        throw std::runtime_error("Temporary path is not a directory.");
     }
-    return path;
+    std::lock_guard lock(_get_temp_dir_mutex());
+    auto& temp_dir = _get_temp_dir();
+    if (!temp_dir.empty()) {
+        clean_temp_dir(temp_dir);
+    }
+    temp_dir = std::move(path);
+    clean_temp_dir(temp_dir);
 }
 
 TempDir::TempDir(const std::string& group)
@@ -41,42 +85,17 @@ TempDir::TempDir(const std::string& group)
 }
 
 TempDir::TempDir(TempDir&&) = default;
-TempDir& TempDir::operator = (TempDir&&) = default;
+TempDir& TempDir::operator=(TempDir&&) = default;
 
-TempDir::~TempDir() {
+TempDir::~TempDir()
+{
     _lock.reset();
     std::filesystem::remove_all(_path);
 }
 
-const std::filesystem::path& TempDir::get_path() const {
+const std::filesystem::path& TempDir::get_path() const
+{
     return _path;
 }
 
 } // namespace Amulet
-
-static const bool cleared_temp_dirs = [] {
-    std::filesystem::path temp_dir;
-    try {
-        temp_dir = Amulet::get_temp_dir();
-    } catch (const std::runtime_error&) {
-        return true;
-    }
-    
-    for (const auto& group : std::filesystem::directory_iterator(temp_dir)) {
-        if (!group.is_directory()) {
-            continue;
-        }
-        for (const auto& dir : std::filesystem::directory_iterator(group.path())) {
-            if (!dir.path().filename().string().starts_with("amulettmp-")) {
-                continue;
-            }
-            try {
-                Amulet::LockFile lock(dir.path() / "lock");
-            } catch (const std::runtime_error&) {
-                continue;
-            }
-            std::filesystem::remove_all(dir.path());
-        }
-    }
-    return true;
-}();

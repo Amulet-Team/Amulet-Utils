@@ -15,6 +15,11 @@ namespace Amulet {
 // Thread safe.
 AMULET_UTILS_EXPORT std::filesystem::path get_temp_dir();
 
+// Set the temporary directory path.
+// It must be a path to an existing directory.
+// Anything using the previous path will continue using that path.
+AMULET_UTILS_EXPORT void set_temp_dir(std::filesystem::path);
+
 // A temporary directory to do with as you wish.
 class TempDir {
 private:
