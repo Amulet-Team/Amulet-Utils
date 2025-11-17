@@ -14,11 +14,6 @@ def _init() -> None:
     import ctypes
     import platformdirs
 
-    os.environ.setdefault(
-        "CACHE_DIR", platformdirs.user_cache_dir("AmuletTeam", "AmuletTeam")
-    )
-    os.makedirs(os.environ["CACHE_DIR"], exist_ok=True)
-
     if sys.platform == "win32":
         lib_path = os.path.join(os.path.dirname(__file__), "amulet_utils.dll")
     elif sys.platform == "darwin":
@@ -35,5 +30,11 @@ def _init() -> None:
 
     init(sys.modules[__name__])
 
+    from .temp import set_temp_dir
+    cache_dir = os.environ.get("CACHE_DIR")
+    if cache_dir is None:
+        cache_dir = platformdirs.user_cache_dir("AmuletTeam", "AmuletTeam")
+    os.makedirs(cache_dir, exist_ok=True)
+    set_temp_dir(cache_dir)
 
 _init()
