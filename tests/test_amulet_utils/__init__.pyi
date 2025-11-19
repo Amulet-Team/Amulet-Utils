@@ -12,6 +12,7 @@ from . import (
     test_matrix_,
     test_task_manager_,
     test_temp_,
+    test_view_,
     test_weak_,
 )
 
@@ -25,6 +26,7 @@ __all__: list[str] = [
     "test_matrix_",
     "test_task_manager_",
     "test_temp_",
+    "test_view_",
     "test_weak_",
 ]
 
