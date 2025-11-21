@@ -1,9 +1,17 @@
 import unittest
 
-from test_amulet_utils.test_bytes_ import bytes_passthrough, get_bytes, get_len
+from test_amulet_utils.test_bytes_ import (
+    bytes_passthrough,
+    get_bytes,
+    get_len,
+    test_cpp,
+)
 
 
 class BytesTestCase(unittest.TestCase):
+    def test_cpp(self) -> None:
+        test_cpp()
+
     def test_get_bytes(self) -> None:
         b = get_bytes()
         self.assertIsInstance(b, bytes)
