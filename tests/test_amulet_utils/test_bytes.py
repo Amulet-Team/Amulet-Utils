@@ -1,6 +1,11 @@
 import unittest
 
-from test_amulet_utils.test_bytes_ import bytes_passthrough, get_bytes, get_len, test_cpp
+from test_amulet_utils.test_bytes_ import (
+    bytes_passthrough,
+    get_bytes,
+    get_len,
+    test_cpp,
+)
 
 
 class BytesTestCase(unittest.TestCase):
