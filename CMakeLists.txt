@@ -45,6 +45,7 @@ list(REMOVE_ITEM HEADERS ${EXTENSION_HEADERS})
 
 # Add implementation
 add_library(amulet_utils SHARED)
+set_target_properties(amulet_utils PROPERTIES FOLDER "CPP")
 target_compile_definitions(amulet_utils PRIVATE ExportAmuletUtils)
 target_link_libraries(amulet_utils PUBLIC pybind11::module)
 target_link_libraries(amulet_utils PUBLIC amulet_pybind11_extensions)
@@ -59,6 +60,7 @@ endforeach()
 
 # Add python extension
 pybind11_add_module(_amulet_utils)
+set_target_properties(_amulet_utils PROPERTIES FOLDER "Python")
 target_link_libraries(_amulet_utils PRIVATE amulet_pybind11_extensions)
 target_link_libraries(_amulet_utils PRIVATE amulet_utils)
 target_compile_definitions(_amulet_utils PRIVATE PYBIND11_DETAILED_ERROR_MESSAGES)
