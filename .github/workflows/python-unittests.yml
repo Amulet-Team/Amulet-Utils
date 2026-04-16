@@ -41,7 +41,7 @@ jobs:
         architecture: ${{ matrix.cfg.architecture }}
 
     - name: Install Ubuntu Extra
-      if: startsWith(matrix.os, 'ubuntu')
+      if: startsWith(matrix.cfg.os, 'ubuntu')
       run: |
         sudo apt install libegl1
         
