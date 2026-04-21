@@ -53,25 +53,24 @@ public:
         = 0;
 };
 
-class VoidProgressManager : public AbstractProgressManager {
+class AMULET_UTILS_EXPORT VoidProgressManager : public AbstractProgressManager {
 public:
-    AMULET_UTILS_EXPORT VoidProgressManager();
+    VoidProgressManager();
 
-    AMULET_UTILS_EXPORT VoidProgressManager(const VoidProgressManager&);
-    AMULET_UTILS_EXPORT VoidProgressManager(VoidProgressManager&&);
-    AMULET_UTILS_EXPORT VoidProgressManager& operator=(const VoidProgressManager&);
-    AMULET_UTILS_EXPORT VoidProgressManager& operator=(VoidProgressManager&&);
+    VoidProgressManager(const VoidProgressManager&);
+    VoidProgressManager(VoidProgressManager&&);
+    VoidProgressManager& operator=(const VoidProgressManager&);
+    VoidProgressManager& operator=(VoidProgressManager&&);
 
-    AMULET_UTILS_EXPORT ~VoidProgressManager() override;
+    ~VoidProgressManager() override;
 
-    AMULET_UTILS_EXPORT EventToken<float> register_progress_callback(ProgressCallback callback) override;
-    AMULET_UTILS_EXPORT void unregister_progress_callback(EventToken<float> token) override;
-    AMULET_UTILS_EXPORT void update_progress(float progress) override;
-    AMULET_UTILS_EXPORT EventToken<std::string> register_progress_text_callback(ProgressTextCallback callback) override;
-    AMULET_UTILS_EXPORT void unregister_progress_text_callback(EventToken<std::string> token) override;
-    AMULET_UTILS_EXPORT void update_progress_text(const std::string& text) override;
-    AMULET_UTILS_EXPORT std::unique_ptr<AbstractProgressManager> get_child(
-        float progress_min, float progress_max) override;
+    EventToken<float> register_progress_callback(ProgressCallback callback) override;
+    void unregister_progress_callback(EventToken<float> token) override;
+    void update_progress(float progress) override;
+    EventToken<std::string> register_progress_text_callback(ProgressTextCallback callback) override;
+    void unregister_progress_text_callback(EventToken<std::string> token) override;
+    void update_progress_text(const std::string& text) override;
+    std::unique_ptr<AbstractProgressManager> get_child(float progress_min, float progress_max) override;
 };
 
 class ProgressManagerData {
@@ -80,31 +79,30 @@ public:
     Event<std::string> progress_text_changed;
 };
 
-class ProgressManager : public AbstractProgressManager {
+class AMULET_UTILS_EXPORT ProgressManager : public AbstractProgressManager {
 private:
     std::shared_ptr<ProgressManagerData> data;
     float _progress_min;
     float _progress_max;
 
 public:
-    AMULET_UTILS_EXPORT ProgressManager(const std::shared_ptr<ProgressManagerData>& data, float progress_min, float progress_max);
-    AMULET_UTILS_EXPORT ProgressManager();
+    ProgressManager(const std::shared_ptr<ProgressManagerData>& data, float progress_min, float progress_max);
+    ProgressManager();
 
     ProgressManager(const ProgressManager&) = delete;
     ProgressManager(ProgressManager&&) = delete;
     ProgressManager& operator=(const ProgressManager&) = delete;
     ProgressManager& operator=(ProgressManager&&) = delete;
 
-    AMULET_UTILS_EXPORT ~ProgressManager() override;
+    ~ProgressManager() override;
 
-    AMULET_UTILS_EXPORT EventToken<float> register_progress_callback(ProgressCallback callback) override;
-    AMULET_UTILS_EXPORT void unregister_progress_callback(EventToken<float> token) override;
-    AMULET_UTILS_EXPORT void update_progress(float progress) override;
-    AMULET_UTILS_EXPORT EventToken<std::string> register_progress_text_callback(ProgressTextCallback callback) override;
-    AMULET_UTILS_EXPORT void unregister_progress_text_callback(EventToken<std::string> token) override;
-    AMULET_UTILS_EXPORT void update_progress_text(const std::string& text) override;
-    AMULET_UTILS_EXPORT std::unique_ptr<AbstractProgressManager> get_child(
-        float progress_min, float progress_max) override;
+    EventToken<float> register_progress_callback(ProgressCallback callback) override;
+    void unregister_progress_callback(EventToken<float> token) override;
+    void update_progress(float progress) override;
+    EventToken<std::string> register_progress_text_callback(ProgressTextCallback callback) override;
+    void unregister_progress_text_callback(EventToken<std::string> token) override;
+    void update_progress_text(const std::string& text) override;
+    std::unique_ptr<AbstractProgressManager> get_child(float progress_min, float progress_max) override;
 };
 
 } // namespace Amulet

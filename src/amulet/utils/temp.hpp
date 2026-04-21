@@ -21,7 +21,7 @@ AMULET_UTILS_EXPORT std::filesystem::path get_temp_dir();
 AMULET_UTILS_EXPORT void set_temp_dir(std::filesystem::path);
 
 // A temporary directory to do with as you wish.
-class TempDir {
+class AMULET_UTILS_EXPORT TempDir {
 private:
     std::filesystem::path _path;
     std::unique_ptr<Amulet::LockFile> _lock;
@@ -29,23 +29,23 @@ private:
 public:
     // Construct a new temporary directory.
     // Thread safe.
-    AMULET_UTILS_EXPORT TempDir(const std::string& group);
+    TempDir(const std::string& group);
 
     // Delete copy constructors
     TempDir(const TempDir&) = delete;
     TempDir& operator=(const TempDir&) = delete;
 
     // Move constructors
-    AMULET_UTILS_EXPORT TempDir(TempDir&&);
-    AMULET_UTILS_EXPORT TempDir& operator=(TempDir&&);
+    TempDir(TempDir&&);
+    TempDir& operator=(TempDir&&);
 
     // TempDir destructor.
     // This automatically deletes the temporary directory.
-    AMULET_UTILS_EXPORT ~TempDir();
+    ~TempDir();
 
     // Get the path of the temporary directory.
     // Thread safe.
-    AMULET_UTILS_EXPORT const std::filesystem::path& get_path() const;
+    const std::filesystem::path& get_path() const;
 };
 
 } // namespace Amulet
