@@ -12,24 +12,16 @@
 namespace Amulet {
 
 // Exception to be raised by the callee when a task is cancelled.
-class AMULET_UTILS_EXPORT_EXCEPTION TaskCancelled : public std::exception {
+class AMULET_UTILS_EXPORT TaskCancelled : public std::exception {
 private:
     std::string msg;
 
 public:
     // Constructors
-    explicit TaskCancelled(const std::string& msg)
-        : msg(msg.c_str())
-    {
-    }
-    TaskCancelled()
-        : TaskCancelled("Task Cancelled")
-    {
-    }
-    const char* what() const noexcept override
-    {
-        return msg.c_str();
-    }
+    explicit TaskCancelled(const std::string& msg);
+    TaskCancelled();
+    const char* what() const noexcept override;
+    ~TaskCancelled() noexcept override;
 };
 
 using CancelCallback = std::function<void()>;
@@ -57,45 +49,45 @@ public:
     virtual void unregister_cancel_callback(EventToken<> token) = 0;
 };
 
-class VoidCancelManager : public AbstractCancelManager {
+class AMULET_UTILS_EXPORT VoidCancelManager : public AbstractCancelManager {
 public:
-    AMULET_UTILS_EXPORT VoidCancelManager();
+    VoidCancelManager();
     
-    AMULET_UTILS_EXPORT VoidCancelManager(const VoidCancelManager&);
-    AMULET_UTILS_EXPORT VoidCancelManager(VoidCancelManager&&);
-    AMULET_UTILS_EXPORT VoidCancelManager& operator=(const VoidCancelManager&);
-    AMULET_UTILS_EXPORT VoidCancelManager& operator=(VoidCancelManager&&);
+    VoidCancelManager(const VoidCancelManager&);
+    VoidCancelManager(VoidCancelManager&&);
+    VoidCancelManager& operator=(const VoidCancelManager&);
+    VoidCancelManager& operator=(VoidCancelManager&&);
     
-    AMULET_UTILS_EXPORT ~VoidCancelManager() override;
+    ~VoidCancelManager() override;
     
-    AMULET_UTILS_EXPORT void cancel() override;
-    AMULET_UTILS_EXPORT bool is_cancel_requested() override;
-    AMULET_UTILS_EXPORT EventToken<> register_cancel_callback(CancelCallback callback) override;
-    AMULET_UTILS_EXPORT void unregister_cancel_callback(EventToken<> token) override;
+    void cancel() override;
+    bool is_cancel_requested() override;
+    EventToken<> register_cancel_callback(CancelCallback callback) override;
+    void unregister_cancel_callback(EventToken<> token) override;
 };
 
 AMULET_UTILS_EXPORT extern VoidCancelManager global_VoidCancelManager;
 
-class CancelManager : public AbstractCancelManager {
+class AMULET_UTILS_EXPORT CancelManager : public AbstractCancelManager {
 private:
     std::mutex mutex;
     bool cancelled = false;
     Event<> event;
 
 public:
-    AMULET_UTILS_EXPORT CancelManager();
+    CancelManager();
     
     CancelManager(const CancelManager&) = delete;
     CancelManager& operator=(const CancelManager&) = delete;
     CancelManager(CancelManager&&) = delete;
     CancelManager& operator=(CancelManager&&) = delete;
     
-    AMULET_UTILS_EXPORT ~CancelManager() override;
+    ~CancelManager() override;
 
-    AMULET_UTILS_EXPORT void cancel() override;
-    AMULET_UTILS_EXPORT bool is_cancel_requested() override;
-    AMULET_UTILS_EXPORT EventToken<> register_cancel_callback(CancelCallback callback) override;
-    AMULET_UTILS_EXPORT void unregister_cancel_callback(EventToken<> token) override;
+    void cancel() override;
+    bool is_cancel_requested() override;
+    EventToken<> register_cancel_callback(CancelCallback callback) override;
+    void unregister_cancel_callback(EventToken<> token) override;
 };
 
 } // namespace Amulet

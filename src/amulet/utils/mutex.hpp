@@ -28,13 +28,11 @@ struct is_specialization_of<Template, Template<Args...>> : std::true_type { };
 namespace Amulet {
 
 // An exception raised in some deadlock cases.
-class AMULET_UTILS_EXPORT_EXCEPTION Deadlock : public std::runtime_error {
+class AMULET_UTILS_EXPORT Deadlock : public std::runtime_error {
 public:
     using std::runtime_error::runtime_error;
-    Deadlock()
-        : Deadlock("Deadlock")
-    {
-    }
+    Deadlock();
+    ~Deadlock() noexcept override;
 };
 
 enum class ThreadAccessMode {

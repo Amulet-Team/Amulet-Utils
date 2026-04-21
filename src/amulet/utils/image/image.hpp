@@ -19,25 +19,25 @@ namespace Image {
 
     // A C++ wrapper around a Pillow Image class.
     // The GIL must be held while interacting with this class.
-    class Image : public py::object {
+    class AMULET_UTILS_EXPORT Image : public py::object {
     public:
         PYBIND11_OBJECT_DEFAULT(Image, py::object, is_image)
 
         // Get the image width.
         // The GIL must be held while calling this.
-        AMULET_UTILS_EXPORT size_t get_width() const;
+        size_t get_width() const;
 
         // Get the image height.
         // The GIL must be held while calling this.
-        AMULET_UTILS_EXPORT size_t get_height() const;
+        size_t get_height() const;
 
         // Get the image mode.
         // The GIL must be held while calling this.
-        AMULET_UTILS_EXPORT std::string get_mode() const;
+        std::string get_mode() const;
 
         // Get the image buffer.
         // The GIL must be held before calling and while interacting with the buffer.
-        AMULET_UTILS_EXPORT py::buffer get_buffer() const;
+        py::buffer get_buffer() const;
     };
 
     // Open an image file at the given path.
