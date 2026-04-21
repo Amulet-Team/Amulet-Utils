@@ -9,7 +9,7 @@
 
 namespace Amulet {
 
-explicit TaskCancelled::TaskCancelled(const std::string& msg)
+TaskCancelled::TaskCancelled(const std::string& msg)
     : msg(msg.c_str())
 {
 }
