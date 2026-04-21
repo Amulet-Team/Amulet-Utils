@@ -12,24 +12,16 @@
 namespace Amulet {
 
 // Exception to be raised by the callee when a task is cancelled.
-class AMULET_UTILS_EXPORT_EXCEPTION TaskCancelled : public std::exception {
+class AMULET_UTILS_EXPORT TaskCancelled : public std::exception {
 private:
     std::string msg;
 
 public:
     // Constructors
-    explicit TaskCancelled(const std::string& msg)
-        : msg(msg.c_str())
-    {
-    }
-    TaskCancelled()
-        : TaskCancelled("Task Cancelled")
-    {
-    }
-    const char* what() const noexcept override
-    {
-        return msg.c_str();
-    }
+    explicit TaskCancelled(const std::string& msg);
+    TaskCancelled();
+    const char* what() const noexcept override;
+    ~TaskCancelled() noexcept override;
 };
 
 using CancelCallback = std::function<void()>;

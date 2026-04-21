@@ -9,6 +9,23 @@
 
 namespace Amulet {
 
+explicit TaskCancelled::TaskCancelled(const std::string& msg)
+    : msg(msg.c_str())
+{
+}
+
+TaskCancelled::TaskCancelled()
+    : TaskCancelled("Task Cancelled")
+{
+}
+
+const char* TaskCancelled::what() const noexcept
+{
+    return msg.c_str();
+}
+
+TaskCancelled::~TaskCancelled() noexcept {}
+
 // VoidCancelManager
 VoidCancelManager::VoidCancelManager() = default;
 VoidCancelManager::VoidCancelManager(const VoidCancelManager&) = default;
