@@ -19,7 +19,7 @@ class EventToken(_typing.Protocol[*_Args]):
 class Event(_typing.Protocol[*_Args]):
     def connect(
         self,
-        callback: collections.abc.Callable[[*_Args], None],
+        callback: collections.abc.Callable[[*_Args], _typing.Any],
         mode: ConnectionMode = ConnectionMode.Direct,
     ) -> EventToken[*_Args]:
         """
