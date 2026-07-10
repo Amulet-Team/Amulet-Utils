@@ -88,6 +88,8 @@ test-command = [
     "python -m unittest discover -s tests"
 ]
 
+manylinux-x86_64-image = "manylinux_2_34"
+
 [tool.cibuildwheel.linux]
 before-all = "yum install -y cmake"
 
