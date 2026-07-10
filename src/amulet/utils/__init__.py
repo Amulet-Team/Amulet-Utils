@@ -11,23 +11,10 @@ _logging.basicConfig(level=_logging.INFO, format="%(levelname)s - %(message)s")
 def _init() -> None:
     import os
     import sys
-    import ctypes
     import platformdirs
 
     if os.environ.get("AMULET_SKIP_COMPILE", None):
         return
-
-    if sys.platform == "win32":
-        lib_path = os.path.join(os.path.dirname(__file__), "amulet_utils.dll")
-    elif sys.platform == "darwin":
-        lib_path = os.path.join(os.path.dirname(__file__), "libamulet_utils.dylib")
-    elif sys.platform == "linux":
-        lib_path = os.path.join(os.path.dirname(__file__), "libamulet_utils.so")
-    else:
-        raise RuntimeError(f"Unsupported platform {sys.platform}")
-
-    # Load the shared library
-    ctypes.cdll.LoadLibrary(lib_path)
 
     from ._amulet_utils import init
 
