@@ -91,7 +91,7 @@ test-command = [
 manylinux-x86_64-image = "manylinux_2_34"
 
 [tool.cibuildwheel.linux]
-before-all = "yum install -y cmake"
+before-all = "yum install -y cmake libxkbcommon"
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "delvewheel repair --ignore-existing --exclude msvcp140.dll -w {dest_dir} -v {wheel}"
