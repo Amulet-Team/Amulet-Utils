@@ -37,11 +37,6 @@ jobs:
         python-version: ${{ matrix.cfg.python-version }}
         architecture: ${{ matrix.cfg.architecture }}
 
-    - name: Install Ubuntu Extra
-      if: startsWith(matrix.cfg.os, 'ubuntu')
-      run: |
-        sudo apt install libegl1
-
     - name: Build and Test
       run: |
         pip install cibuildwheel~=4.1
