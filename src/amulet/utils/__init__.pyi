@@ -24,8 +24,5 @@ __all__: list[str] = [
     "task_manager",
     "temp",
 ]
-
-def _init() -> None: ...
-
 __version__: str
 compiler_config: dict

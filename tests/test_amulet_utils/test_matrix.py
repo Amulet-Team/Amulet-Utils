@@ -397,13 +397,13 @@ class MatrixTestCase(unittest.TestCase):
                 with self.subTest(i=i, j=j):
                     if i == j:
                         if i == 3:
-                            self.assertAlmostEqual(1.0, q[i, j])
+                            self.assertAlmostEqual(1.0, q(i, j))
                         else:
-                            self.assertAlmostEqual(1.0 + i, q[i, j])
+                            self.assertAlmostEqual(1.0 + i, q(i, j))
                     elif j == 3:
-                        self.assertAlmostEqual(10.0 * (1.0 + i), q[i, j])
+                        self.assertAlmostEqual(10.0 * (1.0 + i), q(i, j))
                     else:
-                        self.assertAlmostEqual(0.0, q[i, j])
+                        self.assertAlmostEqual(0.0, q(i, j))
 
 
 if __name__ == "__main__":

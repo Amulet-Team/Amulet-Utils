@@ -13,15 +13,9 @@ class ConnectionMode:
       Async : Called asynchronously.
     """
 
-    Async: typing.ClassVar[
-        ConnectionMode
-    ]  # value = amulet.utils.event._connection_mode.ConnectionMode.Async
-    Direct: typing.ClassVar[
-        ConnectionMode
-    ]  # value = amulet.utils.event._connection_mode.ConnectionMode.Direct
-    __members__: typing.ClassVar[
-        dict[str, ConnectionMode]
-    ]  # value = {'Direct': amulet.utils.event._connection_mode.ConnectionMode.Direct, 'Async': amulet.utils.event._connection_mode.ConnectionMode.Async}
+    Async: typing.ClassVar[ConnectionMode]
+    Direct: typing.ClassVar[ConnectionMode]
+    __members__: typing.ClassVar[dict[str, ConnectionMode]]
     def __eq__(self, other: typing.Any) -> bool: ...
     def __hash__(self) -> int: ...
     def __index__(self) -> int: ...

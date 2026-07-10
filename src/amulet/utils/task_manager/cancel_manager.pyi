@@ -11,6 +11,9 @@ __all__: list[str] = [
     "VoidCancelManager",
 ]
 
+class TaskCancelled(Exception):
+    pass
+
 class AbstractCancelManager:
     def cancel(self) -> None:
         """
@@ -42,13 +45,10 @@ class AbstractCancelManager:
         Thread safe.
         """
 
-class CancelManager(AbstractCancelManager):
+class VoidCancelManager(AbstractCancelManager):
     def __init__(self) -> None: ...
     def __repr__(self) -> str: ...
 
-class TaskCancelled(Exception):
-    pass
-
-class VoidCancelManager(AbstractCancelManager):
+class CancelManager(AbstractCancelManager):
     def __init__(self) -> None: ...
     def __repr__(self) -> str: ...
