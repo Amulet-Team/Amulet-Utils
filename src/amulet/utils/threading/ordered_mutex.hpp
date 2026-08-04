@@ -291,7 +291,7 @@ public:
     void unlock()
     {
         // Lock the state.
-        std::unique_lock lock(mutex);
+        std::lock_guard lock(mutex);
 
         // Get the thread id
         auto id = std::this_thread::get_id();

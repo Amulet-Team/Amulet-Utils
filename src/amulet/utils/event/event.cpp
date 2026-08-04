@@ -55,7 +55,7 @@ namespace {
     {
         debug("EventLoop::exit()");
         {
-            std::unique_lock lock(_mutex);
+            std::lock_guard lock(_mutex);
             if (_exit) {
                 return;
             }
@@ -94,7 +94,7 @@ namespace {
 
     void EventLoop::submit(std::function<void()> event)
     {
-        std::unique_lock lock(_mutex);
+        std::lock_guard lock(_mutex);
         _events.push_back(std::move(event));
         _condition.notify_one();
     }

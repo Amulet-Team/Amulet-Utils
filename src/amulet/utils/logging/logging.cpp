@@ -29,7 +29,7 @@ static Amulet::EventToken<int, std::string>& get_default_log_handler_token() {
 
 static void default_log_handler(int level, const std::string& msg)
 {
-    std::unique_lock lock(get_default_log_mutex());
+    std::lock_guard lock(get_default_log_mutex());
     std::cout << msg << std::endl;
 }
 
