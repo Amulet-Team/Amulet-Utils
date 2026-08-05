@@ -4,7 +4,8 @@
 
 #include <amulet/pybind11_extensions/py_module.hpp>
 
-#include <amulet/utils/mutex.hpp>
+#include <amulet/utils/threading/deadlock.hpp>
+#include <amulet/utils/threading/mutex.hpp>
 
 namespace py = pybind11;
 
