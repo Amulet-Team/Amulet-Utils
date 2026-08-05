@@ -47,15 +47,15 @@ public:
     unique_lock( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES(m)
         : std::unique_lock<Mutex>(m, std::adopt_lock) {}
 
-    unique_lock( Mutex& m, std::try_to_lock_t ) ASTD_EXCLUDES(m)
+    unique_lock( Mutex& m, std::try_to_lock_t ) ASTD_MAYBE_ACQUIRE(m)
         : std::unique_lock<Mutex>(m, std::try_to_lock) {}
 
     template< class Rep, class Period >
-    unique_lock( Mutex& m, const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_EXCLUDES(m)
+    unique_lock( Mutex& m, const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_MAYBE_ACQUIRE(m)
         : std::unique_lock<Mutex>(m, timeout_duration) {}
 
     template< class Clock, class Duration >
-    unique_lock( Mutex& m, const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_EXCLUDES(m)
+    unique_lock( Mutex& m, const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_MAYBE_ACQUIRE(m)
         : std::unique_lock<Mutex>(m, timeout_time) {}
 
     // Copy
@@ -111,10 +111,10 @@ public:
     }
 
     // TODO: The following methods require a non-acquiring version of TRY_ACQUIRE
-    bool owns_lock() const noexcept {
+    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_ACQUIRED_CAPABILITY() {
         return std::unique_lock<Mutex>::owns_lock();
     }
-    explicit operator bool() const noexcept {
+    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_ACQUIRED_CAPABILITY() {
         return std::unique_lock<Mutex>::operator bool();
     }
 };

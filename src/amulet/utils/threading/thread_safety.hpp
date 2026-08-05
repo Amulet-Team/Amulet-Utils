@@ -70,3 +70,9 @@
 
 #define ASTD_NO_THREAD_SAFETY_ANALYSIS \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(no_thread_safety_analysis)
+
+// These annotations are required to fully support unique_lock and shared_lock.
+#define ASTD_MAYBE_ACQUIRE(...) ASTD_EXCLUDES(__VA_ARGS__)
+#define ASTD_MAYBE_ACQUIRE_SHARED(...) ASTD_EXCLUDES(__VA_ARGS__)
+#define ASTD_CHECK_ACQUIRED_CAPABILITY(...) ASTD_TRY_ACQUIRE(__VA_ARGS__)
+#define ASTD_CHECK_ACQUIRED_SHARED_CAPABILITY(...) ASTD_TRY_ACQUIRE_SHARED(__VA_ARGS__)
