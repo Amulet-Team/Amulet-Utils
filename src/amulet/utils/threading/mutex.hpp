@@ -64,15 +64,15 @@ public:
 
     // Move
     // TODO: Add annotations if Clang supports moving, swapping and disowning capabilities
-    unique_lock( unique_lock&& other ) noexcept
+    unique_lock( unique_lock&& other ) noexcept ASTD_MOVE_CAPABILITIES(other)
         : std::unique_lock<Mutex>(std::forward<unique_lock>(other)) {}
 
-    unique_lock& operator=( unique_lock&& other ) noexcept
+    unique_lock& operator=( unique_lock&& other ) noexcept ASTD_MOVE_CAPABILITIES(other)
     {
         return std::unique_lock<Mutex>::operator=(std::forward<unique_lock>(other));
     }
 
-    void swap( unique_lock& other ) noexcept {
+    void swap( unique_lock& other ) noexcept ASTD_SWAP_CAPABILITIES(other) {
         std::unique_lock<Mutex>::swap(other);
     }
 
@@ -81,7 +81,11 @@ public:
     }
 
     // Destructor
-    ~unique_lock() ASTD_RELEASE() {}
+    ~unique_lock() ASTD_RELEASE_IF_HELD() {}
+
+    void unlock() ASTD_RELEASE() {
+        std::unique_lock<Mutex>::unlock();
+    }
 
     void lock() ASTD_ACQUIRE() {
         std::unique_lock<Mutex>::lock();
@@ -101,20 +105,16 @@ public:
         return std::unique_lock<Mutex>::try_lock_until(timeout_time);
     }
 
-    void unlock() ASTD_RELEASE() {
-        std::unique_lock<Mutex>::unlock();
-    }
-
     // Clang thread safety analysis does not support alias analysis. Do not use this.
     mutex_type* mutex() const noexcept {
         return std::unique_lock<Mutex>::mutex();
     }
 
     // TODO: The following methods require a non-acquiring version of TRY_ACQUIRE
-    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_ACQUIRED_CAPABILITY() {
+    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_CAPABILITY(true) {
         return std::unique_lock<Mutex>::owns_lock();
     }
-    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_ACQUIRED_CAPABILITY() {
+    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_CAPABILITY(true) {
         return std::unique_lock<Mutex>::operator bool();
     }
 };
@@ -123,7 +123,7 @@ public:
 
 template< class Mutex >
 void swap( astd::unique_lock<Mutex>& lhs,
-           astd::unique_lock<Mutex>& rhs ) noexcept {
+           astd::unique_lock<Mutex>& rhs ) noexcept ASTD_SWAP_CAPABILITIES(lhs, rhs) {
     lhs.swap(rhs);
 }
 

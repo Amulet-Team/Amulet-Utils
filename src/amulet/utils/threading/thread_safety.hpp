@@ -59,20 +59,42 @@
 #define ASTD_EXCLUDES(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(locks_excluded(__VA_ARGS__))
 
-#define ASTD_ASSERT_CAPABILITY(x) \
-  ASTD_THREAD_ANNOTATION_ATTRIBUTE__(assert_capability(x))
+#define ASTD_ASSERT_CAPABILITY(...) \
+  ASTD_THREAD_ANNOTATION_ATTRIBUTE__(assert_capability(__VA_ARGS__))
 
-#define ASTD_ASSERT_SHARED_CAPABILITY(x) \
-  ASTD_THREAD_ANNOTATION_ATTRIBUTE__(assert_shared_capability(x))
+#define ASTD_ASSERT_SHARED_CAPABILITY(...) \
+  ASTD_THREAD_ANNOTATION_ATTRIBUTE__(assert_shared_capability(__VA_ARGS__))
 
-#define ASTD_RETURN_CAPABILITY(x) \
-  ASTD_THREAD_ANNOTATION_ATTRIBUTE__(lock_returned(x))
+#define ASTD_RETURN_CAPABILITY(...) \
+  ASTD_THREAD_ANNOTATION_ATTRIBUTE__(lock_returned(__VA_ARGS__))
 
 #define ASTD_NO_THREAD_SAFETY_ANALYSIS \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(no_thread_safety_analysis)
 
 // These annotations are required to fully support unique_lock and shared_lock.
+// The following are the best approximations using the existing annotations.
+
+// Required by lock try_to_acquire constructors
+// Marks the capability as both locked and unlocked.
+// Its state must be inspected and left in the unlocked or locked state.
 #define ASTD_MAYBE_ACQUIRE(...) ASTD_EXCLUDES(__VA_ARGS__)
 #define ASTD_MAYBE_ACQUIRE_SHARED(...) ASTD_EXCLUDES(__VA_ARGS__)
-#define ASTD_CHECK_ACQUIRED_CAPABILITY(...) ASTD_TRY_ACQUIRE(__VA_ARGS__)
-#define ASTD_CHECK_ACQUIRED_SHARED_CAPABILITY(...) ASTD_TRY_ACQUIRE_SHARED(__VA_ARGS__)
+
+// Required by owns_lock to inspect the lock state without acquiring it.
+// Works like try_acquire_[shared_]capability but can be used in any context.
+// Currently they are aliased to try_acquire_[shared_]capability so can only be used in the unlocked state.
+#define ASTD_CHECK_CAPABILITY(...) ASTD_TRY_ACQUIRE(__VA_ARGS__)
+#define ASTD_CHECK_SHARED_CAPABILITY(...) ASTD_TRY_ACQUIRE_SHARED(__VA_ARGS__)
+
+// Required by lock destructors when the capability is not held.
+// Release the capability, regardless of initial value.
+#define ASTD_RELEASE_IF_HELD(...) ASTD_ASSERT_CAPABILITY(__VA_ARGS__) ASTD_RELEASE(__VA_ARGS__)
+
+// Required to swap the capabilities of two locks.
+// Swap the capabilities of `a` and `b` (a, b) or (a)
+#define ASTD_SWAP_CAPABILITIES(a, ...)
+
+// Required by the move operators.
+// Move the capabilities from `a` to `b` (a, b) or (a)
+// Any capabilities in `b` are released.
+#define ASTD_MOVE_CAPABILITIES(from, ...) ASTD_RELEASE_IF_HELD(__VA_ARGS__)
