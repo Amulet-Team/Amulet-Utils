@@ -17,7 +17,7 @@
 #include <amulet/pybind11_extensions/pybind11.hpp>
 
 #include "threading/deadlock.hpp"
-#include "threading/mutex.hpp"
+#include "threading/ordered_mutex.hpp"
 #include "task_manager/cancel_manager.hpp"
 
 namespace py = pybind11;
