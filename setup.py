@@ -70,6 +70,7 @@ class CMakeBuild(BuildExt):
                     f"-Damulet_utils_DIR={fix_path(utils_src_dir)}",
                     f"-DAMULET_UTILS_EXT_DIR={fix_path(ext_dir)}",
                     f"-DCMAKE_INSTALL_PREFIX=install",
+                    f"-DTHREAD_SAFETY_ANALYSIS={os.environ.get("THREAD_SAFETY_ANALYSIS", "OFF")}"
                     "-B",
                     tempdir,
                 ]
