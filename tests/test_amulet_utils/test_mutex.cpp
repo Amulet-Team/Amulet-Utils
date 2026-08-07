@@ -178,6 +178,7 @@ void TestUniqueLock::test_scoped_constructor_unlock_2(){
 void TestUniqueLock::test_lock_constructor_locked(){
     m.lock(); // expected-note {{mutex acquired here}}
     astd::unique_lock lock(m); // expected-error {{acquiring mutex 'm' that is already held}}
+    m.unlock();
 }
 
 void TestUniqueLock::test_defer_constructor_unlocked(){
