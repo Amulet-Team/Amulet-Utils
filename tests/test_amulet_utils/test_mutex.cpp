@@ -161,7 +161,7 @@ void TestUniqueLock::test_scoped_constructor_unlock_1(){
     {
         astd::unique_lock lock(m);
         v += 1;
-        m.unlock();
+        lock.unlock();
         v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     }
 }
@@ -170,7 +170,7 @@ void TestUniqueLock::test_scoped_constructor_unlock_2(){
     {
         astd::unique_lock lock(m);
         v += 1;
-        m.unlock();
+        lock.unlock();
     }
     v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
 }
