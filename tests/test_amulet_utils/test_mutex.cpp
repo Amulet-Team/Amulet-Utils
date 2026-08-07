@@ -57,13 +57,13 @@ void TestMutex::test_try_lock_unlock_1(){
 }
 
 void TestMutex::test_try_lock_unlock_2(){
-    auto locked = m.try_lock();
+    auto locked = m.try_lock(); // expected-note {{mutex acquired here}}
     if (locked){
         v += 1;
     } else {
         v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     }
-    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}}
+    m.unlock(); // expected-error {{mutex 'm' is not held on every path through here}}
 }
 
 void TestMutex::test_try_lock_unlock_3(){
@@ -78,7 +78,7 @@ void TestMutex::test_lock_try_lock(){
         v += 1;
         m.unlock();
     }
-}
+} // expected-error {{mutex 'm' is not held on every path through here}}
 
 void TestMutex::test() {
     m.lock();
