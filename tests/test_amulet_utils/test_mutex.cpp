@@ -132,7 +132,9 @@ private:
 
 public:
     void test_empty_constructor();
-    void test_lock_constructor_unlocked();
+    void test_scoped_constructor();
+    void test_scoped_constructor_unlock_1();
+    void test_scoped_constructor_unlock_2();
     void test_lock_constructor_locked();
     void test_defer_constructor_unlocked();
     void test_defer_constructor_locked();
@@ -147,17 +149,28 @@ void TestUniqueLock::test_empty_constructor(){
     v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
 }
 
-void TestUniqueLock::test_lock_constructor_unlocked(){
+void TestUniqueLock::test_scoped_constructor(){
     {
         astd::unique_lock lock(m);
         v += 1;
     }
     v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+}
+
+void TestUniqueLock::test_scoped_constructor_unlock_1(){
     {
         astd::unique_lock lock(m);
         v += 1;
         m.unlock();
         v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    }
+}
+
+void TestUniqueLock::test_scoped_constructor_unlock_2(){
+    {
+        astd::unique_lock lock(m);
+        v += 1;
+        m.unlock();
     }
     v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
 }
