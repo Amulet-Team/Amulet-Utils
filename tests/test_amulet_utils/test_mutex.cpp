@@ -3,20 +3,22 @@
 class TestMutex {
 private:
     astd::mutex m;
-    int v __attribute__((guarded_by(m)));
+    int v ASTD_GUARDED_BY(m);
 public:
     void test_access();
     void test_lock_unlock();
     void test_lock();
-    void test_try_lock();
-    void test_try_lock_unlock();
     void test_lock_lock();
+    void test_try_lock();
+    void test_try_lock_unlock_1();
+    void test_try_lock_unlock_2();
+    void test_try_lock_unlock_3();
     void test_lock_try_lock();
     void test();
 };
 
 void TestMutex::test_access(){
-    v += 1;  // writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
 }
 
 void TestMutex::test_lock_unlock(){
@@ -26,43 +28,57 @@ void TestMutex::test_lock_unlock(){
 }
 
 void TestMutex::test_lock(){
-    m.lock(); //mutex acquired here
-} //            mutex 'm' is still held at the end of function [-Wthread-safety-analysis]
+    m.lock(); // expected-note {{mutex acquired here}}
+} // expected-error {{mutex 'm' is still held at the end of function}}
+
+void TestMutex::test_lock_lock(){
+    m.lock(); // expected-note {{mutex acquired here}}
+    m.lock(); // expected-error {{acquiring mutex 'm' that is already held}}
+} // expected-error {{mutex 'm' is still held at the end of function}}
 
 void TestMutex::test_try_lock(){
-    auto locked = m.try_lock(); // mutex acquired here
+    auto locked = m.try_lock(); // expected-note {{mutex acquired here}}
     if (locked){
         v += 1;
     } else {
-        v += 1;//writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+        v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     }
-} //            mutex 'm' is still held at the end of function [-Wthread-safety-analysis]
+} // expected-error {{mutex 'm' is not held on every path through here}}
 
-void TestMutex::test_try_lock_unlock(){
+void TestMutex::test_try_lock_unlock_1(){
     auto locked = m.try_lock();
     if (locked){
         v += 1;
         m.unlock();
     } else {
-        v += 1;//writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
-        m.unlock();//releasing mutex 'm' that was not held [-Wthread-safety-analysis]
+        v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+        m.unlock(); // expected-error {{releasing mutex 'm' that was not held}}
     }
 }
 
-void TestMutex::test_lock_lock(){
-    m.lock(); //mutex acquired here
-    m.lock(); //acquiring mutex 'm' that is already held [-Wthread-safety-analysis]
-} //            mutex 'm' is still held at the end of function [-Wthread-safety-analysis]
-
-void TestMutex::test_lock_try_lock(){
-    m.lock(); //mutex acquired here
-    auto locked = m.try_lock(); // acquiring mutex 'm' that is already held [-Wthread-safety-analysis]
+void TestMutex::test_try_lock_unlock_2(){
+    auto locked = m.try_lock();
     if (locked){
         v += 1;
     } else {
-        v += 1;//writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+        v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     }
-} //            mutex 'm' is still held at the end of function [-Wthread-safety-analysis]
+    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}}
+}
+
+void TestMutex::test_try_lock_unlock_3(){
+    auto locked = m.try_lock();
+    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}}
+}
+
+void TestMutex::test_lock_try_lock(){
+    m.lock(); // expected-note {{mutex acquired here}}
+    auto locked = m.try_lock(); // expected-error {{acquiring mutex 'm' that is already held}}
+    if (locked){
+        v += 1;
+        m.unlock();
+    }
+}
 
 void TestMutex::test() {
     m.lock();
@@ -80,7 +96,7 @@ void TestMutex::test() {
 class TestLockGuard {
 private:
     astd::mutex m;
-    int v __attribute__((guarded_by(m)));
+    int v ASTD_GUARDED_BY(m);
 public:
     void test_access();
     void test();
@@ -88,7 +104,7 @@ public:
 };
 
 void TestLockGuard::test_access(){
-    v += 1;  //  writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
 }
 
 void TestLockGuard::test(){
@@ -105,14 +121,14 @@ void TestLockGuard::test_fail(){
         astd::lock_guard lock(m);
         v += 1;
     }
-    v += 1;  //  writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
 }
 
 
 class TestUniqueLock{
 private:
     astd::mutex m;
-    int v __attribute__((guarded_by(m)));
+    int v ASTD_GUARDED_BY(m);
 
 public:
     void test_empty_constructor();
@@ -128,7 +144,7 @@ public:
 
 void TestUniqueLock::test_empty_constructor(){
     astd::unique_lock<astd::mutex> lock;
-    v += 1;  //  writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
 }
 
 void TestUniqueLock::test_lock_constructor_unlocked(){
@@ -136,35 +152,35 @@ void TestUniqueLock::test_lock_constructor_unlocked(){
         astd::unique_lock lock(m);
         v += 1;
     }
-    v += 1;  //  writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     {
         astd::unique_lock lock(m);
         v += 1;
         m.unlock();
-        v += 1;  //  writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+        v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     }
-    v += 1;  //  writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
 }
 
 void TestUniqueLock::test_lock_constructor_locked(){
-    m.lock();  // mutex acquired here
-    astd::unique_lock lock(m);  // acquiring mutex 'm' that is already held [-Wthread-safety-analysis]
+    m.lock(); // expected-note {{mutex acquired here}}
+    astd::unique_lock lock(m); // expected-error {{acquiring mutex 'm' that is already held}}
 }
 
 void TestUniqueLock::test_defer_constructor_unlocked(){
     astd::unique_lock lock(m, std::defer_lock);
-    v += 1;  //  writing variable 'v' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     lock.lock();
     v += 1;
 }
 
 void TestUniqueLock::test_defer_constructor_locked(){
     m.lock();
-    astd::unique_lock lock(m, std::defer_lock);  // acquiring mutex 'm' that is already held [-Wthread-safety-analysis]
+    astd::unique_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'unique_lock' while mutex 'm' is held}}
 }
 
 void TestUniqueLock::test_adopt_constructor_unlocked(){
-    astd::unique_lock lock(m, std::adopt_lock);  // calling function 'unique_lock' requires holding mutex 'm' exclusively [-Wthread-safety-analysis]
+    astd::unique_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding mutex 'm' exclusively}}
 }
 
 void TestUniqueLock::test_adopt_constructor_locked(){
