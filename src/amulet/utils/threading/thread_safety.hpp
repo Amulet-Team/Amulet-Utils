@@ -2,7 +2,7 @@
 
 // Enable thread safety attributes only with clang.
 // The attributes can be safely erased when compiling with other compilers.
-#if defined(__clang__) && (!defined(SWIG))
+#if defined(AMULET_THREAD_SAFETY_ANALYSIS) && defined(__clang__) && (!defined(SWIG))
 #define ASTD_THREAD_ANNOTATION_ATTRIBUTE__(x)   __attribute__((x))
 #else
 #define ASTD_THREAD_ANNOTATION_ATTRIBUTE__(x)   // no-op

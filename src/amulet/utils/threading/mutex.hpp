@@ -7,7 +7,7 @@
 
 namespace astd {
 
-#if defined(AMULET_STD)
+#if defined(AMULET_THREAD_SAFETY_ANALYSIS)
 
 class ASTD_CAPABILITY("mutex") mutex : private std::mutex {
 public:
