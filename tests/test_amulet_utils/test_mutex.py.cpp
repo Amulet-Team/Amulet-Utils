@@ -58,12 +58,12 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
             test_unique_lock,
             py::name("test_unique_lock")));
 
-    test.append(
+    tests.append(
         py::cpp_function(
             test_shared_mutex,
             py::name("test_shared_mutex")));
 
-    test.append(
+    tests.append(
         py::cpp_function(
             test_shared_lock,
             py::name("test_shared_lock")));
