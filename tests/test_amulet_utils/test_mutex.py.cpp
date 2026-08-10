@@ -2,6 +2,7 @@
 #include <pybind11/typing.h>
 
 #include <amulet/utils/threading/matrix.hpp>
+#include <amulet/utils/threading/shared_matrix.hpp>
 
 namespace py = pybind11;
 
@@ -21,6 +22,19 @@ void test_lock_guard(){
 void test_unique_lock(){
     astd::mutex mtx;
     astd::lock_guard lock(mtx);
+}
+
+void test_shared_mutex(){
+    astd::shared_mutex mtx;
+    mtx.lock();
+    mtx.unlock();
+    mtx.lock_shared();
+    mtx.unlock_shared();
+}
+
+void test_shared_lock(){
+    astd::shared_mutex mtx;
+    astd::shared_lock lock(mtx);
 }
 
 #pragma optimize( "", on )
@@ -43,6 +57,16 @@ static py::typing::List<py::typing::Callable<void()>> get_matrix_tests()
         py::cpp_function(
             test_unique_lock,
             py::name("test_unique_lock")));
+
+    test.append(
+        py::cpp_function(
+            test_shared_mutex,
+            py::name("test_shared_mutex")));
+
+    test.append(
+        py::cpp_function(
+            test_shared_lock,
+            py::name("test_shared_lock")));
 
     return tests;
 }
