@@ -1,13 +1,14 @@
 #pragma once
 
 #include <mutex>
+
+#if defined(AMULET_THREAD_SAFETY_ANALYSIS)
+
 #include <chrono>
 
 #include "thread_safety.hpp"
 
 namespace astd {
-
-#if defined(AMULET_THREAD_SAFETY_ANALYSIS)
 
 class ASTD_CAPABILITY("mutex") mutex : private std::mutex {
 public:
