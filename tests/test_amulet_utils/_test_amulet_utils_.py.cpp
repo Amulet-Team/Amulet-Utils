@@ -10,6 +10,7 @@ void init_test_lock(py::module);
 void init_test_lock_file(py::module);
 void init_test_temp(py::module);
 void init_test_matrix(py::module);
+void init_test_mutex(py::module);
 void init_test_bytes(py::module);
 void init_test_view(py::module);
 
@@ -22,6 +23,7 @@ void init_test_amulet_utils(py::module m){
     init_test_lock_file(m);
     init_test_temp(m);
     init_test_matrix(m);
+    init_test_mutex(m);
     init_test_bytes(m);
     init_test_view(m);
 }
