@@ -206,7 +206,7 @@ void TestUniqueLock::test_adopt_constructor_locked(){
 
 void TestUniqueLock::test_try_lock_constructor(){
     astd::unique_lock lock(m, std::try_to_lock);
-    v += 1;
+    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
 }
 
 void TestUniqueLock::test_assign_lock_unlock(){
