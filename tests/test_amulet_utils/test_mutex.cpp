@@ -32,7 +32,7 @@ void TestMutex::test_lock(){
 } // expected-error {{mutex 'm' is still held at the end of function}}
 
 void TestMutex::test_lock_lock(){
-    m.lock(); // expected-note {{mutex acquired here}}
+    m.lock(); // expected-note 2 {{mutex acquired here}}
     m.lock(); // expected-error {{acquiring mutex 'm' that is already held}}
 } // expected-error {{mutex 'm' is still held at the end of function}}
 
@@ -63,7 +63,7 @@ void TestMutex::test_try_lock_unlock_2(){
     } else {
         v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     }
-    m.unlock(); // expected-error {{mutex 'm' is not held on every path through here}}
+    m.unlock(); // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}}
 }
 
 void TestMutex::test_try_lock_unlock_3(){
@@ -72,7 +72,7 @@ void TestMutex::test_try_lock_unlock_3(){
 }
 
 void TestMutex::test_lock_try_lock(){
-    m.lock(); // expected-note {{mutex acquired here}}
+    m.lock(); // expected-note 2 {{mutex acquired here}}
     auto locked = m.try_lock(); // expected-error {{acquiring mutex 'm' that is already held}}
     if (locked){
         v += 1;
