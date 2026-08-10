@@ -13,6 +13,7 @@ namespace astd {
 class ASTD_CAPABILITY("mutex") mutex : private std::mutex {
 public:
     using std::mutex::mutex;
+    using std::mutex::native_handle_type;
     using std::mutex::native_handle;
     void lock() ASTD_ACQUIRE() { std::mutex::lock(); }
     [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE(true) { return std::mutex::try_lock(); }
