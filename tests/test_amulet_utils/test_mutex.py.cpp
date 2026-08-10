@@ -1,8 +1,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/typing.h>
 
-#include <amulet/utils/threading/matrix.hpp>
-#include <amulet/utils/threading/shared_matrix.hpp>
+#include <amulet/utils/threading/mutex.hpp>
+#include <amulet/utils/threading/shared_mutex.hpp>
 
 namespace py = pybind11;
 
