@@ -62,7 +62,8 @@ public:
 
     shared_lock& operator=( shared_lock&& other ) noexcept ASTD_MOVE_CAPABILITIES(other)
     {
-        return std::shared_lock<Mutex>::operator=(std::forward<shared_lock>(other));
+        std::shared_lock<Mutex>::operator=(std::forward<shared_lock>(other));
+        return *this;
     }
 
     void swap( shared_lock& other ) noexcept ASTD_SWAP_CAPABILITIES(other) {

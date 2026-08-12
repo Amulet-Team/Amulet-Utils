@@ -71,7 +71,8 @@ public:
 
     unique_lock& operator=( unique_lock&& other ) noexcept ASTD_MOVE_CAPABILITIES(other)
     {
-        return std::unique_lock<Mutex>::operator=(std::forward<unique_lock>(other));
+        std::unique_lock<Mutex>::operator=(std::forward<unique_lock>(other));
+        return *this;
     }
 
     void swap( unique_lock& other ) noexcept ASTD_SWAP_CAPABILITIES(other) {
