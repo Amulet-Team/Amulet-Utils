@@ -508,7 +508,7 @@ void TestSharedLock::test_unique_scoped_constructor_unlock_2(){
 
 void TestSharedLock::test_shared_scoped_constructor_unlock_1(){
     {
-        astd::shared_lock lock(m); // expected-note {{mutex acquired here}}
+        astd::shared_lock lock(m);
         auto a = v;
         lock.unlock();
         auto b = v; // expected-error {{reading variable 'v' requires holding mutex 'm'}}
@@ -517,7 +517,7 @@ void TestSharedLock::test_shared_scoped_constructor_unlock_1(){
 
 void TestSharedLock::test_shared_scoped_constructor_unlock_2(){
     {
-        astd::shared_lock lock(m); // expected-note {{mutex acquired here}}
+        astd::shared_lock lock(m);
         auto a = v;
         lock.unlock();
     }
