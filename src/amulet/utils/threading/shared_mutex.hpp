@@ -13,8 +13,6 @@ namespace astd {
 class ASTD_CAPABILITY("shared mutex") shared_mutex : private std::shared_mutex {
 public:
     using std::shared_mutex::shared_mutex;
-    using std::shared_mutex::native_handle_type;
-    using std::shared_mutex::native_handle;
     void lock() ASTD_ACQUIRE() { std::shared_mutex::lock(); }
     void lock_shared() ASTD_ACQUIRE_SHARED() { std::shared_mutex::lock_shared(); }
     [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE(true) { return std::shared_mutex::try_lock(); }
