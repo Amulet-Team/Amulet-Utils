@@ -405,7 +405,7 @@ void TestSharedMutex::test() {
     m.unlock();
 
     m.lock_shared();
-    v += 1;
+    auto a = v;
     m.unlock_shared();
 
     auto unique_locked = m.try_lock();
@@ -416,7 +416,7 @@ void TestSharedMutex::test() {
 
     auto shared_locked = m.try_lock_shared();
     if (shared_locked){
-        v += 1;
+        auto b = v;
         m.unlock_shared();
     }
 }
@@ -463,13 +463,13 @@ public:
 };
 
 void TestSharedLock::test_unique_empty_constructor(){
-    astd::unique_lock<astd::mutex> lock;
+    astd::unique_lock<astd::shared_mutex> lock;
     v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
 }
 
 void TestSharedLock::test_shared_empty_constructor(){
-    astd::shared_lock<astd::mutex> lock;
-    a = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
+    astd::shared_lock<astd::shared_mutex> lock;
+    auto a = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
 }
 
 void TestSharedLock::test_unique_scoped_constructor(){
@@ -609,13 +609,13 @@ void TestSharedLock::test_shared_try_lock_constructor(){
 }
 
 void TestSharedLock::test_unique_assign_lock_unlock(){
-    astd::unique_lock<astd::mutex> lock1;
+    astd::unique_lock<astd::shared_mutex> lock1;
     astd::unique_lock lock2(m);
     lock1 = std::move(lock2);
 }
 
 void TestSharedLock::test_shared_assign_lock_unlock(){
-    astd::shared_lock<astd::mutex> lock1;
+    astd::shared_lock<astd::shared_mutex> lock1;
     astd::shared_lock lock2(m);
     lock1 = std::move(lock2);
 }
