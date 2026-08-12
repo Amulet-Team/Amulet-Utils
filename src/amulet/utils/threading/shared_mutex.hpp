@@ -15,7 +15,7 @@ public:
     // Clang's thread safety analysis does not track only shared mode.
     // This is needed to stop a uniquely locked mutex being adopted by a shared_lock.
     // This capability will be acquired only when locked in shared mode.
-    class SharedMode ASTD_CAPABILITY("shared-mode") {};
+    class ASTD_CAPABILITY("shared-mode") SharedMode {};
     SharedMode shared;
 
     using std::shared_mutex::shared_mutex;
