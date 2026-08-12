@@ -229,6 +229,7 @@ public:
     void test_access();
     void test_lock_unlock();
     void test_lock_shared_unlock_shared();
+    void test_lock_shared_unlock_shared_write();
     void test_lock_unlock_shared();
     void test_lock_shared_unlock();
     void test_lock();
@@ -262,20 +263,26 @@ void TestSharedMutex::test_lock_unlock(){
 
 void TestSharedMutex::test_lock_shared_unlock_shared(){
     m.lock_shared();
-    v += 1;
+    auto a = v;
+    m.unlock_shared();
+}
+
+void TestSharedMutex::test_lock_shared_unlock_shared_write(){
+    m.lock_shared();
+    v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
     m.unlock_shared();
 }
 
 void TestSharedMutex::test_lock_unlock_shared(){
     m.lock();
     v += 1;
-    m.unlock_shared(); // expected-error {{todo}}
+    m.unlock_shared(); // expected-error {{releasing shared mutex 'm' using shared access, expected exclusive access}}
 }
 
 void TestSharedMutex::test_lock_shared_unlock(){
     m.lock_shared();
-    v += 1;
-    m.unlock(); // expected-error {{todo}}
+    auto a = v;
+    m.unlock(); // expected-error {{releasing shared mutex 'm' using exclusive access, expected shared access}}
 }
 
 void TestSharedMutex::test_lock(){
@@ -283,7 +290,7 @@ void TestSharedMutex::test_lock(){
 } // expected-error {{shared mutex 'm' is still held at the end of function}}
 
 void TestSharedMutex::test_unlock(){
-    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}}
+    m.unlock(); // expected-error {{releasing shared mutex 'm' that was not held}}
 }
 
 void TestSharedMutex::test_lock_shared(){
@@ -291,7 +298,7 @@ void TestSharedMutex::test_lock_shared(){
 } // expected-error {{shared mutex 'm' is still held at the end of function}}
 
 void TestSharedMutex::test_unlock_shared(){
-    m.unlock_shared(); // expected-error {{releasing mutex 'm' that was not held}}
+    m.unlock_shared(); // expected-error {{releasing shared mutex 'm' that was not held}}
 }
 
 void TestSharedMutex::test_lock_lock(){
@@ -331,7 +338,7 @@ void TestSharedMutex::test_try_lock_unlock_2(){
     } else {
         v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
     }
-    m.unlock(); // expected-error {{shared mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}}
+    m.unlock(); // expected-error {{shared mutex 'm' is not held on every path through here}} expected-error {{releasing shared mutex 'm' that was not held}}
 }
 
 void TestSharedMutex::test_try_lock_unlock_3(){
@@ -342,19 +349,19 @@ void TestSharedMutex::test_try_lock_unlock_3(){
 void TestSharedMutex::test_try_lock_shared(){
     auto locked = m.try_lock_shared(); // expected-note {{shared mutex acquired here}}
     if (locked){
-        v += 1;
+        auto a = v;
     } else {
-        v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
+        auto a = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
     }
 } // expected-error {{shared mutex 'm' is not held on every path through here}}
 
 void TestSharedMutex::test_try_lock_shared_unlock_shared_1(){
     auto locked = m.try_lock_shared();
     if (locked){
-        v += 1;
+        auto a = v;
         m.unlock_shared();
     } else {
-        v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
+        auto a = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
         m.unlock(); // expected-error {{releasing shared mutex 'm' that was not held}}
     }
 }
@@ -362,11 +369,11 @@ void TestSharedMutex::test_try_lock_shared_unlock_shared_1(){
 void TestSharedMutex::test_try_lock_shared_unlock_shared_2(){
     auto locked = m.try_lock_shared(); // expected-note {{shared mutex acquired here}}
     if (locked){
-        v += 1;
+        auto a = v;
     } else {
-        v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
+        auto a = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
     }
-    m.unlock_shared(); // expected-error {{shared mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}}
+    m.unlock_shared(); // expected-error {{shared mutex 'm' is not held on every path through here}} expected-error {{releasing shared mutex 'm' that was not held}}
 }
 
 void TestSharedMutex::test_try_lock_shared_unlock_shared_3(){
@@ -387,7 +394,7 @@ void TestSharedMutex::test_lock_shared_try_lock_shared(){
     m.lock_shared(); // expected-note 2 {{shared mutex acquired here}}
     auto locked = m.try_lock_shared(); // expected-error {{acquiring shared mutex 'm' that is already held}}
     if (locked){
-        v += 1;
+        auto a = v;
         m.unlock_shared();
     }
 } // expected-error {{shared mutex 'm' is not held on every path through here}}
@@ -401,14 +408,14 @@ void TestSharedMutex::test() {
     v += 1;
     m.unlock_shared();
 
-    auto locked = m.try_lock();
-    if (locked){
+    auto unique_locked = m.try_lock();
+    if (unique_locked){
         v += 1;
         m.unlock();
     }
 
-    auto locked = m.try_lock_shared();
-    if (locked){
+    auto shared_locked = m.try_lock_shared();
+    if (shared_locked){
         v += 1;
         m.unlock_shared();
     }
@@ -457,12 +464,12 @@ public:
 
 void TestSharedLock::test_unique_empty_constructor(){
     astd::unique_lock<astd::mutex> lock;
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
 }
 
 void TestSharedLock::test_shared_empty_constructor(){
     astd::shared_lock<astd::mutex> lock;
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    a = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
 }
 
 void TestSharedLock::test_unique_scoped_constructor(){
@@ -470,15 +477,15 @@ void TestSharedLock::test_unique_scoped_constructor(){
         astd::unique_lock lock(m);
         v += 1;
     }
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
 }
 
 void TestSharedLock::test_shared_scoped_constructor(){
     {
         astd::shared_lock lock(m);
-        v += 1;
+        auto a = v;
     }
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    auto b = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
 }
 
 void TestSharedLock::test_unique_scoped_constructor_unlock_1(){
@@ -486,7 +493,7 @@ void TestSharedLock::test_unique_scoped_constructor_unlock_1(){
         astd::unique_lock lock(m);
         v += 1;
         lock.unlock();
-        v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+        v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
     }
 }
 
@@ -496,69 +503,69 @@ void TestSharedLock::test_unique_scoped_constructor_unlock_2(){
         v += 1;
         lock.unlock();
     }
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
 }
 
 void TestSharedLock::test_shared_scoped_constructor_unlock_1(){
     {
         astd::shared_lock lock(m);
-        v += 1;
+        auto a = v;
         lock.unlock();
-        v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+        auto b = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
     }
 }
 
 void TestSharedLock::test_shared_scoped_constructor_unlock_2(){
     {
         astd::shared_lock lock(m);
-        v += 1;
+        auto a = v;
         lock.unlock();
     }
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    auto b = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
 }
 
 void TestSharedLock::test_unique_lock_constructor_locked(){
     m.lock(); // expected-note {{mutex acquired here}}
-    astd::unique_lock lock(m); // expected-error {{acquiring mutex 'm' that is already held}}
+    astd::unique_lock lock(m); // expected-error {{acquiring shared mutex 'm' that is already held}}
     m.unlock();
 }
 
 void TestSharedLock::test_shared_lock_constructor_locked(){
     m.lock(); // expected-note {{mutex acquired here}}
-    astd::shared_lock lock(m); // expected-error {{acquiring mutex 'm' that is already held}}
+    astd::shared_lock lock(m); // expected-error {{acquiring shared mutex 'm' that is already held}}
     m.unlock();
 }
 
 void TestSharedLock::test_unique_defer_constructor_unlocked(){
     astd::unique_lock lock(m, std::defer_lock);
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
     lock.lock();
     v += 1;
 }
 
 void TestSharedLock::test_shared_defer_constructor_unlocked(){
     astd::shared_lock lock(m, std::defer_lock);
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    auto a = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
     lock.lock();
-    v += 1;
+    auto b = v;
 }
 
 void TestSharedLock::test_unique_defer_constructor_locked(){
     m.lock();
-    astd::unique_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'unique_lock' while mutex 'm' is held}}
+    astd::unique_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'unique_lock' while shared mutex 'm' is held}}
 }
 
 void TestSharedLock::test_shared_defer_constructor_locked(){
     m.lock();
-    astd::shared_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'unique_lock' while mutex 'm' is held}}
+    astd::shared_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'unique_lock' while shared mutex 'm' is held}}
 }
 
 void TestSharedLock::test_unique_adopt_constructor_unlocked(){
-    astd::unique_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding mutex 'm' exclusively}}
+    astd::unique_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding shared mutex 'm' exclusively}}
 }
 
 void TestSharedLock::test_shared_adopt_constructor_unlocked(){
-    astd::shared_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding mutex 'm' exclusively}}
+    astd::shared_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding shared mutex 'm' exclusively}}
 }
 
 void TestSharedLock::test_unique_adopt_constructor_locked_unique(){
@@ -568,7 +575,7 @@ void TestSharedLock::test_unique_adopt_constructor_locked_unique(){
         astd::unique_lock lock(m, std::adopt_lock);
         v += 1;
     }
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
 }
 
 void TestSharedLock::test_unique_adopt_constructor_locked_shared(){
@@ -578,12 +585,12 @@ void TestSharedLock::test_unique_adopt_constructor_locked_shared(){
 
 void TestSharedLock::test_shared_adopt_constructor_locked_shared(){
     m.lock_shared();
-    v += 1;
+    int a = v;
     {
         astd::shared_lock lock(m, std::adopt_lock);
-        v += 1;
+        int b = v;
     }
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    int c = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
 }
 
 void TestSharedLock::test_shared_adopt_constructor_locked_unique(){
@@ -593,12 +600,12 @@ void TestSharedLock::test_shared_adopt_constructor_locked_unique(){
 
 void TestSharedLock::test_unique_try_lock_constructor(){
     astd::unique_lock lock(m, std::try_to_lock);
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    v += 1; // expected-error {{writing variable 'v' requires holding shared mutex 'm' exclusively}}
 }
 
 void TestSharedLock::test_shared_try_lock_constructor(){
     astd::shared_lock lock(m, std::try_to_lock);
-    v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
+    auto a = v; // expected-error {{reading variable 'v' requires holding shared mutex 'm'}}
 }
 
 void TestSharedLock::test_unique_assign_lock_unlock(){
