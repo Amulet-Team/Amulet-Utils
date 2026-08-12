@@ -61,8 +61,8 @@ public:
         : std::unique_lock<Mutex>(m, timeout_time) {}
 
     // Copy
-    unique_lock( unique_lock& other ) = delete;
-    unique_lock& operator=( unique_lock& other ) = delete;
+    unique_lock( const unique_lock& other ) = delete;
+    unique_lock& operator=( const unique_lock& other ) = delete;
 
     // Move
     // TODO: Add annotations if Clang supports moving, swapping and disowning capabilities

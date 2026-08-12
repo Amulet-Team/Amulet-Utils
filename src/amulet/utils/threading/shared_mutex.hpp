@@ -52,8 +52,8 @@ public:
         : std::shared_lock<Mutex>(m, timeout_time) {}
 
     // Copy
-    shared_lock( shared_lock& other ) = delete;
-    shared_lock& operator=( shared_lock& other ) = delete;
+    shared_lock( const shared_lock& other ) = delete;
+    shared_lock& operator=( const shared_lock& other ) = delete;
 
     // Move
     // TODO: Add annotations if Clang supports moving, swapping and disowning capabilities
