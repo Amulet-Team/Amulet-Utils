@@ -10,7 +10,7 @@
 
 namespace astd {
 
-class ASTD_CAPABILITY("shared mutex") shared_mutex : private std::shared_mutex {
+class ASTD_CAPABILITY("mutex") shared_mutex : private std::shared_mutex {
 public:
     using std::shared_mutex::shared_mutex;
     void lock() ASTD_ACQUIRE() { std::shared_mutex::lock(); }
