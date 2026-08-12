@@ -89,6 +89,7 @@
 // Required by lock destructors when the capability is not held.
 // Release the capability, regardless of initial value.
 #define ASTD_RELEASE_IF_HELD(...) ASTD_ASSERT_CAPABILITY(__VA_ARGS__) ASTD_RELEASE(__VA_ARGS__)
+#define ASTD_RELEASE_IF_HELD_SHARED(...) ASTD_ASSERT_SHARED_CAPABILITY(__VA_ARGS__) ASTD_RELEASE_SHARED(__VA_ARGS__)
 
 // Required to swap the capabilities of two locks.
 // Swap the capabilities of `a` and `b` (a, b) or (a)

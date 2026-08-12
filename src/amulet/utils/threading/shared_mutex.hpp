@@ -73,7 +73,7 @@ public:
     }
 
     // Destructor
-    ~shared_lock() ASTD_RELEASE_IF_HELD() {}
+    ~shared_lock() ASTD_RELEASE_IF_HELD_SHARED() {}
 
     void unlock() ASTD_RELEASE_SHARED() {
         std::shared_lock<Mutex>::unlock();
