@@ -12,13 +12,19 @@ namespace astd {
 
 class ASTD_CAPABILITY("mutex") shared_mutex : private std::shared_mutex {
 public:
+    // Clang's thread safety analysis does not track only shared mode.
+    // This is needed to stop a uniquely locked mutex being adopted by a shared_lock.
+    // This capability will be acquired only when locked in shared mode.
+    class SharedMode ASTD_CAPABILITY("shared-mode") {};
+    SharedMode shared;
+
     using std::shared_mutex::shared_mutex;
     void lock() ASTD_ACQUIRE() { std::shared_mutex::lock(); }
-    void lock_shared() ASTD_ACQUIRE_SHARED() { std::shared_mutex::lock_shared(); }
+    void lock_shared() ASTD_ACQUIRE_SHARED() ASTD_ACQUIRE_SHARED(shared) { std::shared_mutex::lock_shared(); }
     [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE(true) { return std::shared_mutex::try_lock(); }
-    [[nodiscard]] bool try_lock_shared() ASTD_TRY_ACQUIRE_SHARED(true) { return std::shared_mutex::try_lock_shared(); }
+    [[nodiscard]] bool try_lock_shared() ASTD_TRY_ACQUIRE_SHARED(true) ASTD_TRY_ACQUIRE_SHARED(true, shared) { return std::shared_mutex::try_lock_shared(); }
     void unlock() ASTD_RELEASE() { std::shared_mutex::unlock(); }
-    void unlock_shared() ASTD_RELEASE_SHARED() { std::shared_mutex::unlock_shared(); }
+    void unlock_shared() ASTD_RELEASE_SHARED() ASTD_RELEASE_SHARED(shared) { std::shared_mutex::unlock_shared(); }
 };
 
 template<class Mutex>
@@ -29,24 +35,24 @@ public:
     // Constructors
     shared_lock() noexcept : std::shared_lock<Mutex>() {}
 
-    explicit shared_lock( Mutex& m ) ASTD_ACQUIRE_SHARED(m)
+    explicit shared_lock( Mutex& m ) ASTD_ACQUIRE_SHARED(m, m.shared)
         : std::shared_lock<Mutex>(m) {}
 
-    shared_lock( Mutex& m, std::defer_lock_t ) noexcept ASTD_EXCLUDES(m)
+    shared_lock( Mutex& m, std::defer_lock_t ) noexcept ASTD_EXCLUDES(m, m.shared)
         : std::shared_lock<Mutex>(m, std::defer_lock) {}
 
-    shared_lock( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES_SHARED(m)
+    shared_lock( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES_SHARED(m, m.shared)
         : std::shared_lock<Mutex>(m, std::adopt_lock) {}
 
-    shared_lock( Mutex& m, std::try_to_lock_t ) ASTD_MAYBE_ACQUIRE_SHARED(m)
+    shared_lock( Mutex& m, std::try_to_lock_t ) ASTD_MAYBE_ACQUIRE_SHARED(m, m.shared)
         : std::shared_lock<Mutex>(m, std::try_to_lock) {}
 
     template< class Rep, class Period >
-    shared_lock( Mutex& m, const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_MAYBE_ACQUIRE_SHARED(m)
+    shared_lock( Mutex& m, const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_MAYBE_ACQUIRE_SHARED(m, m.shared)
         : std::shared_lock<Mutex>(m, timeout_duration) {}
 
     template< class Clock, class Duration >
-    shared_lock( Mutex& m, const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_MAYBE_ACQUIRE_SHARED(m)
+    shared_lock( Mutex& m, const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_MAYBE_ACQUIRE_SHARED(m, m.shared)
         : std::shared_lock<Mutex>(m, timeout_time) {}
 
     // Copy
