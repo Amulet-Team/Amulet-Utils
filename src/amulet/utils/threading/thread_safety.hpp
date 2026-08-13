@@ -29,13 +29,13 @@
 #define ASTD_ACQUIRED_AFTER(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(acquired_after(__VA_ARGS__))
 
-#define ASTD_REQUIRES(...) \
+#define ASTD_REQUIRES_UNIQUE(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(requires_capability(__VA_ARGS__))
 
-#define ASTD_REQUIRES_SHARED(...) \
+#define ASTD_REQUIRES_UNIQUE_OR_SHARED(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(requires_shared_capability(__VA_ARGS__))
 
-#define ASTD_ACQUIRE(...) \
+#define ASTD_ACQUIRE_UNIQUE(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(acquire_capability(__VA_ARGS__))
 
 #define ASTD_ACQUIRE_SHARED(...) \
@@ -44,13 +44,15 @@
 #define ASTD_RELEASE(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(release_capability(__VA_ARGS__))
 
+#define ASTD_RELEASE_UNIQUE(...) ASTD_RELEASE(__VA_ARGS__)
+
 #define ASTD_RELEASE_SHARED(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(release_shared_capability(__VA_ARGS__))
 
 #define ASTD_RELEASE_GENERIC(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(release_generic_capability(__VA_ARGS__))
 
-#define ASTD_TRY_ACQUIRE(...) \
+#define ASTD_TRY_ACQUIRE_UNIQUE(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(try_acquire_capability(__VA_ARGS__))
 
 #define ASTD_TRY_ACQUIRE_SHARED(...) \
@@ -59,7 +61,7 @@
 #define ASTD_EXCLUDES(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(locks_excluded(__VA_ARGS__))
 
-#define ASTD_ASSERT_CAPABILITY(...) \
+#define ASTD_ASSERT_UNIQUE_CAPABILITY(...) \
   ASTD_THREAD_ANNOTATION_ATTRIBUTE__(assert_capability(__VA_ARGS__))
 
 #define ASTD_ASSERT_SHARED_CAPABILITY(...) \
@@ -77,18 +79,18 @@
 // Required by lock try_to_acquire constructors
 // Marks the capability as both locked and unlocked.
 // Its state must be inspected and left in the unlocked or locked state.
-#define ASTD_MAYBE_ACQUIRE(...) ASTD_EXCLUDES(__VA_ARGS__)
+#define ASTD_MAYBE_ACQUIRE_UNIQUE(...) ASTD_EXCLUDES(__VA_ARGS__)
 #define ASTD_MAYBE_ACQUIRE_SHARED(...) ASTD_EXCLUDES(__VA_ARGS__)
 
 // Required by owns_lock to inspect the lock state without acquiring it.
 // Works like try_acquire_[shared_]capability but can be used in any context.
 // Currently they are aliased to try_acquire_[shared_]capability so can only be used in the unlocked state.
-#define ASTD_CHECK_CAPABILITY(...) ASTD_TRY_ACQUIRE(__VA_ARGS__)
+#define ASTD_CHECK_UNIQUE_CAPABILITY(...) ASTD_TRY_ACQUIRE_UNIQUE(__VA_ARGS__)
 #define ASTD_CHECK_SHARED_CAPABILITY(...) ASTD_TRY_ACQUIRE_SHARED(__VA_ARGS__)
 
 // Required by lock destructors when the capability is not held.
 // Release the capability, regardless of initial value.
-#define ASTD_RELEASE_IF_HELD(...) ASTD_ASSERT_CAPABILITY(__VA_ARGS__) ASTD_RELEASE(__VA_ARGS__)
+#define ASTD_RELEASE_IF_HELD(...) ASTD_ASSERT_UNIQUE_CAPABILITY(__VA_ARGS__) ASTD_RELEASE(__VA_ARGS__)
 
 // Required to swap the capabilities of two locks.
 // Swap the capabilities of `a` and `b` (a, b) or (a)

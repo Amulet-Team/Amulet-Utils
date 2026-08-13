@@ -19,11 +19,11 @@ public:
     SharedMode shared;
 
     using std::shared_mutex::shared_mutex;
-    void lock() ASTD_ACQUIRE() { std::shared_mutex::lock(); }
+    void lock() ASTD_ACQUIRE_UNIQUE() { std::shared_mutex::lock(); }
     void lock_shared() ASTD_ACQUIRE_SHARED() ASTD_ACQUIRE_SHARED(shared) { std::shared_mutex::lock_shared(); }
-    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE(true) { return std::shared_mutex::try_lock(); }
+    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE(true) { return std::shared_mutex::try_lock(); }
     [[nodiscard]] bool try_lock_shared() ASTD_TRY_ACQUIRE_SHARED(true) ASTD_TRY_ACQUIRE_SHARED(true, shared) { return std::shared_mutex::try_lock_shared(); }
-    void unlock() ASTD_RELEASE() { std::shared_mutex::unlock(); }
+    void unlock() ASTD_RELEASE_UNIQUE() { std::shared_mutex::unlock(); }
     void unlock_shared() ASTD_RELEASE_SHARED() ASTD_RELEASE_SHARED(shared) { std::shared_mutex::unlock_shared(); }
 };
 
@@ -41,7 +41,7 @@ public:
     shared_lock( Mutex& m, std::defer_lock_t ) noexcept ASTD_EXCLUDES(m, m.shared)
         : std::shared_lock<Mutex>(m, std::defer_lock) {}
 
-    shared_lock( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES_SHARED(m, m.shared)
+    shared_lock( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES_UNIQUE_OR_SHARED(m, m.shared)
         : std::shared_lock<Mutex>(m, std::adopt_lock) {}
 
     shared_lock( Mutex& m, std::try_to_lock_t ) ASTD_MAYBE_ACQUIRE_SHARED(m, m.shared)

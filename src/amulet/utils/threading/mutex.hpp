@@ -13,9 +13,9 @@ namespace astd {
 class ASTD_CAPABILITY("mutex") mutex : private std::mutex {
 public:
     using std::mutex::mutex;
-    void lock() ASTD_ACQUIRE() { std::mutex::lock(); }
-    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE(true) { return std::mutex::try_lock(); }
-    void unlock() ASTD_RELEASE() { std::mutex::unlock(); }
+    void lock() ASTD_ACQUIRE_UNIQUE() { std::mutex::lock(); }
+    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE(true) { return std::mutex::try_lock(); }
+    void unlock() ASTD_RELEASE_UNIQUE() { std::mutex::unlock(); }
 };
 
 template<class Mutex>
@@ -23,11 +23,11 @@ class [[nodiscard]] ASTD_SCOPED_CAPABILITY lock_guard : private std::lock_guard<
 public:
     using std::lock_guard<Mutex>::lock_guard;
 
-    explicit lock_guard( Mutex& m ) ASTD_ACQUIRE(m) : std::lock_guard<Mutex>(m) {}
-    lock_guard( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES(m) : std::lock_guard<Mutex>(m, std::adopt_lock) {}
+    explicit lock_guard( Mutex& m ) ASTD_ACQUIRE_UNIQUE(m) : std::lock_guard<Mutex>(m) {}
+    lock_guard( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES_UNIQUE(m) : std::lock_guard<Mutex>(m, std::adopt_lock) {}
     lock_guard( const lock_guard& ) = delete;
     lock_guard& operator=( const lock_guard& ) = delete;
-    ~lock_guard() ASTD_RELEASE() {}
+    ~lock_guard() ASTD_RELEASE_UNIQUE() {}
 };
 
 template<class Mutex>
@@ -38,24 +38,24 @@ public:
     // Constructors
     unique_lock() noexcept : std::unique_lock<Mutex>() {}
 
-    explicit unique_lock( Mutex& m ) ASTD_ACQUIRE(m)
+    explicit unique_lock( Mutex& m ) ASTD_ACQUIRE_UNIQUE(m)
         : std::unique_lock<Mutex>(m) {}
 
     unique_lock( Mutex& m, std::defer_lock_t ) noexcept ASTD_EXCLUDES(m)
         : std::unique_lock<Mutex>(m, std::defer_lock) {}
 
-    unique_lock( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES(m)
+    unique_lock( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES_UNIQUE(m)
         : std::unique_lock<Mutex>(m, std::adopt_lock) {}
 
-    unique_lock( Mutex& m, std::try_to_lock_t ) ASTD_MAYBE_ACQUIRE(m)
+    unique_lock( Mutex& m, std::try_to_lock_t ) ASTD_MAYBE_ACQUIRE_UNIQUE(m)
         : std::unique_lock<Mutex>(m, std::try_to_lock) {}
 
     template< class Rep, class Period >
-    unique_lock( Mutex& m, const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_MAYBE_ACQUIRE(m)
+    unique_lock( Mutex& m, const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_MAYBE_ACQUIRE_UNIQUE(m)
         : std::unique_lock<Mutex>(m, timeout_duration) {}
 
     template< class Clock, class Duration >
-    unique_lock( Mutex& m, const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_MAYBE_ACQUIRE(m)
+    unique_lock( Mutex& m, const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_MAYBE_ACQUIRE_UNIQUE(m)
         : std::unique_lock<Mutex>(m, timeout_time) {}
 
     // Copy
@@ -84,25 +84,25 @@ public:
     // Destructor
     ~unique_lock() ASTD_RELEASE_IF_HELD() {}
 
-    void unlock() ASTD_RELEASE() {
+    void unlock() ASTD_RELEASE_UNIQUE() {
         std::unique_lock<Mutex>::unlock();
     }
 
-    void lock() ASTD_ACQUIRE() {
+    void lock() ASTD_ACQUIRE_UNIQUE() {
         std::unique_lock<Mutex>::lock();
     }
 
-    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE(true) {
+    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE(true) {
         return std::unique_lock<Mutex>::try_lock();
     }
 
     template< class Rep, class Period >
-    [[nodiscard]] bool try_lock_for( const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_TRY_ACQUIRE(true) {
+    [[nodiscard]] bool try_lock_for( const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_TRY_ACQUIRE_UNIQUE(true) {
         return std::unique_lock<Mutex>::try_lock_for(timeout_duration);
     }
 
     template< class Clock, class Duration >
-    [[nodiscard]] bool try_lock_until( const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_TRY_ACQUIRE(true) {
+    [[nodiscard]] bool try_lock_until( const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_TRY_ACQUIRE_UNIQUE(true) {
         return std::unique_lock<Mutex>::try_lock_until(timeout_time);
     }
 
@@ -112,10 +112,10 @@ public:
     }
 
     // TODO: The following methods require a non-acquiring version of TRY_ACQUIRE
-    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_CAPABILITY(true) {
+    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_UNIQUE_CAPABILITY(true) {
         return std::unique_lock<Mutex>::owns_lock();
     }
-    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_CAPABILITY(true) {
+    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_UNIQUE_CAPABILITY(true) {
         return std::unique_lock<Mutex>::operator bool();
     }
 };
