@@ -1,10 +1,8 @@
 #pragma once
 
 #include <chrono>
-#include <condition_variable>
 #include <list>
 #include <map>
-#include <mutex>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -14,6 +12,10 @@
 
 #include <amulet/utils/dll.hpp>
 #include <amulet/utils/task_manager/cancel_manager.hpp>
+#include <amulet/utils/threading/condition_variable.hpp>
+#include <amulet/utils/threading/mutex.hpp>
+#include <amulet/utils/threading/thread_safety.hpp>
+
 #include "deadlock.hpp"
 
 namespace {
@@ -51,22 +53,22 @@ protected:
         std::optional<LockMode> state; // The current lock mode. Empty if unlocked.
     };
 
-    std::mutex mutex;
-    std::condition_variable condition;
+    astd::mutex mutex;
+    astd::condition_variable condition;
     // The number of threads that are reading
-    size_t read_count = 0;
+    size_t read_count ASTD_GUARDED_BY(mutex) = 0;
     // The number of threads that are writing
-    size_t write_count = 0;
+    size_t write_count ASTD_GUARDED_BY(mutex) = 0;
     // The number of locked threads blocking reading
-    size_t blocking_read_count = 0;
+    size_t blocking_read_count ASTD_GUARDED_BY(mutex) = 0;
     // The number of locked threads blocking writing
-    size_t blocking_write_count = 0;
+    size_t blocking_write_count ASTD_GUARDED_BY(mutex) = 0;
     // The threads that currently hold the lock.
-    std::list<ThreadState> locked_threads;
+    std::list<ThreadState> locked_threads ASTD_GUARDED_BY(mutex);
     // The pending threads in the order the lock call was made.
-    std::list<ThreadState> pending_threads;
+    std::list<ThreadState> pending_threads ASTD_GUARDED_BY(mutex);
     // Lookup from thread id to the iterator in locked_threads or pending_thread.
-    std::map<std::thread::id, std::list<ThreadState>::iterator> threads;
+    std::map<std::thread::id, std::list<ThreadState>::iterator> threads ASTD_GUARDED_BY(mutex);
 
     template <
         bool ReturnBool,
@@ -77,7 +79,7 @@ protected:
     std::conditional_t<ReturnBool, bool, void> _lock_imp(Args... args_pack)
     {
         // Lock the state.
-        std::unique_lock lock(mutex);
+        astd::unique_lock lock(mutex);
 
         // Get the thread id
         auto id = std::this_thread::get_id();
@@ -190,7 +192,7 @@ protected:
                 const auto& timeout = std::get<0>(args);
                 using TimeoutT = std::remove_cvref_t<decltype(timeout)>;
 
-                auto wait = [&](std::unique_lock<std::mutex>& _lck, decltype(timeout) _timeout, std::function<bool()> _pred) -> bool {
+                auto wait = [&](astd::unique_lock<astd::mutex>& _lck, decltype(timeout) _timeout, std::function<bool()> _pred) -> bool {
                     if constexpr (is_specialization_of<std::chrono::duration, TimeoutT>::value) {
                         return condition.wait_for(_lck, _timeout, _pred);
                     } else {
@@ -291,7 +293,7 @@ public:
     void unlock()
     {
         // Lock the state.
-        std::lock_guard lock(mutex);
+        astd::lock_guard lock(mutex);
 
         // Get the thread id
         auto id = std::this_thread::get_id();
