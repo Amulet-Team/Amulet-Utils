@@ -3,66 +3,77 @@
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
-#include <mutex>
+
+#include <amulet/utils/threading/mutex.hpp>
+#include <amulet/utils/threading/thread_safety.hpp>
 
 #include "lock_file.hpp"
 
 namespace Amulet {
 
-std::filesystem::path& _get_temp_dir()
-{
-    static std::filesystem::path _temp_dir = "";
-    return _temp_dir;
-}
+class TempDirManager {
+private:
+    astd::mutex _mutex;
+    std::filesystem::path _temp_dir ASTD_GUARDED_BY(_mutex) = "";
 
-std::mutex& _get_temp_dir_mutex()
-{
-    static std::mutex _temp_dir_mutex;
-    return _temp_dir_mutex;
-}
-
-static void clean_temp_dir(const std::filesystem::path& temp_dir)
-{
-    for (const auto& group : std::filesystem::directory_iterator(temp_dir)) {
-        if (!group.is_directory()) {
-            continue;
-        }
-        for (const auto& dir : std::filesystem::directory_iterator(group.path())) {
-            if (!dir.path().filename().string().starts_with("amulettmp-")) {
+    void _clean_temp_dir() ASTD_REQUIRES_UNIQUE(_mutex)
+    {
+        for (const auto& group : std::filesystem::directory_iterator(_temp_dir)) {
+            if (!group.is_directory()) {
                 continue;
             }
-            try {
-                Amulet::LockFile lock(dir.path() / "lock");
-            } catch (const std::runtime_error&) {
-                continue;
+            for (const auto& dir : std::filesystem::directory_iterator(group.path())) {
+                if (!dir.path().filename().string().starts_with("amulettmp-")) {
+                    continue;
+                }
+                try {
+                    Amulet::LockFile lock(dir.path() / "lock");
+                } catch (const std::runtime_error&) {
+                    continue;
+                }
+                std::filesystem::remove_all(dir.path());
             }
-            std::filesystem::remove_all(dir.path());
         }
+    };
+
+public:
+    std::filesystem::path get_temp_dir() ASTD_EXCLUDES(_mutex)
+    {
+        astd::lock_guard lock(_mutex);
+        if (_temp_dir.empty()) {
+            throw std::runtime_error("Temporary directory has not been set.");
+        }
+        return _temp_dir;
+    }
+
+    void set_temp_dir(std::filesystem::path path) ASTD_EXCLUDES(_mutex)
+    {
+        if (!std::filesystem::is_directory(path)) {
+            throw std::runtime_error("Temporary path is not a directory.");
+        }
+        astd::lock_guard lock(_mutex);
+        if (!_temp_dir.empty()) {
+            _clean_temp_dir();
+        }
+        _temp_dir = std::move(path);
+        _clean_temp_dir();
     }
 };
 
+TempDirManager& _get_temp_dir_manager()
+{
+    static TempDirManager _temp_dir_meta;
+    return _temp_dir_meta;
+}
+
 std::filesystem::path get_temp_dir()
 {
-    std::lock_guard lock(_get_temp_dir_mutex());
-    auto& temp_dir = _get_temp_dir();
-    if (temp_dir.empty()) {
-        throw std::runtime_error("Temporary directory has not been set.");
-    }
-    return temp_dir;
+    return _get_temp_dir_manager().get_temp_dir();
 }
 
 void set_temp_dir(std::filesystem::path path)
 {
-    if (!std::filesystem::is_directory(path)) {
-        throw std::runtime_error("Temporary path is not a directory.");
-    }
-    std::lock_guard lock(_get_temp_dir_mutex());
-    auto& temp_dir = _get_temp_dir();
-    if (!temp_dir.empty()) {
-        clean_temp_dir(temp_dir);
-    }
-    temp_dir = std::move(path);
-    clean_temp_dir(temp_dir);
+    _get_temp_dir_manager().set_temp_dir(std::move(path));
 }
 
 TempDir::TempDir(const std::string& group)
