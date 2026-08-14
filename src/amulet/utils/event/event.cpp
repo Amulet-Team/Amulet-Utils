@@ -52,7 +52,7 @@ namespace {
         exit();
     }
 
-    void EventLoop::exit()
+    void EventLoop::exit() ASTD_EXCLUDES(_mutex)
     {
         debug("EventLoop::exit()");
         {
@@ -68,7 +68,7 @@ namespace {
         debug("EventLoop::exit() exit");
     }
 
-    void EventLoop::_event_loop()
+    void EventLoop::_event_loop() ASTD_EXCLUDES(_mutex)
     {
         astd::unique_lock lock(_mutex);
         while (!_exit) {
@@ -93,7 +93,7 @@ namespace {
         debug("EventLoop::_event_loop() exit");
     }
 
-    void EventLoop::submit(std::function<void()> event)
+    void EventLoop::submit(std::function<void()> event) ASTD_EXCLUDES(_mutex)
     {
         {
             astd::lock_guard lock(_mutex);
