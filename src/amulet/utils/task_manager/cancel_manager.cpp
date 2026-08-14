@@ -61,6 +61,7 @@ void CancelManager::cancel()
 }
 bool CancelManager::is_cancel_requested()
 {
+    astd::lock_guard lock(mutex);
     return cancelled;
 }
 EventToken<> CancelManager::register_cancel_callback(CancelCallback callback)
