@@ -18,6 +18,14 @@ public:
     void unlock() ASTD_RELEASE_UNIQUE() { std::mutex::unlock(); }
 };
 
+class ASTD_CAPABILITY("recursive mutex") REENTRANT_CAPABILITY recursive_mutex : private std::recursive_mutex {
+public:
+    using std::recursive_mutex::recursive_mutex;
+    void lock() ASTD_ACQUIRE_UNIQUE() { std::recursive_mutex::lock(); }
+    [[nodiscard]] bool try_lock() noexcept ASTD_TRY_ACQUIRE_UNIQUE(true) { return std::recursive_mutex::try_lock(); }
+    void unlock() ASTD_RELEASE_UNIQUE() { std::recursive_mutex::unlock(); }
+};
+
 template<class Mutex>
 class [[nodiscard]] ASTD_SCOPED_CAPABILITY lock_guard : private std::lock_guard<Mutex> {
 public:
@@ -133,6 +141,7 @@ void swap( astd::unique_lock<Mutex>& lhs,
 namespace astd {
 
 using mutex = std::mutex;
+using recursive_mutex = std::recursive_mutex;
 
 template<class Mutex>
 using lock_guard = std::lock_guard<Mutex>;
