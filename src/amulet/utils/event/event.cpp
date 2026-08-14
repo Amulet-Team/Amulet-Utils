@@ -1,11 +1,12 @@
-#include <condition_variable>
 #include <cstdlib>
 #include <functional>
 #include <list>
-#include <mutex>
 #include <thread>
 
 #include <amulet/utils/logging/logging.hpp>
+#include <amulet/utils/threading/thread_safety.hpp>
+#include <amulet/utils/threading/mutex.hpp>
+#include <amulet/utils/threading/condition_variable.hpp>
 
 #include "event.hpp"
 
@@ -15,11 +16,11 @@ namespace {
 
     class EventLoop {
     private:
-        std::mutex _mutex;
-        std::condition_variable _condition;
+        astd::mutex _mutex;
+        astd::condition_variable _condition;
         std::thread _thread;
-        std::list<std::function<void()>> _events;
-        bool _exit = false;
+        std::list<std::function<void()>> _events ASTD_GUARDED_BY(_mutex);
+        bool _exit = false ASTD_GUARDED_BY(_mutex);
 
         void _event_loop();
 
@@ -60,8 +61,8 @@ namespace {
                 return;
             }
             _exit = true;
-            _condition.notify_one();
         }
+        _condition.notify_one();
         debug("EventLoop::exit() join");
         _thread.join();
         debug("EventLoop::exit() exit");
@@ -94,8 +95,10 @@ namespace {
 
     void EventLoop::submit(std::function<void()> event)
     {
-        std::lock_guard lock(_mutex);
-        _events.push_back(std::move(event));
+        {
+            std::lock_guard lock(_mutex);
+            _events.push_back(std::move(event));
+        }
         _condition.notify_one();
     }
 
