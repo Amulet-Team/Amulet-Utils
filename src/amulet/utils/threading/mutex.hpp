@@ -18,7 +18,7 @@ public:
     void unlock() ASTD_RELEASE_UNIQUE() { std::mutex::unlock(); }
 };
 
-class ASTD_CAPABILITY("recursive mutex") REENTRANT_CAPABILITY recursive_mutex : private std::recursive_mutex {
+class ASTD_CAPABILITY("recursive mutex") ASTD_REENTRANT_CAPABILITY recursive_mutex : private std::recursive_mutex {
 public:
     using std::recursive_mutex::recursive_mutex;
     void lock() ASTD_ACQUIRE_UNIQUE() { std::recursive_mutex::lock(); }
