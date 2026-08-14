@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <memory>
-#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -10,6 +9,7 @@
 #include <amulet/utils/dll.hpp>
 #include <amulet/utils/logging/logging.hpp>
 #include <amulet/utils/weak.hpp>
+#include <amulet/utils/threading/mutex.hpp>
 
 namespace Amulet {
 
@@ -24,10 +24,10 @@ namespace detail {
     template <typename... Args>
     class EventCallbackStorage {
     public:
-        std::recursive_mutex mutex;
-        std::function<void(Args...)> callback;
-        ConnectionMode mode;
-        bool disconnected = false;
+        astd::recursive_mutex mutex;
+        std::function<void(Args...)> callback ASTD_GUARDED_BY(mutex);
+        ConnectionMode mode ASTD_GUARDED_BY(mutex);
+        bool disconnected ASTD_GUARDED_BY(mutex) = false;
 
         EventCallbackStorage(
             std::function<void(Args...)> callback,
@@ -69,8 +69,8 @@ class Event {
 private:
     using storageT = detail::EventCallbackStorage<Args...>;
 
-    std::mutex _mutex;
-    WeakSet<storageT> _callbacks;
+    astd::mutex _mutex;
+    WeakSet<storageT> _callbacks ASTD_GUARDED_BY(_mutex);
 
 public:
     // The callback type for this event.
@@ -88,9 +88,9 @@ public:
     // The token must be kept alive for the callback to work.
     // The token is used to disconnect the callback when it is not needed.
     // Thread safe.
-    tokenT connect(callbackT callback, ConnectionMode mode = ConnectionMode::Direct)
+    tokenT connect(callbackT callback, ConnectionMode mode = ConnectionMode::Direct) ASTD_EXCLUDES(_mutex)
     {
-        std::lock_guard lock(_mutex);
+        astd::lock_guard lock(_mutex);
         auto storage = std::make_shared<storageT>(std::move(callback), mode);
         _callbacks.emplace(storage);
         return storage;
@@ -99,13 +99,13 @@ public:
     // Disconnect a callback.
     // Token is the value returned by connect.
     // Thread safe.
-    void disconnect(const tokenT& token)
+    void disconnect(const tokenT& token) ASTD_EXCLUDES(_mutex)
     {
         if (!token.storage) {
             return;
         }
-        std::lock_guard lock(_mutex);
-        std::lock_guard storage_lock(token.storage->mutex);
+        astd::lock_guard lock(_mutex);
+        astd::lock_guard storage_lock(token.storage->mutex);
         token.storage->disconnected = true;
         _callbacks.erase(token.storage);
     }
@@ -113,13 +113,13 @@ public:
     // Call all callbacks with the given arguments from this thread.
     // Blocks until all callbacks are processed.
     // Thread safe.
-    void dispatch(Args... args)
+    void dispatch(Args... args) ASTD_EXCLUDES(_mutex)
     {
         AmuletLog(5, "dispatch");
         WeakSet<storageT> temp_callbacks;
         {
             // Copy callbacks
-            std::lock_guard lock(_mutex);
+            astd::lock_guard lock(_mutex);
             temp_callbacks = _callbacks;
         }
 
@@ -140,7 +140,7 @@ public:
             switch (storage->mode) {
             case ConnectionMode::Direct: {
                 AmuletLog(5, "calling direct");
-                std::lock_guard storage_lock(storage->mutex);
+                astd::lock_guard storage_lock(storage->mutex);
                 if (storage->disconnected) {
                     // The callback was disconnected between getting the callback and processing it.
                     continue;
@@ -163,7 +163,7 @@ public:
                     if (!storage) {
                         return;
                     }
-                    std::lock_guard storage_lock(storage->mutex);
+                    astd::lock_guard storage_lock(storage->mutex);
                     if (storage->disconnected) {
                         // The callback was disconnected between getting the callback and processing it.
                         return;
@@ -182,7 +182,7 @@ public:
 
         if (!null_storage.empty()) {
             // Remove null storage pointers.
-            std::lock_guard lock(_mutex);
+            astd::lock_guard lock(_mutex);
             for (const auto& ptr : null_storage) {
                 _callbacks.erase(ptr);
             }
@@ -192,11 +192,11 @@ public:
     // Destructor.
     ~Event()
     {
-        std::lock_guard lock(_mutex);
+        astd::lock_guard lock(_mutex);
         for (const auto& ptr : _callbacks) {
             auto storage = ptr.lock();
             if (storage) {
-                std::lock_guard storage_lock(storage->mutex);
+                astd::lock_guard storage_lock(storage->mutex);
                 storage->disconnected = true;
             }
         }
