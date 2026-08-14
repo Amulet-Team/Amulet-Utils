@@ -20,7 +20,7 @@ namespace {
         astd::condition_variable _condition;
         std::thread _thread;
         std::list<std::function<void()>> _events ASTD_GUARDED_BY(_mutex);
-        bool _exit = false ASTD_GUARDED_BY(_mutex);
+        bool _exit ASTD_GUARDED_BY(_mutex) = false;
 
         void _event_loop();
 
@@ -56,7 +56,7 @@ namespace {
     {
         debug("EventLoop::exit()");
         {
-            std::lock_guard lock(_mutex);
+            astd::lock_guard lock(_mutex);
             if (_exit) {
                 return;
             }
@@ -70,7 +70,7 @@ namespace {
 
     void EventLoop::_event_loop()
     {
-        std::unique_lock lock(_mutex);
+        astd::unique_lock lock(_mutex);
         while (!_exit) {
             if (_events.empty()) {
                 // If there are no events to process, wait until more are added.
@@ -96,7 +96,7 @@ namespace {
     void EventLoop::submit(std::function<void()> event)
     {
         {
-            std::lock_guard lock(_mutex);
+            astd::lock_guard lock(_mutex);
             _events.push_back(std::move(event));
         }
         _condition.notify_one();
