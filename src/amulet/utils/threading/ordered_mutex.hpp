@@ -176,7 +176,7 @@ protected:
                 it->state = std::make_pair(DesiredThreadAccessMode, DesiredThreadShareMode);
 
                 // Unlock the internal mutex so other threads do not block when we notify them.
-                mutex.unlock();
+                lock.unlock();
 
                 // Notify other threads that the top pending thread changed.
                 condition.notify_all();
