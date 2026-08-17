@@ -209,7 +209,7 @@ protected:
                     }
                 };
 
-                auto result = wait(lock, timeout, [&] ASTD_REQUIRES_UNIQUE(mutex) { return cancel_manager.is_cancel_requested() || is_lockable(); });
+                auto result = wait(lock, timeout, [&]() ASTD_REQUIRES_UNIQUE(mutex) { return cancel_manager.is_cancel_requested() || is_lockable(); });
                 if (result && !cancel_manager.is_cancel_requested()) {
                     lock_state();
                     unregister_cancel();
