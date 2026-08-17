@@ -1,6 +1,6 @@
 import unittest
 
-from test_amulet_utils.test_mutex_ import get_cpp_tests
+from test_amulet_utils.test_threading.test_mutex_ import get_cpp_tests
 
 
 class MatrixTestCase(unittest.TestCase):
