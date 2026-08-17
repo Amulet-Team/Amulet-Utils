@@ -13,7 +13,9 @@ __all__: list[str] = [
 
 class AbstractProgressManager:
     def get_child(
-        self, progress_min: typing.SupportsFloat, progress_max: typing.SupportsFloat
+        self,
+        progress_min: typing.SupportsFloat | typing.SupportsIndex,
+        progress_max: typing.SupportsFloat | typing.SupportsIndex,
     ) -> AbstractProgressManager:
         """
         Get a child ProgressManager.
@@ -40,7 +42,10 @@ class AbstractProgressManager:
         """
 
     def unregister_progress_callback(
-        self, token: amulet.utils.event.EventToken[typing.SupportsFloat]
+        self,
+        token: amulet.utils.event.EventToken[
+            typing.SupportsFloat | typing.SupportsIndex
+        ],
     ) -> None:
         """
         Unregister a registered function from being called when update_progress is called.
@@ -55,7 +60,9 @@ class AbstractProgressManager:
         Thread safe.
         """
 
-    def update_progress(self, progress: typing.SupportsFloat) -> None:
+    def update_progress(
+        self, progress: typing.SupportsFloat | typing.SupportsIndex
+    ) -> None:
         """
         Notify the caller of the updated progress.
         progress must be in the range 0.0 - 1.0
