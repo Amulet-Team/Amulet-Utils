@@ -156,7 +156,7 @@ protected:
             };
 
             // If the state does not get locked it must be erased.
-            auto erase_state = [&]() ASTD_RELEASE_UNIQUE(lock, mutex) -> void {
+            auto erase_state = [this, &it](astd::unique_lock<astd::mutex>& lock) ASTD_RELEASE_UNIQUE(lock) -> void {
                 bool is_first = it == pending_threads.begin();
 
                 threads.erase(it->id);
@@ -172,7 +172,7 @@ protected:
             };
 
             // Function to lock the mutex.
-            auto lock_state = [&]() ASTD_RELEASE_UNIQUE(lock, mutex) -> void {
+            auto lock_state = [this, &it](astd::unique_lock<astd::mutex>& lock) ASTD_RELEASE_UNIQUE(lock) -> void {
                 // Update the mutex state
                 set_state();
 
@@ -210,7 +210,7 @@ protected:
                 }();
                 while (true) {
                     if (cancel_manager.is_cancel_requested()) {
-                        erase_state();
+                        erase_state(lock);
                         unregister_cancel();
                         return false;
                     }
@@ -218,19 +218,19 @@ protected:
                         break;
                     }
                     if (condition.wait_until(lock, deadline) == std::cv_status::timeout) {
-                        erase_state();
+                        erase_state(lock);
                         unregister_cancel();
                         return false;
                     }
                 }
-                lock_state();
+                lock_state(lock);
                 unregister_cancel();
                 return true;
             } else {
                 // Wait until this is at the top of the queue and the mutex is unlocked.
                 while (true) {
                     if (cancel_manager.is_cancel_requested()) {
-                        erase_state();
+                        erase_state(lock);
                         unregister_cancel();
                         throw TaskCancelled();
                     }
@@ -240,7 +240,7 @@ protected:
                     condition.wait(lock);
                 }
 
-                lock_state();
+                lock_state(lock);
                 unregister_cancel();
             }
         } else if constexpr (ReturnBool) {
