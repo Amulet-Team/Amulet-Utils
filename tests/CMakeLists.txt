@@ -77,7 +77,7 @@ if(THREAD_SAFETY_ANALYSIS)
     target_compile_options(_test_amulet_utils_thread_analysis PRIVATE -fsyntax-only -Wthread-safety -Werror=thread-safety)
     add_dependencies(_test_amulet_utils _test_amulet_utils_thread_analysis)
 
-    add_library(mutex_thread_analysis OBJECT "${CMAKE_CURRENT_LIST_DIR}/test_amulet_utils/test_mutex.cpp")
+    add_library(mutex_thread_analysis OBJECT "${CMAKE_CURRENT_LIST_DIR}/test_amulet_utils/test_threading/test_mutex.cpp")
     target_compile_definitions(mutex_thread_analysis PRIVATE AMULET_THREAD_SAFETY_ANALYSIS)
 	target_link_libraries(mutex_thread_analysis PRIVATE amulet_utils)
     target_compile_options(mutex_thread_analysis PRIVATE -fsyntax-only -Wthread-safety -Werror=thread-safety -Xclang -verify -ferror-limit=0)
