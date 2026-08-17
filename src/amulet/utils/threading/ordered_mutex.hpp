@@ -18,7 +18,9 @@
 
 #include "deadlock.hpp"
 
-namespace {
+namespace Amulet {
+
+namespace detail {
 
 template <template <typename...> class Template, typename T>
 struct is_specialization_of : std::false_type { };
@@ -27,8 +29,6 @@ template <template <typename...> class Template, typename... Args>
 struct is_specialization_of<Template, Template<Args...>> : std::true_type { };
 
 }
-
-namespace Amulet {
 
 enum class ThreadAccessMode {
     Read, // This thread can only read.
@@ -201,10 +201,10 @@ protected:
                 using TimeoutT = std::remove_cvref_t<decltype(timeout)>;
 
                 auto wait = [&](astd::unique_lock<astd::mutex>& _lck, decltype(timeout) _timeout, std::function<bool()> _pred) ASTD_REQUIRES_UNIQUE(mutex) -> bool {
-                    if constexpr (is_specialization_of<std::chrono::duration, TimeoutT>::value) {
+                    if constexpr (detail::is_specialization_of<std::chrono::duration, TimeoutT>::value) {
                         return condition.wait_for(_lck, _timeout, _pred);
                     } else {
-                        static_assert(is_specialization_of<std::chrono::time_point, TimeoutT>::value);
+                        static_assert(detail::is_specialization_of<std::chrono::time_point, TimeoutT>::value);
                         return condition.wait_until(_lck, _timeout, _pred);
                     }
                 };
