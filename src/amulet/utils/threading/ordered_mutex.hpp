@@ -156,11 +156,14 @@ protected:
             };
 
             // If the state does not get locked it must be erased.
-            auto erase_state = [&]() ASTD_REQUIRES_UNIQUE(mutex) -> void {
+            auto erase_state = [&]() ASTD_RELEASE_UNIQUE(mutex) -> void {
                 bool is_first = it == pending_threads.begin();
 
                 threads.erase(it->id);
                 pending_threads.erase(it);
+
+                // Unlock the internal mutex so other threads do not block when we notify them.
+                lock.unlock();
 
                 // Notify other threads if the top pending thread changes.
                 if (is_first) {
@@ -217,14 +220,17 @@ protected:
                 }
             } else {
                 // Wait until this is at the top of the queue and the mutex is unlocked.
-                condition.wait(lock,
-                    [&] ASTD_REQUIRES_UNIQUE(mutex) {
-                        if (cancel_manager.is_cancel_requested()) {
-                            erase_state();
-                            unregister_cancel();
-                            throw TaskCancelled();
-                        }
-                        return is_lockable(); });
+                while (true) {
+                    if (cancel_manager.is_cancel_requested()) {
+                        erase_state();
+                        unregister_cancel();
+                        throw TaskCancelled();
+                    }
+                    if (is_lockable()) {
+                        break;
+                    }
+                    condition.wait(lock);
+                }
 
                 unregister_cancel();
                 lock_state();
@@ -297,47 +303,49 @@ public:
     // Thread safe.
     void unlock() ASTD_EXCLUDES(mutex)
     {
-        // Lock the state.
-        astd::lock_guard lock(mutex);
+        {
+            // Lock the state.
+            astd::lock_guard lock(mutex);
 
-        // Get the thread id
-        auto id = std::this_thread::get_id();
+            // Get the thread id
+            auto id = std::this_thread::get_id();
 
-        // Find the thread state
-        auto it = threads.find(id);
+            // Find the thread state
+            auto it = threads.find(id);
 
-        // Ensure that the mutex is locked in the same mode by the thread.
-        if (it == threads.end() || !it->second->state.has_value()) {
-            throw std::runtime_error("This mutex is not locked by this thread.");
+            // Ensure that the mutex is locked in the same mode by the thread.
+            if (it == threads.end() || !it->second->state.has_value()) {
+                throw std::runtime_error("This mutex is not locked by this thread.");
+            }
+
+            switch (it->second->state->first) {
+            case ThreadAccessMode::Read:
+                read_count--;
+                break;
+            case ThreadAccessMode::ReadWrite:
+                read_count--;
+                write_count--;
+                break;
+            default:
+                break;
+            }
+
+            switch (it->second->state->second) {
+            case ThreadShareMode::Unique:
+                blocking_read_count--;
+                blocking_write_count--;
+                break;
+            case ThreadShareMode::SharedReadOnly:
+                blocking_write_count--;
+                break;
+            default:
+                break;
+            }
+
+            // Remove the thread state
+            locked_threads.erase(it->second);
+            threads.erase(it);
         }
-
-        switch (it->second->state->first) {
-        case ThreadAccessMode::Read:
-            read_count--;
-            break;
-        case ThreadAccessMode::ReadWrite:
-            read_count--;
-            write_count--;
-            break;
-        default:
-            break;
-        }
-
-        switch (it->second->state->second) {
-        case ThreadShareMode::Unique:
-            blocking_read_count--;
-            blocking_write_count--;
-            break;
-        case ThreadShareMode::SharedReadOnly:
-            blocking_write_count--;
-            break;
-        default:
-            break;
-        }
-
-        // Remove the thread state
-        locked_threads.erase(it->second);
-        threads.erase(it);
 
         // Wake up pending threads
         condition.notify_all();
