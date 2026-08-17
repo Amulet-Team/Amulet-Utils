@@ -156,35 +156,11 @@ protected:
             };
 
             // If the state does not get locked it must be erased.
-            auto erase_state = [this, &it](astd::unique_lock<astd::mutex>& lock) ASTD_RELEASE_UNIQUE(lock) -> void {
+            auto erase_state = [this, &it]() ASTD_REQUIRES_UNIQUE(mutex) -> bool {
                 bool is_first = it == pending_threads.begin();
-
                 threads.erase(it->id);
                 pending_threads.erase(it);
-
-                // Unlock the internal mutex so other threads do not block when we notify them.
-                lock.unlock();
-
-                // Notify other threads if the top pending thread changes.
-                if (is_first) {
-                    condition.notify_all();
-                }
-            };
-
-            // Function to lock the mutex.
-            auto lock_state = [this, &set_state, &it](astd::unique_lock<astd::mutex>& lock) ASTD_RELEASE_UNIQUE(lock) -> void {
-                // Update the mutex state
-                set_state();
-
-                // Move the thread state
-                locked_threads.splice(locked_threads.end(), pending_threads, pending_threads.begin());
-                it->state = std::make_pair(DesiredThreadAccessMode, DesiredThreadShareMode);
-
-                // Unlock the internal mutex so other threads do not block when we notify them.
-                lock.unlock();
-
-                // Notify other threads that the top pending thread changed.
-                condition.notify_all();
+                return is_first;
             };
 
             auto token = cancel_manager.register_cancel_callback([&]() -> void {
@@ -210,7 +186,13 @@ protected:
                 }();
                 while (true) {
                     if (cancel_manager.is_cancel_requested()) {
-                        erase_state(lock);
+                        bool is_first = erase_state();
+                        // Unlock the internal mutex so other threads do not block when we notify them.
+                        lock.unlock();
+                        // Notify other threads if the top pending thread changes.
+                        if (is_first) {
+                            condition.notify_all();
+                        }
                         unregister_cancel();
                         return false;
                     }
@@ -218,19 +200,28 @@ protected:
                         break;
                     }
                     if (condition.wait_until(lock, deadline) == std::cv_status::timeout) {
-                        erase_state(lock);
+                        bool is_first = erase_state();
+                        // Unlock the internal mutex so other threads do not block when we notify them.
+                        lock.unlock();
+                        // Notify other threads if the top pending thread changes.
+                        if (is_first) {
+                            condition.notify_all();
+                        }
                         unregister_cancel();
                         return false;
                     }
                 }
-                lock_state(lock);
-                unregister_cancel();
-                return true;
             } else {
                 // Wait until this is at the top of the queue and the mutex is unlocked.
                 while (true) {
                     if (cancel_manager.is_cancel_requested()) {
-                        erase_state(lock);
+                        bool is_first = erase_state();
+                        // Unlock the internal mutex so other threads do not block when we notify them.
+                        lock.unlock();
+                        // Notify other threads if the top pending thread changes.
+                        if (is_first) {
+                            condition.notify_all();
+                        }
                         unregister_cancel();
                         throw TaskCancelled();
                     }
@@ -239,9 +230,24 @@ protected:
                     }
                     condition.wait(lock);
                 }
+            }
+            // Update the mutex state
+            set_state();
 
-                lock_state(lock);
-                unregister_cancel();
+            // Move the thread state
+            locked_threads.splice(locked_threads.end(), pending_threads, pending_threads.begin());
+            it->state = std::make_pair(DesiredThreadAccessMode, DesiredThreadShareMode);
+
+            unregister_cancel();
+
+            // Unlock the internal mutex so other threads do not block when we notify them.
+            lock.unlock();
+
+            // Notify other threads that the top pending thread changed.
+            condition.notify_all();
+
+            if constexpr (ReturnBool) {
+                return true;
             }
         } else if constexpr (ReturnBool) {
             return false;
