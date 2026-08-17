@@ -157,11 +157,13 @@ protected:
 
             // If the state does not get locked it must be erased.
             auto erase_state = [&]() ASTD_REQUIRES_UNIQUE(mutex) -> void {
+                bool is_first = it == pending_threads.begin();
+
                 threads.erase(it->id);
                 pending_threads.erase(it);
 
                 // Notify other threads if the top pending thread changes.
-                if (it == pending_threads.begin()) {
+                if (is_first) {
                     condition.notify_all();
                 }
             };
