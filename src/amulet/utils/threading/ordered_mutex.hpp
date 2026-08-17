@@ -172,7 +172,7 @@ protected:
             };
 
             // Function to lock the mutex.
-            auto lock_state = [this, &it](astd::unique_lock<astd::mutex>& lock) ASTD_RELEASE_UNIQUE(lock) -> void {
+            auto lock_state = [this, &set_state, &it](astd::unique_lock<astd::mutex>& lock) ASTD_RELEASE_UNIQUE(lock) -> void {
                 // Update the mutex state
                 set_state();
 
