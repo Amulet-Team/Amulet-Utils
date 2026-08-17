@@ -197,28 +197,35 @@ protected:
 
             if constexpr (ReturnBool) {
                 static_assert(std::tuple_size_v<decltype(args)> == 2);
-                const auto& timeout = std::get<0>(args);
-                using TimeoutT = std::remove_cvref_t<decltype(timeout)>;
+                const auto& timeout_arg = std::get<0>(args);
+                using TimeoutT = std::remove_cvref_t<decltype(timeout_arg)>;
 
-                auto wait = [&](astd::unique_lock<astd::mutex>& _lck, decltype(timeout) _timeout, std::function<bool()> _pred) ASTD_REQUIRES_UNIQUE(mutex) -> bool {
+                auto deadline = [&]() {
                     if constexpr (detail::is_specialization_of<std::chrono::duration, TimeoutT>::value) {
-                        return condition.wait_for(_lck, _timeout, _pred);
+                        return std::chrono::steady_clock::now() + timeout_arg;
                     } else {
                         static_assert(detail::is_specialization_of<std::chrono::time_point, TimeoutT>::value);
-                        return condition.wait_until(_lck, _timeout, _pred);
+                        return timeout_arg;
                     }
-                };
-
-                auto result = wait(lock, timeout, [&]() ASTD_REQUIRES_UNIQUE(mutex) { return cancel_manager.is_cancel_requested() || is_lockable(); });
-                if (result && !cancel_manager.is_cancel_requested()) {
-                    lock_state();
-                    unregister_cancel();
-                    return true;
-                } else {
-                    erase_state();
-                    unregister_cancel();
-                    return false;
+                }();
+                while (true) {
+                    if (cancel_manager.is_cancel_requested()) {
+                        erase_state();
+                        unregister_cancel();
+                        return false;
+                    }
+                    if (is_lockable()) {
+                        break;
+                    }
+                    if (condition.wait_until(lock, deadline) == std::cv_status::timeout) {
+                        erase_state();
+                        unregister_cancel();
+                        return false;
+                    }
                 }
+                lock_state();
+                unregister_cancel();
+                return true;
             } else {
                 // Wait until this is at the top of the queue and the mutex is unlocked.
                 while (true) {
