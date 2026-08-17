@@ -156,7 +156,7 @@ protected:
             };
 
             // If the state does not get locked it must be erased.
-            auto erase_state = [&]() ASTD_RELEASE_UNIQUE(mutex) -> void {
+            auto erase_state = [&]() ASTD_RELEASE_UNIQUE(lock, mutex) -> void {
                 bool is_first = it == pending_threads.begin();
 
                 threads.erase(it->id);
@@ -172,7 +172,7 @@ protected:
             };
 
             // Function to lock the mutex.
-            auto lock_state = [&]() ASTD_RELEASE_UNIQUE(mutex) -> void {
+            auto lock_state = [&]() ASTD_RELEASE_UNIQUE(lock, mutex) -> void {
                 // Update the mutex state
                 set_state();
 
