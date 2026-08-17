@@ -210,12 +210,13 @@ protected:
                 };
 
                 auto result = wait(lock, timeout, [&] ASTD_REQUIRES_UNIQUE(mutex) { return cancel_manager.is_cancel_requested() || is_lockable(); });
-                unregister_cancel();
                 if (result && !cancel_manager.is_cancel_requested()) {
                     lock_state();
+                    unregister_cancel();
                     return true;
                 } else {
                     erase_state();
+                    unregister_cancel();
                     return false;
                 }
             } else {
@@ -232,8 +233,8 @@ protected:
                     condition.wait(lock);
                 }
 
-                unregister_cancel();
                 lock_state();
+                unregister_cancel();
             }
         } else if constexpr (ReturnBool) {
             return false;
