@@ -34,7 +34,7 @@ def register_default_log_handler() -> None:
     Thread safe.
     """
 
-def set_min_log_level(level: typing.SupportsInt) -> None:
+def set_min_log_level(level: typing.SupportsInt | typing.SupportsIndex) -> None:
     """
     Set the maximum message level that will be logged.
     Registered handlers may be more strict.

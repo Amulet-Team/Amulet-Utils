@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 4.1)
 
 project(amulet_utils_tests LANGUAGES CXX)
 
+option(THREAD_SAFETY_ANALYSIS "Run clang thread safety analysis over the sources before building" OFF)
+
+if(THREAD_SAFETY_ANALYSIS AND NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    message(FATAL_ERROR "THREAD_SAFETY_ANALYSIS requires Clang")
+endif()
+
 # Set C++20
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -38,7 +44,7 @@ endif()
 # Find sources
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES false "${CMAKE_CURRENT_LIST_DIR}/*.py.cpp")
 
-pybind11_add_module(_test_amulet_utils)
+pybind11_add_module(_test_amulet_utils ${SOURCES})
 set_target_properties(_test_amulet_utils PROPERTIES CXX_VISIBILITY_PRESET hidden)
 set_target_properties(_test_amulet_utils PROPERTIES FOLDER "Tests")
 target_compile_definitions(_test_amulet_utils PRIVATE PYBIND11_DETAILED_ERROR_MESSAGES)
@@ -48,13 +54,35 @@ target_compile_definitions(_test_amulet_utils PRIVATE COMPILER_VERSION="${CMAKE_
 target_link_libraries(_test_amulet_utils PRIVATE amulet_pybind11_extensions)
 target_link_libraries(_test_amulet_utils PRIVATE amulet_test_utils)
 target_link_libraries(_test_amulet_utils PRIVATE amulet_utils)
-target_sources(_test_amulet_utils PRIVATE ${SOURCES})
 foreach(FILE ${SOURCES})
     file(RELATIVE_PATH REL_PATH ${CMAKE_CURRENT_LIST_DIR} ${FILE})
     get_filename_component(GROUP ${REL_PATH} DIRECTORY)
     string(REPLACE "/" "\\" GROUP "${GROUP}")
     source_group(${GROUP} FILES ${FILE})
 endforeach()
+
+if(THREAD_SAFETY_ANALYSIS)
+    add_library(_test_amulet_utils_thread_analysis OBJECT ${SOURCES})
+    target_link_libraries(_test_amulet_utils_thread_analysis PRIVATE pybind11::module)
+    target_compile_definitions(_test_amulet_utils_thread_analysis PRIVATE AMULET_THREAD_SAFETY_ANALYSIS)
+    set_target_properties(_test_amulet_utils_thread_analysis PROPERTIES CXX_VISIBILITY_PRESET hidden)
+	set_target_properties(_test_amulet_utils_thread_analysis PROPERTIES FOLDER "Tests")
+	target_compile_definitions(_test_amulet_utils_thread_analysis PRIVATE PYBIND11_DETAILED_ERROR_MESSAGES)
+	target_compile_definitions(_test_amulet_utils_thread_analysis PRIVATE PYBIND11_VERSION="${pybind11_VERSION}")
+	target_compile_definitions(_test_amulet_utils_thread_analysis PRIVATE COMPILER_ID="${CMAKE_CXX_COMPILER_ID}")
+	target_compile_definitions(_test_amulet_utils_thread_analysis PRIVATE COMPILER_VERSION="${CMAKE_CXX_COMPILER_VERSION}")
+	target_link_libraries(_test_amulet_utils_thread_analysis PRIVATE amulet_pybind11_extensions)
+	target_link_libraries(_test_amulet_utils_thread_analysis PRIVATE amulet_test_utils)
+	target_link_libraries(_test_amulet_utils_thread_analysis PRIVATE amulet_utils)
+    target_compile_options(_test_amulet_utils_thread_analysis PRIVATE -fsyntax-only -Wthread-safety -Werror=thread-safety)
+    add_dependencies(_test_amulet_utils _test_amulet_utils_thread_analysis)
+
+    add_library(mutex_thread_analysis OBJECT "${CMAKE_CURRENT_LIST_DIR}/test_amulet_utils/test_threading/test_mutex.cpp")
+    target_compile_definitions(mutex_thread_analysis PRIVATE AMULET_THREAD_SAFETY_ANALYSIS)
+	target_link_libraries(mutex_thread_analysis PRIVATE amulet_utils)
+    target_compile_options(mutex_thread_analysis PRIVATE -fsyntax-only -Wthread-safety -Werror=thread-safety -Xclang -verify -ferror-limit=0)
+    add_dependencies(_test_amulet_utils mutex_thread_analysis)
+endif()
 
 # Install
 install(TARGETS _test_amulet_utils DESTINATION "${CMAKE_CURRENT_LIST_DIR}/test_amulet_utils")

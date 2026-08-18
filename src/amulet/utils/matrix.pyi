@@ -21,26 +21,28 @@ class Matrix4x4:
         """
 
     @staticmethod
-    def rotation_x_matrix(rx: typing.SupportsFloat) -> Matrix4x4:
+    def rotation_x_matrix(rx: typing.SupportsFloat | typing.SupportsIndex) -> Matrix4x4:
         """
         Construct a new rotation matrix in the x axis.
         """
 
     @staticmethod
-    def rotation_y_matrix(ry: typing.SupportsFloat) -> Matrix4x4:
+    def rotation_y_matrix(ry: typing.SupportsFloat | typing.SupportsIndex) -> Matrix4x4:
         """
         Construct a new rotation matrix in the y axis.
         """
 
     @staticmethod
-    def rotation_z_matrix(rz: typing.SupportsFloat) -> Matrix4x4:
+    def rotation_z_matrix(rz: typing.SupportsFloat | typing.SupportsIndex) -> Matrix4x4:
         """
         Construct a new rotation matrix in the z axis.
         """
 
     @staticmethod
     def scale_matrix(
-        sx: typing.SupportsFloat, sy: typing.SupportsFloat, sz: typing.SupportsFloat
+        sx: typing.SupportsFloat | typing.SupportsIndex,
+        sy: typing.SupportsFloat | typing.SupportsIndex,
+        sz: typing.SupportsFloat | typing.SupportsIndex,
     ) -> Matrix4x4:
         """
         Construct a new scale matrix.
@@ -48,15 +50,15 @@ class Matrix4x4:
 
     @staticmethod
     def transformation_matrix(
-        sx: typing.SupportsFloat,
-        sy: typing.SupportsFloat,
-        sz: typing.SupportsFloat,
-        rx: typing.SupportsFloat,
-        ry: typing.SupportsFloat,
-        rz: typing.SupportsFloat,
-        dx: typing.SupportsFloat,
-        dy: typing.SupportsFloat,
-        dz: typing.SupportsFloat,
+        sx: typing.SupportsFloat | typing.SupportsIndex,
+        sy: typing.SupportsFloat | typing.SupportsIndex,
+        sz: typing.SupportsFloat | typing.SupportsIndex,
+        rx: typing.SupportsFloat | typing.SupportsIndex,
+        ry: typing.SupportsFloat | typing.SupportsIndex,
+        rz: typing.SupportsFloat | typing.SupportsIndex,
+        dx: typing.SupportsFloat | typing.SupportsIndex,
+        dy: typing.SupportsFloat | typing.SupportsIndex,
+        dz: typing.SupportsFloat | typing.SupportsIndex,
     ) -> Matrix4x4:
         """
         Construct a new transformation matrix made from scale, rotation and translation.
@@ -64,7 +66,9 @@ class Matrix4x4:
 
     @staticmethod
     def translation_matrix(
-        dx: typing.SupportsFloat, dy: typing.SupportsFloat, dz: typing.SupportsFloat
+        dx: typing.SupportsFloat | typing.SupportsIndex,
+        dy: typing.SupportsFloat | typing.SupportsIndex,
+        dz: typing.SupportsFloat | typing.SupportsIndex,
     ) -> Matrix4x4:
         """
         Construct a new translation matrix.
@@ -85,28 +89,28 @@ class Matrix4x4:
         self,
         arg0: tuple[
             tuple[
-                typing.SupportsFloat,
-                typing.SupportsFloat,
-                typing.SupportsFloat,
-                typing.SupportsFloat,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
             ],
             tuple[
-                typing.SupportsFloat,
-                typing.SupportsFloat,
-                typing.SupportsFloat,
-                typing.SupportsFloat,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
             ],
             tuple[
-                typing.SupportsFloat,
-                typing.SupportsFloat,
-                typing.SupportsFloat,
-                typing.SupportsFloat,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
             ],
             tuple[
-                typing.SupportsFloat,
-                typing.SupportsFloat,
-                typing.SupportsFloat,
-                typing.SupportsFloat,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
             ],
         ],
     ) -> None:
@@ -134,7 +138,11 @@ class Matrix4x4:
     def __mul__(
         self,
         other: list[
-            tuple[typing.SupportsFloat, typing.SupportsFloat, typing.SupportsFloat]
+            tuple[
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
+                typing.SupportsFloat | typing.SupportsIndex,
+            ]
         ],
     ) -> list[tuple[float, float, float]]:
         """
@@ -142,7 +150,9 @@ class Matrix4x4:
         """
 
     def __repr__(self) -> str: ...
-    def almost_equal(self, other: Matrix4x4, err: typing.SupportsFloat = 1e-06) -> bool:
+    def almost_equal(
+        self, other: Matrix4x4, err: typing.SupportsFloat | typing.SupportsIndex = 1e-06
+    ) -> bool:
         """
         Check if this matrix is almost equal to another matrix.
         """
@@ -160,7 +170,11 @@ class Matrix4x4:
         Recompose the matrix and compare with the original to check
         """
 
-    def get_element(self, i: typing.SupportsInt, j: typing.SupportsInt) -> float:
+    def get_element(
+        self,
+        i: typing.SupportsInt | typing.SupportsIndex,
+        j: typing.SupportsInt | typing.SupportsIndex,
+    ) -> float:
         """
         Get an element in the matrix.
         """
@@ -171,33 +185,36 @@ class Matrix4x4:
         Raises RuntimeError if the matrix cannot be inverted.
         """
 
-    def rotate_x(self, rx: typing.SupportsFloat) -> Matrix4x4:
+    def rotate_x(self, rx: typing.SupportsFloat | typing.SupportsIndex) -> Matrix4x4:
         """
         Rotate this matrix by the specified amount in the x axis.
         """
 
-    def rotate_y(self, ry: typing.SupportsFloat) -> Matrix4x4:
+    def rotate_y(self, ry: typing.SupportsFloat | typing.SupportsIndex) -> Matrix4x4:
         """
         Rotate this matrix by the specified amount in the y axis.
         """
 
-    def rotate_z(self, rz: typing.SupportsFloat) -> Matrix4x4:
+    def rotate_z(self, rz: typing.SupportsFloat | typing.SupportsIndex) -> Matrix4x4:
         """
         Rotate this matrix by the specified amount in the z axis.
         """
 
     def scale(
         self,
-        sx: typing.SupportsFloat,
-        sy: typing.SupportsFloat,
-        sz: typing.SupportsFloat,
+        sx: typing.SupportsFloat | typing.SupportsIndex,
+        sy: typing.SupportsFloat | typing.SupportsIndex,
+        sz: typing.SupportsFloat | typing.SupportsIndex,
     ) -> Matrix4x4:
         """
         Scale this matrix by the specified amount.
         """
 
     def set_element(
-        self, i: typing.SupportsInt, j: typing.SupportsInt, value: typing.SupportsFloat
+        self,
+        i: typing.SupportsInt | typing.SupportsIndex,
+        j: typing.SupportsInt | typing.SupportsIndex,
+        value: typing.SupportsFloat | typing.SupportsIndex,
     ) -> None:
         """
         Set an element in the matrix.
@@ -206,9 +223,9 @@ class Matrix4x4:
     def to_qt(self) -> PySide6.QtGui.QMatrix4x4: ...
     def translate(
         self,
-        dx: typing.SupportsFloat,
-        dy: typing.SupportsFloat,
-        dz: typing.SupportsFloat,
+        dx: typing.SupportsFloat | typing.SupportsIndex,
+        dy: typing.SupportsFloat | typing.SupportsIndex,
+        dz: typing.SupportsFloat | typing.SupportsIndex,
     ) -> Matrix4x4:
         """
         Translate this matrix by the specified amount.

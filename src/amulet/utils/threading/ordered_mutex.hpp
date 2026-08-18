@@ -1,0 +1,422 @@
+#pragma once
+
+#include <chrono>
+#include <list>
+#include <map>
+#include <optional>
+#include <stdexcept>
+#include <string>
+#include <thread>
+#include <tuple>
+#include <type_traits>
+
+#include <amulet/utils/dll.hpp>
+#include <amulet/utils/task_manager/cancel_manager.hpp>
+#include <amulet/utils/threading/condition_variable.hpp>
+#include <amulet/utils/threading/mutex.hpp>
+#include <amulet/utils/threading/thread_safety.hpp>
+
+#include "deadlock.hpp"
+
+namespace Amulet {
+
+namespace detail {
+
+template <template <typename...> class Template, typename T>
+struct is_specialization_of : std::false_type { };
+
+template <template <typename...> class Template, typename... Args>
+struct is_specialization_of<Template, Template<Args...>> : std::true_type { };
+
+}
+
+enum class ThreadAccessMode {
+    Read, // This thread can only read.
+    ReadWrite // This thread can read and write.
+};
+
+enum class ThreadShareMode {
+    Unique, // Other threads can't run in parallel.
+    SharedReadOnly, // Other threads can only read in parallel.
+    SharedReadWrite // Other threads can read and write in parallel.
+};
+
+// This is a custom mutex implementation that prioritises acquisition order and allows parallelism where possible.
+// The acquirer can define the required permissions for this thread and permissions for other parallel threads.
+// It also supports cancelling waiting through a CancelManager instance.
+// The mutex is compatible with std::lock_guard, std::unique_lock and std::shared_lock.
+class OrderedMutex {
+protected:
+    using LockMode = std::pair<ThreadAccessMode, ThreadShareMode>;
+    struct ThreadState {
+        std::thread::id id;
+        std::optional<LockMode> state; // The current lock mode. Empty if unlocked.
+    };
+
+    astd::mutex mutex;
+    astd::condition_variable condition;
+    // The number of threads that are reading
+    size_t read_count ASTD_GUARDED_BY(mutex) = 0;
+    // The number of threads that are writing
+    size_t write_count ASTD_GUARDED_BY(mutex) = 0;
+    // The number of locked threads blocking reading
+    size_t blocking_read_count ASTD_GUARDED_BY(mutex) = 0;
+    // The number of locked threads blocking writing
+    size_t blocking_write_count ASTD_GUARDED_BY(mutex) = 0;
+    // The threads that currently hold the lock.
+    std::list<ThreadState> locked_threads ASTD_GUARDED_BY(mutex);
+    // The pending threads in the order the lock call was made.
+    std::list<ThreadState> pending_threads ASTD_GUARDED_BY(mutex);
+    // Lookup from thread id to the iterator in locked_threads or pending_thread.
+    std::map<std::thread::id, std::list<ThreadState>::iterator> threads ASTD_GUARDED_BY(mutex);
+
+    template <
+        bool ReturnBool,
+        bool Blocking,
+        ThreadAccessMode DesiredThreadAccessMode,
+        ThreadShareMode DesiredThreadShareMode,
+        class... Args>
+    std::conditional_t<ReturnBool, bool, void> _lock_imp(Args... args_pack) ASTD_EXCLUDES(mutex)
+    {
+        // Lock the state.
+        astd::unique_lock lock(mutex);
+
+        // Get the thread id
+        auto id = std::this_thread::get_id();
+
+        // Check for a deadlock.
+        if (threads.find(id) != threads.end()) {
+            throw Deadlock("Deadlock encountered.");
+        }
+
+        auto is_needed_self_state = [&]() ASTD_REQUIRES_UNIQUE(mutex) -> bool {
+            if constexpr (DesiredThreadAccessMode == ThreadAccessMode::Read) {
+                return blocking_read_count == 0;
+            } else {
+                static_assert(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite);
+                return blocking_write_count == 0;
+            }
+        };
+
+        auto is_needed_other_state = [&]() ASTD_REQUIRES_UNIQUE(mutex) -> bool {
+            if constexpr (DesiredThreadShareMode == ThreadShareMode::Unique) {
+                return read_count == 0;
+            } else if constexpr (DesiredThreadShareMode == ThreadShareMode::SharedReadOnly) {
+                return write_count == 0;
+            } else {
+                static_assert(DesiredThreadShareMode == ThreadShareMode::SharedReadWrite);
+                return true;
+            }
+        };
+
+        // Is mutex in a lockable state.
+        auto is_needed_state = [&]() ASTD_REQUIRES_UNIQUE(mutex) -> bool {
+            return is_needed_self_state() && is_needed_other_state();
+        };
+
+        auto set_state = [&]() ASTD_REQUIRES_UNIQUE(mutex) {
+            if constexpr (DesiredThreadAccessMode == ThreadAccessMode::Read) {
+                read_count++;
+            } else {
+                static_assert(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite);
+                read_count++;
+                write_count++;
+            }
+            if constexpr (DesiredThreadShareMode == ThreadShareMode::Unique) {
+                blocking_read_count++;
+                blocking_write_count++;
+            } else if constexpr (DesiredThreadShareMode == ThreadShareMode::SharedReadOnly) {
+                blocking_write_count++;
+            } else {
+                static_assert(DesiredThreadShareMode == ThreadShareMode::SharedReadWrite);
+            }
+        };
+
+        if (pending_threads.empty() && is_needed_state()) {
+            // mutex can be locked without blocking. Lock it.
+            set_state();
+            auto it = locked_threads.insert(locked_threads.end(), { id, std::make_pair(DesiredThreadAccessMode, DesiredThreadShareMode) });
+            threads.emplace(id, it);
+            if constexpr (ReturnBool) {
+                return true;
+            }
+        } else if constexpr (Blocking) {
+            // Wait until the mutex can be locked.
+
+            // Unpack the args
+            auto args = std::tie(args_pack...);
+            AbstractCancelManager& cancel_manager = std::get<std::tuple_size_v<decltype(args)> - 1>(args);
+
+            // Create the lock state
+            auto it = pending_threads.insert(pending_threads.end(), { id, std::nullopt });
+            threads.emplace(id, it);
+
+            auto is_lockable = [&]() ASTD_REQUIRES_UNIQUE(mutex) -> bool {
+                return pending_threads.begin() == it && is_needed_state();
+            };
+
+            // If the state does not get locked it must be erased.
+            auto erase_state = [this, &it]() ASTD_REQUIRES_UNIQUE(mutex) -> bool {
+                bool is_first = it == pending_threads.begin();
+                threads.erase(it->id);
+                pending_threads.erase(it);
+                return is_first;
+            };
+
+            auto token = cancel_manager.register_cancel_callback([&]() -> void {
+                condition.notify_all();
+            });
+
+            auto unregister_cancel = [&]() -> void {
+                cancel_manager.unregister_cancel_callback(token);
+            };
+
+            if constexpr (ReturnBool) {
+                static_assert(std::tuple_size_v<decltype(args)> == 2);
+                const auto& timeout_arg = std::get<0>(args);
+                using TimeoutT = std::remove_cvref_t<decltype(timeout_arg)>;
+
+                auto deadline = [&]() {
+                    if constexpr (detail::is_specialization_of<std::chrono::duration, TimeoutT>::value) {
+                        return std::chrono::steady_clock::now() + timeout_arg;
+                    } else {
+                        static_assert(detail::is_specialization_of<std::chrono::time_point, TimeoutT>::value);
+                        return timeout_arg;
+                    }
+                }();
+                while (true) {
+                    if (cancel_manager.is_cancel_requested()) {
+                        bool is_first = erase_state();
+                        // Unlock the internal mutex so other threads do not block when we notify them.
+                        lock.unlock();
+                        // Notify other threads if the top pending thread changes.
+                        if (is_first) {
+                            condition.notify_all();
+                        }
+                        unregister_cancel();
+                        return false;
+                    }
+                    if (is_lockable()) {
+                        break;
+                    }
+                    if (condition.wait_until(lock, deadline) == std::cv_status::timeout) {
+                        bool is_first = erase_state();
+                        // Unlock the internal mutex so other threads do not block when we notify them.
+                        lock.unlock();
+                        // Notify other threads if the top pending thread changes.
+                        if (is_first) {
+                            condition.notify_all();
+                        }
+                        unregister_cancel();
+                        return false;
+                    }
+                }
+            } else {
+                // Wait until this is at the top of the queue and the mutex is unlocked.
+                while (true) {
+                    if (cancel_manager.is_cancel_requested()) {
+                        bool is_first = erase_state();
+                        // Unlock the internal mutex so other threads do not block when we notify them.
+                        lock.unlock();
+                        // Notify other threads if the top pending thread changes.
+                        if (is_first) {
+                            condition.notify_all();
+                        }
+                        unregister_cancel();
+                        throw TaskCancelled();
+                    }
+                    if (is_lockable()) {
+                        break;
+                    }
+                    condition.wait(lock);
+                }
+            }
+            // Update the mutex state
+            set_state();
+
+            // Move the thread state
+            locked_threads.splice(locked_threads.end(), pending_threads, pending_threads.begin());
+            it->state = std::make_pair(DesiredThreadAccessMode, DesiredThreadShareMode);
+
+            unregister_cancel();
+
+            // Unlock the internal mutex so other threads do not block when we notify them.
+            lock.unlock();
+
+            // Notify other threads that the top pending thread changed.
+            condition.notify_all();
+
+            if constexpr (ReturnBool) {
+                return true;
+            }
+        } else if constexpr (ReturnBool) {
+            return false;
+        }
+    }
+
+    template <bool ReturnBool, bool Blocking, ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class... TimeoutTs>
+    std::conditional_t<ReturnBool, bool, void> _lock(TimeoutTs... timeout, AbstractCancelManager& cancel_manager) ASTD_EXCLUDES(mutex)
+    {
+        return _lock_imp<ReturnBool, Blocking, DesiredThreadAccessMode, DesiredThreadShareMode, TimeoutTs..., AbstractCancelManager&>(timeout..., cancel_manager);
+    }
+
+    template <bool ReturnBool, bool Blocking, ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+    std::conditional_t<ReturnBool, bool, void> _lock() ASTD_EXCLUDES(mutex)
+    {
+        return _lock_imp<ReturnBool, Blocking, DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+public:
+    // Constructors
+    OrderedMutex() = default;
+    OrderedMutex(const OrderedMutex&) = delete;
+    OrderedMutex(OrderedMutex&&) = delete;
+
+    // Destructor
+    ~OrderedMutex() = default;
+
+    // Locks the mutex in the requested mode (default is read write unique).
+    // Blocks until the mutex is acquired or the task is cancelled through the cancel manager.
+    // If the task is cancelled before the mutex is acquired, TaskCancelled is thrown.
+    // Thread safe.
+    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique>
+    void lock(AbstractCancelManager& cancel_manager = global_VoidCancelManager) ASTD_EXCLUDES(mutex)
+    {
+        _lock<false, true, DesiredThreadAccessMode, DesiredThreadShareMode>(cancel_manager);
+    }
+
+    // Tries to lock the mutex in the requested mode (default is read write unique).
+    // Immediately returns true if the mutex was locked and false if it wasn't.
+    // Thread safe
+    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique>
+    [[nodiscard]] bool try_lock() ASTD_EXCLUDES(mutex)
+    {
+        return _lock<true, false, DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    // Like try_lock but with a timeout duration.
+    // Returns true if the mutex was locked and false if it was not locked within the duration or if the task was cancelled.
+    // Thread safe.
+    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique, class Rep, class Period>
+    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager) ASTD_EXCLUDES(mutex)
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::duration<Rep, Period>&>(timeout_duration, cancel_manager);
+    }
+
+    // Like try_lock but with a timeout time.
+    // Returns true if the mutex was locked and false if it was not locked before the timeout time or if the task was cancelled.
+    // Thread safe.
+    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique, class Clock, class Duration>
+    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager) ASTD_EXCLUDES(mutex)
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::time_point<Clock, Duration>&>(timeout_time, cancel_manager);
+    }
+
+    // Unlock the mutex.
+    // Must be called by the thread that locked it.
+    // Thread safe.
+    void unlock() ASTD_EXCLUDES(mutex)
+    {
+        {
+            // Lock the state.
+            astd::lock_guard lock(mutex);
+
+            // Get the thread id
+            auto id = std::this_thread::get_id();
+
+            // Find the thread state
+            auto it = threads.find(id);
+
+            // Ensure that the mutex is locked in the same mode by the thread.
+            if (it == threads.end() || !it->second->state.has_value()) {
+                throw std::runtime_error("This mutex is not locked by this thread.");
+            }
+
+            switch (it->second->state->first) {
+            case ThreadAccessMode::Read:
+                read_count--;
+                break;
+            case ThreadAccessMode::ReadWrite:
+                read_count--;
+                write_count--;
+                break;
+            default:
+                break;
+            }
+
+            switch (it->second->state->second) {
+            case ThreadShareMode::Unique:
+                blocking_read_count--;
+                blocking_write_count--;
+                break;
+            case ThreadShareMode::SharedReadOnly:
+                blocking_write_count--;
+                break;
+            default:
+                break;
+            }
+
+            // Remove the thread state
+            locked_threads.erase(it->second);
+            threads.erase(it);
+        }
+
+        // Wake up pending threads
+        condition.notify_all();
+    }
+
+    // SharedTimedLockable
+
+    // An alias to lock<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>
+    void lock_shared() ASTD_EXCLUDES(mutex)
+    {
+        lock<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>();
+    }
+
+    // An alias to try_lock<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>
+    [[nodiscard]] bool try_lock_shared() ASTD_EXCLUDES(mutex)
+    {
+        return try_lock<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>();
+    }
+
+    // An alias to unlock
+    void unlock_shared() ASTD_EXCLUDES(mutex)
+    {
+        unlock();
+    }
+
+    // An alias to try_lock_for<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>
+    template <class Rep, class Period>
+    [[nodiscard]] bool try_lock_shared_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager) ASTD_EXCLUDES(mutex)
+    {
+        return try_lock_for<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly, Rep, Period>(timeout_duration, cancel_manager);
+    }
+
+    // An alias to try_lock_until<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>
+    template <class Clock, class Duration>
+    [[nodiscard]] bool try_lock_shared_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager) ASTD_EXCLUDES(mutex)
+    {
+        return try_lock_until<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly, Clock, Duration>(timeout_time, cancel_manager);
+    }
+};
+
+template <
+    ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite,
+    ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique>
+class OrderedLockGuard {
+private:
+    OrderedMutex& mutex;
+
+public:
+    OrderedLockGuard(OrderedMutex& mutex)
+        : mutex(mutex)
+    {
+        mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+    ~OrderedLockGuard()
+    {
+        mutex.unlock();
+    }
+};
+
+} // namespace Amulet

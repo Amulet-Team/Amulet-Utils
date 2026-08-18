@@ -21,7 +21,7 @@ from amulet.utils.lock import (
     SharedLock,
 )
 
-from test_amulet_utils.test_lock_ import (
+from test_amulet_utils.test_threading.test_lock_ import (
     throw_deadlock,
     lock_ordered_mutex,
     lock_shared_mutex,

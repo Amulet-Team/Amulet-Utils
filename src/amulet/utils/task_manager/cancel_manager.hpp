@@ -3,11 +3,12 @@
 #include <functional>
 #include <list>
 #include <memory>
-#include <mutex>
 #include <stdexcept>
 
 #include <amulet/utils/dll.hpp>
 #include <amulet/utils/event/event.hpp>
+#include <amulet/utils/threading/mutex.hpp>
+#include <amulet/utils/threading/thread_safety.hpp>
 
 namespace Amulet {
 
@@ -52,14 +53,14 @@ public:
 class AMULET_UTILS_EXPORT VoidCancelManager : public AbstractCancelManager {
 public:
     VoidCancelManager();
-    
+
     VoidCancelManager(const VoidCancelManager&);
     VoidCancelManager(VoidCancelManager&&);
     VoidCancelManager& operator=(const VoidCancelManager&);
     VoidCancelManager& operator=(VoidCancelManager&&);
-    
+
     ~VoidCancelManager() override;
-    
+
     void cancel() override;
     bool is_cancel_requested() override;
     EventToken<> register_cancel_callback(CancelCallback callback) override;
@@ -70,18 +71,18 @@ AMULET_UTILS_EXPORT extern VoidCancelManager global_VoidCancelManager;
 
 class AMULET_UTILS_EXPORT CancelManager : public AbstractCancelManager {
 private:
-    std::mutex mutex;
-    bool cancelled = false;
+    astd::mutex mutex;
+    bool cancelled ASTD_GUARDED_BY(mutex) = false;
     Event<> event;
 
 public:
     CancelManager();
-    
+
     CancelManager(const CancelManager&) = delete;
     CancelManager& operator=(const CancelManager&) = delete;
     CancelManager(CancelManager&&) = delete;
     CancelManager& operator=(CancelManager&&) = delete;
-    
+
     ~CancelManager() override;
 
     void cancel() override;

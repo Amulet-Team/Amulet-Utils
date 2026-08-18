@@ -16,6 +16,11 @@ def _init() -> None:
     if os.environ.get("AMULET_SKIP_COMPILE", None):
         return
 
+    try:
+        os.add_dll_directory(__path__[0])
+    except AttributeError:
+        pass
+
     from ._amulet_utils import init
 
     init(sys.modules[__name__])

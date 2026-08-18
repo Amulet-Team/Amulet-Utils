@@ -17,11 +17,6 @@ void set_min_log_level(int level)
     get_min_log_level() = level;
 }
 
-static std::mutex& get_default_log_mutex() {
-    static std::mutex log_mutex;
-    return log_mutex;
-}
-
 static Amulet::EventToken<int, std::string>& get_default_log_handler_token() {
     static Amulet::EventToken<int, std::string> default_log_handler_token;
     return default_log_handler_token;
@@ -29,16 +24,13 @@ static Amulet::EventToken<int, std::string>& get_default_log_handler_token() {
 
 static void default_log_handler(int level, const std::string& msg)
 {
-    std::unique_lock lock(get_default_log_mutex());
+    static std::mutex mutex;
+    std::lock_guard lock(mutex);
     std::cout << msg << std::endl;
 }
 
 Amulet::Event<int, std::string>& get_logger()
 {
-    // Initialise dependent global variables
-    get_min_log_level();
-    get_default_log_mutex();
-    get_default_log_handler_token();
     static Amulet::Event<int, std::string> logger;
     // Setup the default log handler.
     static bool init_hanler = true;

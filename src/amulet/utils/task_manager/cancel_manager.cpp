@@ -1,11 +1,11 @@
 #include <functional>
 #include <list>
 #include <memory>
-#include <mutex>
 #include <stdexcept>
 
 #include "cancel_manager.hpp"
 #include <amulet/utils/logging/logging.hpp>
+#include <amulet/utils/threading/mutex.hpp>
 
 namespace Amulet {
 
@@ -24,7 +24,7 @@ const char* TaskCancelled::what() const noexcept
     return msg.c_str();
 }
 
-TaskCancelled::~TaskCancelled() noexcept {}
+TaskCancelled::~TaskCancelled() noexcept { }
 
 // VoidCancelManager
 VoidCancelManager::VoidCancelManager() = default;
@@ -38,7 +38,7 @@ bool VoidCancelManager::is_cancel_requested() { return false; }
 EventToken<> VoidCancelManager::register_cancel_callback(CancelCallback callback)
 {
     // Construct an empty token to keep the API consistent.
-    return {};
+    return { };
 }
 void VoidCancelManager::unregister_cancel_callback(EventToken<> token) { }
 
@@ -51,7 +51,7 @@ CancelManager::~CancelManager() = default;
 void CancelManager::cancel()
 {
     {
-        std::lock_guard lock(mutex);
+        astd::lock_guard lock(mutex);
         if (cancelled) {
             return;
         }
@@ -61,6 +61,7 @@ void CancelManager::cancel()
 }
 bool CancelManager::is_cancel_requested()
 {
+    astd::lock_guard lock(mutex);
     return cancelled;
 }
 EventToken<> CancelManager::register_cancel_callback(CancelCallback callback)
