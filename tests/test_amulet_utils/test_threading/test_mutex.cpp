@@ -276,14 +276,14 @@ void TestSharedMutex::test_lock_shared_unlock_shared_write(){
 void TestSharedMutex::test_lock_unlock_shared(){
     m.lock(); // expected-note {{mutex acquired here}}
     v += 1;
-    m.unlock_shared(); // expected-error {{releasing mutex 'm' using shared access, expected exclusive access}} expected-error {{releasing shared-mode 'm.shared' that was not held}}
+    m.unlock_shared(); // expected-error {{releasing mutex 'm' using shared access, expected exclusive access}} expected-error {{releasing shared-mode 'm.shared_capability' that was not held}}
 }
 
 void TestSharedMutex::test_lock_shared_unlock(){
     m.lock_shared(); // expected-note {{mutex acquired here}} expected-note {{shared-mode acquired here}}
     auto a = v;
     m.unlock(); // expected-error {{releasing mutex 'm' using exclusive access, expected shared access}}
-} // expected-error {{shared-mode 'm.shared' is still held at the end of function}}
+} // expected-error {{shared-mode 'm.shared_capability' is still held at the end of function}}
 
 void TestSharedMutex::test_lock(){
     m.lock(); // expected-note {{mutex acquired here}}
@@ -295,10 +295,10 @@ void TestSharedMutex::test_unlock(){
 
 void TestSharedMutex::test_lock_shared(){
     m.lock_shared(); // expected-note {{mutex acquired here}} expected-note {{shared-mode acquired here}}
-} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{shared-mode 'm.shared' is still held at the end of function}}
+} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{shared-mode 'm.shared_capability' is still held at the end of function}}
 
 void TestSharedMutex::test_unlock_shared(){
-    m.unlock_shared(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing shared-mode 'm.shared' that was not held}}
+    m.unlock_shared(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing shared-mode 'm.shared_capability' that was not held}}
 }
 
 void TestSharedMutex::test_lock_lock(){
@@ -308,8 +308,8 @@ void TestSharedMutex::test_lock_lock(){
 
 void TestSharedMutex::test_lock_shared_lock_shared(){
     m.lock_shared(); // expected-note 2 {{mutex acquired here}} expected-note 2 {{shared-mode acquired here}}
-    m.lock_shared(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring shared-mode 'm.shared' that is already held}}
-} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{shared-mode 'm.shared' is still held at the end of function}}
+    m.lock_shared(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring shared-mode 'm.shared_capability' that is already held}}
+} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{shared-mode 'm.shared_capability' is still held at the end of function}}
 
 void TestSharedMutex::test_try_lock(){
     auto locked = m.try_lock(); // expected-note {{mutex acquired here}}
@@ -353,7 +353,7 @@ void TestSharedMutex::test_try_lock_shared(){
     } else {
         auto a = v; // expected-error {{reading variable 'v' requires holding mutex 'm'}}
     }
-} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{shared-mode 'm.shared' is not held on every path through here}}
+} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{shared-mode 'm.shared_capability' is not held on every path through here}}
 
 void TestSharedMutex::test_try_lock_shared_unlock_shared_1(){
     auto locked = m.try_lock_shared();
@@ -373,7 +373,7 @@ void TestSharedMutex::test_try_lock_shared_unlock_shared_2(){
     } else {
         auto a = v; // expected-error {{reading variable 'v' requires holding mutex 'm'}}
     }
-    m.unlock_shared(); // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}} expected-error {{shared-mode 'm.shared' is not held on every path through here}} expected-error {{releasing shared-mode 'm.shared' that was not held}}
+    m.unlock_shared(); // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}} expected-error {{shared-mode 'm.shared_capability' is not held on every path through here}} expected-error {{releasing shared-mode 'm.shared_capability' that was not held}}
 }
 
 void TestSharedMutex::test_try_lock_shared_unlock_shared_3(){
@@ -392,12 +392,12 @@ void TestSharedMutex::test_lock_try_lock(){
 
 void TestSharedMutex::test_lock_shared_try_lock_shared(){
     m.lock_shared(); // expected-note 2 {{mutex acquired here}} expected-note 2 {{shared-mode acquired here}}
-    auto locked = m.try_lock_shared(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring shared-mode 'm.shared' that is already held}}
+    auto locked = m.try_lock_shared(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring shared-mode 'm.shared_capability' that is already held}}
     if (locked){
         auto a = v;
         m.unlock_shared();
     }
-} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{shared-mode 'm.shared' is not held on every path through here}}
+} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{shared-mode 'm.shared_capability' is not held on every path through here}}
 
 void TestSharedMutex::test() {
     m.lock();
@@ -565,7 +565,7 @@ void TestSharedLock::test_unique_adopt_constructor_unlocked(){
 }
 
 void TestSharedLock::test_shared_adopt_constructor_unlocked(){
-    astd::shared_lock lock(m, std::adopt_lock); // expected-error {{calling function 'shared_lock' requires holding mutex 'm'}} expected-error {{calling function 'shared_lock' requires holding shared-mode 'm.shared'}}
+    astd::shared_lock lock(m, std::adopt_lock); // expected-error {{calling function 'shared_lock' requires holding mutex 'm'}} expected-error {{calling function 'shared_lock' requires holding shared-mode 'm.shared_capability'}}
 }
 
 void TestSharedLock::test_unique_adopt_constructor_locked_unique(){
@@ -581,7 +581,7 @@ void TestSharedLock::test_unique_adopt_constructor_locked_unique(){
 void TestSharedLock::test_unique_adopt_constructor_locked_shared(){
     m.lock_shared(); // expected-note {{shared-mode acquired here}}
     astd::unique_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding mutex 'm' exclusively}}
-} // expected-error {{shared-mode 'm.shared' is still held at the end of function}}
+} // expected-error {{shared-mode 'm.shared_capability' is still held at the end of function}}
 
 void TestSharedLock::test_shared_adopt_constructor_locked_shared(){
     m.lock_shared();
@@ -595,7 +595,7 @@ void TestSharedLock::test_shared_adopt_constructor_locked_shared(){
 
 void TestSharedLock::test_shared_adopt_constructor_locked_unique(){
     m.lock();
-    astd::shared_lock lock(m, std::adopt_lock); // expected-error {{calling function 'shared_lock' requires holding shared-mode 'm.shared'}}
+    astd::shared_lock lock(m, std::adopt_lock); // expected-error {{calling function 'shared_lock' requires holding shared-mode 'm.shared_capability'}}
 }
 
 void TestSharedLock::test_unique_try_lock_constructor(){
