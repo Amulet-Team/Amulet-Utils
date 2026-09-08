@@ -35,7 +35,7 @@ public:
     lock_guard( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES_UNIQUE(m) : std::lock_guard<Mutex>(m, std::adopt_lock) {}
     lock_guard( const lock_guard& ) = delete;
     lock_guard& operator=( const lock_guard& ) = delete;
-    ~lock_guard() ASTD_RELEASE_UNIQUE() {}
+    ~lock_guard() ASTD_RELEASE_UNIQUE_SCOPED() {}
 };
 
 template<class Mutex>
@@ -92,25 +92,28 @@ public:
     // Destructor
     ~unique_lock() ASTD_RELEASE_IF_HELD() {}
 
-    void unlock() ASTD_RELEASE_UNIQUE() {
+    void unlock() ASTD_RELEASE_UNIQUE_SCOPED()
+    {
         std::unique_lock<Mutex>::unlock();
     }
 
-    void lock() ASTD_ACQUIRE_UNIQUE() {
+    void lock() ASTD_ACQUIRE_UNIQUE_SCOPED() {
         std::unique_lock<Mutex>::lock();
     }
 
-    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE(true) {
+    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE_SCOPED(true) {
         return std::unique_lock<Mutex>::try_lock();
     }
 
     template< class Rep, class Period >
-    [[nodiscard]] bool try_lock_for( const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_TRY_ACQUIRE_UNIQUE(true) {
+    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration) ASTD_TRY_ACQUIRE_UNIQUE_SCOPED(true)
+    {
         return std::unique_lock<Mutex>::try_lock_for(timeout_duration);
     }
 
     template< class Clock, class Duration >
-    [[nodiscard]] bool try_lock_until( const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_TRY_ACQUIRE_UNIQUE(true) {
+    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time) ASTD_TRY_ACQUIRE_UNIQUE_SCOPED(true)
+    {
         return std::unique_lock<Mutex>::try_lock_until(timeout_time);
     }
 

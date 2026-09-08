@@ -86,25 +86,27 @@ public:
     // Destructor
     ~shared_lock() ASTD_RELEASE_IF_HELD() {}
 
-    void unlock() ASTD_RELEASE() {
+    void unlock() ASTD_RELEASE_UNIQUE_SCOPED() {
         std::shared_lock<Mutex>::unlock();
     }
 
-    void lock() ASTD_ACQUIRE_SHARED() {
+    void lock() ASTD_ACQUIRE_SHARED_SCOPED() {
         std::shared_lock<Mutex>::lock();
     }
 
-    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_SHARED(true) {
+    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_SHARED_SCOPED(true) {
         return std::shared_lock<Mutex>::try_lock();
     }
 
     template< class Rep, class Period >
-    [[nodiscard]] bool try_lock_for( const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_TRY_ACQUIRE_SHARED(true) {
+    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration) ASTD_TRY_ACQUIRE_SHARED_SCOPED(true)
+    {
         return std::shared_lock<Mutex>::try_lock_for(timeout_duration);
     }
 
     template< class Clock, class Duration >
-    [[nodiscard]] bool try_lock_until( const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_TRY_ACQUIRE_SHARED(true) {
+    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time) ASTD_TRY_ACQUIRE_SHARED_SCOPED(true)
+    {
         return std::shared_lock<Mutex>::try_lock_until(timeout_time);
     }
 
