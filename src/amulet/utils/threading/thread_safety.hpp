@@ -35,16 +35,61 @@
 #define ASTD_REQUIRES_UNIQUE_OR_SHARED(...) \
     __ASTD_ATTRIBUTE__(requires_shared_capability(__VA_ARGS__))
 
+// ************************************************************
+// Acquire permissions
+// ************************************************************
+
+#define _ASTD_ACQUIRE_CAPABILITY_READ(...) \
+    __ASTD_ATTRIBUTE__(acquire_shared_capability(__VA_ARGS__))
+
+#define _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(...) \
+    __ASTD_ATTRIBUTE__(acquire_capability(__VA_ARGS__))
+
+// ************************************************************
+// Public acquire macros.
+// ************************************************************
+
 #define ASTD_ACQUIRE_UNIQUE(...) \
     __ASTD_ATTRIBUTE__(acquire_capability(__VA_ARGS__))
 
 #define ASTD_ACQUIRE_SHARED(...) \
     __ASTD_ATTRIBUTE__(acquire_shared_capability(__VA_ARGS__))
+
+// Acquire all mutexes acquired by this scope object in unique mode.
+#define ASTD_ACQUIRE_UNIQUE_SCOPED() _ASTD_ACQUIRE_CAPABILITY_READ_WRITE()
+
+// Acquire all mutexes acquired by this scope object in shared mode.
+#define ASTD_ACQUIRE_SHARED_SCOPED() _ASTD_ACQUIRE_CAPABILITY_READ()
+
+// ************************************************************
+// Public try acquire macros.
+// ************************************************************
+
 #define ASTD_TRY_ACQUIRE_UNIQUE(value, ...) \
     __ASTD_ATTRIBUTE__(try_acquire_capability(value __VA_OPT__(,) __VA_ARGS__))
 
 #define ASTD_TRY_ACQUIRE_SHARED(value, ...) \
     __ASTD_ATTRIBUTE__(try_acquire_shared_capability(value __VA_OPT__(,) __VA_ARGS__))
+
+#define ASTD_TRY_ACQUIRE_UNIQUE_SCOPED(value) \
+    __ASTD_ATTRIBUTE__(try_acquire_capability(value))
+
+#define ASTD_TRY_ACQUIRE_SHARED_SCOPED(value) \
+    __ASTD_ATTRIBUTE__(try_acquire_shared_capability(value))
+
+// ************************************************************
+// Release macros.
+// ************************************************************
+
+#define _ASTD_RELEASE_CAPABILITY_READ(...) \
+    __ASTD_ATTRIBUTE__(release_shared_capability(__VA_ARGS__))
+
+#define _ASTD_RELEASE_CAPABILITY_READ_WRITE(...) \
+    __ASTD_ATTRIBUTE__(release_capability(__VA_ARGS__))
+
+// ************************************************************
+// Public release macros.
+// ************************************************************
 
 
 #define ASTD_RELEASE(...) \
@@ -54,6 +99,12 @@
 
 #define ASTD_RELEASE_SHARED(...) \
     __ASTD_ATTRIBUTE__(release_shared_capability(__VA_ARGS__))
+
+// Release all mutexes acquired by this scope.
+#define ASTD_RELEASE_UNIQUE_SCOPED() _ASTD_RELEASE_CAPABILITY_READ_WRITE()
+
+// Release all mutexes acquired by this scope.
+#define ASTD_RELEASE_SHARED_SCOPED() _ASTD_RELEASE_CAPABILITY_READ()
 
 #define ASTD_RELEASE_GENERIC(...) \
     __ASTD_ATTRIBUTE__(release_generic_capability(__VA_ARGS__))
