@@ -152,3 +152,45 @@
 // Move the capabilities from `a` to `b` (a, b) or (a)
 // Any capabilities in `b` are released.
 #define ASTD_MOVE_CAPABILITIES(from, ...) ASTD_RELEASE_IF_HELD(__VA_ARGS__)
+
+namespace astd {
+
+// Allowed to read
+class ASTD_CAPABILITY("ReadCapability") ReadCapability { };
+
+// Allowed to write
+class ASTD_CAPABILITY("WriteCapabitily") WriteCapabitily { };
+
+// Held in unique mode. Other threads can't run in parallel.
+class ASTD_CAPABILITY("UniqueCapability") UniqueCapability { };
+
+// Other threads can only read in parallel.
+class ASTD_CAPABILITY("SharedReadOnlyCapability") SharedReadOnlyCapability { };
+
+// Other threads can read and write in parallel.
+// This can only be used for public functions where the internal state is protected by another mutex.
+class ASTD_CAPABILITY("SharedReadWriteCapability") SharedReadWriteCapability { };
+
+// Held in either shared mode.
+class ASTD_CAPABILITY("SharedCapability") SharedCapability { };
+
+// Held in either unique or shared read only mode.
+// Ensures that other threads cannot mutate in parallel.
+class ASTD_CAPABILITY("ReadOnlyCapability") ReadOnly { };
+
+class base_mutex {
+public:
+    ReadCapability read_capability;
+    WriteCapabitily write_capability;
+    UniqueCapability unique_capability;
+    ReadOnly read_only_capability;
+};
+
+class base_shared_mutex : public base_mutex {
+public:
+    SharedReadOnlyCapability shared_read_only_capability;
+    SharedReadWriteCapability shared_read_write_capability;
+    SharedCapability shared_capability;
+};
+
+} // namespace astd

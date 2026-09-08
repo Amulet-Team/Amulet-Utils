@@ -11,15 +11,6 @@
 
 namespace astd {
 
-class base_shared_mutex {
-public:
-    // Clang's thread safety analysis does not track only shared mode.
-    // This is needed to stop a uniquely locked mutex being adopted by a shared_lock.
-    // This capability will be acquired only when locked in shared mode.
-    class ASTD_CAPABILITY("shared-mode") SharedMode {};
-    SharedMode shared;
-};
-
 class ASTD_CAPABILITY("mutex") shared_mutex : private std::shared_mutex, public base_shared_mutex {
 public:
     using std::shared_mutex::shared_mutex;
@@ -40,24 +31,25 @@ public:
     // Constructors
     shared_lock() noexcept : std::shared_lock<Mutex>() {}
 
-    explicit shared_lock( Mutex& m ) ASTD_ACQUIRE_SHARED(m, m.shared)
+    explicit shared_lock(Mutex& m) ASTD_ACQUIRE_SHARED(m, m.SharedCapability)
         : std::shared_lock<Mutex>(m) {}
 
-    shared_lock( Mutex& m, std::defer_lock_t ) noexcept ASTD_EXCLUDES(m, m.shared)
+    shared_lock(Mutex& m, std::defer_lock_t) noexcept ASTD_EXCLUDES(m, m.SharedCapability)
         : std::shared_lock<Mutex>(m, std::defer_lock) {}
 
-    shared_lock( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES_UNIQUE_OR_SHARED(m, m.shared)
+    shared_lock(Mutex& m, std::adopt_lock_t) ASTD_REQUIRES_UNIQUE_OR_SHARED(m, m.SharedCapability)
+    //shared_lock(Mutex& m, std::adopt_lock_t) ASTD_REQUIRES_COMPONENT_READ(m) ASTD_REQUIRES_COMPONENT_SHARED(m)
         : std::shared_lock<Mutex>(m, std::adopt_lock) {}
 
-    shared_lock( Mutex& m, std::try_to_lock_t ) ASTD_MAYBE_ACQUIRE_SHARED(m, m.shared)
+    shared_lock(Mutex& m, std::try_to_lock_t) ASTD_MAYBE_ACQUIRE_SHARED(m, m.SharedCapability)
         : std::shared_lock<Mutex>(m, std::try_to_lock) {}
 
     template< class Rep, class Period >
-    shared_lock( Mutex& m, const std::chrono::duration<Rep, Period>& timeout_duration ) ASTD_MAYBE_ACQUIRE_SHARED(m, m.shared)
+    shared_lock(Mutex& m, const std::chrono::duration<Rep, Period>& timeout_duration) ASTD_MAYBE_ACQUIRE_SHARED(m, m.SharedCapability)
         : std::shared_lock<Mutex>(m, timeout_duration) {}
 
     template< class Clock, class Duration >
-    shared_lock( Mutex& m, const std::chrono::time_point<Clock, Duration>& timeout_time ) ASTD_MAYBE_ACQUIRE_SHARED(m, m.shared)
+    shared_lock(Mutex& m, const std::chrono::time_point<Clock, Duration>& timeout_time) ASTD_MAYBE_ACQUIRE_SHARED(m, m.SharedCapability)
         : std::shared_lock<Mutex>(m, timeout_time) {}
 
     // Copy
