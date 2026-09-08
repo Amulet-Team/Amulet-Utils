@@ -13,17 +13,17 @@ namespace astd {
 class ASTD_CAPABILITY("mutex") mutex : private std::mutex {
 public:
     using std::mutex::mutex;
-    void lock() ASTD_ACQUIRE_UNIQUE() { std::mutex::lock(); }
-    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE(true) { return std::mutex::try_lock(); }
-    void unlock() ASTD_RELEASE_UNIQUE() { std::mutex::unlock(); }
+    void lock() ASTD_ACQUIRE_UNIQUE(this) { std::mutex::lock(); }
+    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE(true, this) { return std::mutex::try_lock(); }
+    void unlock() ASTD_RELEASE_UNIQUE(this) { std::mutex::unlock(); }
 };
 
 class ASTD_CAPABILITY("recursive mutex") recursive_mutex : private std::recursive_mutex {
 public:
     using std::recursive_mutex::recursive_mutex;
-    void lock() ASTD_ACQUIRE_UNIQUE() { std::recursive_mutex::lock(); }
-    [[nodiscard]] bool try_lock() noexcept ASTD_TRY_ACQUIRE_UNIQUE(true) { return std::recursive_mutex::try_lock(); }
-    void unlock() ASTD_RELEASE_UNIQUE() { std::recursive_mutex::unlock(); }
+    void lock() ASTD_ACQUIRE_UNIQUE(this) { std::recursive_mutex::lock(); }
+    [[nodiscard]] bool try_lock() noexcept ASTD_TRY_ACQUIRE_UNIQUE(true, this) { return std::recursive_mutex::try_lock(); }
+    void unlock() ASTD_RELEASE_UNIQUE(this) { std::recursive_mutex::unlock(); }
 };
 
 template<class Mutex>
