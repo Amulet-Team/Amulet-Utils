@@ -41,10 +41,10 @@
 #define ASTD_ACQUIRE_SHARED(...) \
     __ASTD_ATTRIBUTE__(acquire_shared_capability(__VA_ARGS__))
 #define ASTD_TRY_ACQUIRE_UNIQUE(value, ...) \
-    __ASTD_ATTRIBUTE__(try_acquire_capability(value, __VA_ARGS__))
+    __ASTD_ATTRIBUTE__(try_acquire_capability(value __VA_OPT__(,) __VA_ARGS__))
 
 #define ASTD_TRY_ACQUIRE_SHARED(value, ...) \
-    __ASTD_ATTRIBUTE__(try_acquire_shared_capability(value, __VA_ARGS__))
+    __ASTD_ATTRIBUTE__(try_acquire_shared_capability(value __VA_OPT__(,) __VA_ARGS__))
 
 
 #define ASTD_RELEASE(...) \
@@ -86,8 +86,8 @@
 // Required by owns_lock to inspect the lock state without acquiring it.
 // Works like try_acquire_[shared_]capability but can be used in any context.
 // Currently they are aliased to try_acquire_[shared_]capability so can only be used in the unlocked state.
-#define ASTD_CHECK_UNIQUE_CAPABILITY(value, ...) ASTD_TRY_ACQUIRE_UNIQUE(value, __VA_ARGS__)
-#define ASTD_CHECK_SHARED_CAPABILITY(value, ...) ASTD_TRY_ACQUIRE_SHARED(value, __VA_ARGS__)
+#define ASTD_CHECK_UNIQUE_CAPABILITY(value, ...) ASTD_TRY_ACQUIRE_UNIQUE(value __VA_OPT__(,) __VA_ARGS__)
+#define ASTD_CHECK_SHARED_CAPABILITY(value, ...) ASTD_TRY_ACQUIRE_SHARED(value __VA_OPT__(,) __VA_ARGS__)
 
 // Required by lock destructors when the capability is not held.
 // Release the capability, regardless of initial value.
