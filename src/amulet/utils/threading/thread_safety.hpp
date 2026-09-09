@@ -176,14 +176,14 @@ class ASTD_CAPABILITY("SharedCapability") SharedCapability { };
 
 // Held in either unique or shared read only mode.
 // Ensures that other threads cannot mutate in parallel.
-class ASTD_CAPABILITY("ReadOnlyCapability") ReadOnly { };
+class ASTD_CAPABILITY("ReadOnlyCapability") ReadOnlyCapability { };
 
 class base_mutex {
 public:
     ReadCapability read_capability;
     WriteCapabitily write_capability;
     UniqueCapability unique_capability;
-    ReadOnly read_only_capability;
+    ReadOnlyCapability read_only_capability;
 };
 
 class base_shared_mutex : public base_mutex {
