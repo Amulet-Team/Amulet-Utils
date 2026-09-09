@@ -163,7 +163,7 @@ namespace astd {
 class ASTD_CAPABILITY("ReadCapability") ReadCapability { };
 
 // Allowed to write
-class ASTD_CAPABILITY("WriteCapabitily") WriteCapabitily { };
+class ASTD_CAPABILITY("WriteCapability") WriteCapability { };
 
 // Held in unique mode. Other threads can't run in parallel.
 class ASTD_CAPABILITY("UniqueCapability") UniqueCapability { };
@@ -185,7 +185,7 @@ class ASTD_CAPABILITY("ReadOnlyCapability") ReadOnlyCapability { };
 class base_mutex {
 public:
     ReadCapability read_capability;
-    WriteCapabitily write_capability;
+    WriteCapability write_capability;
     UniqueCapability unique_capability;
     ReadOnlyCapability read_only_capability;
 };
