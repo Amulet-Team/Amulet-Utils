@@ -140,6 +140,10 @@
 #define ASTD_CHECK_UNIQUE_CAPABILITY(value, ...) ASTD_TRY_ACQUIRE_UNIQUE(value __VA_OPT__(,) __VA_ARGS__)
 #define ASTD_CHECK_SHARED_CAPABILITY(value, ...) ASTD_TRY_ACQUIRE_SHARED(value __VA_OPT__(,) __VA_ARGS__)
 
+// Check acquired annotation for all mutexes in this scope.
+#define ASTD_CHECK_ACQUIRED_UNIQUE_SCOPED(value) ASTD_TRY_ACQUIRE_UNIQUE_SCOPED(value)
+#define ASTD_CHECK_ACQUIRED_SHARED_SCOPED(value) ASTD_TRY_ACQUIRE_SHARED_SCOPED(value)
+
 // Required by lock destructors when the capability is not held.
 // Release the capability, regardless of initial value.
 #define ASTD_RELEASE_IF_HELD(...) ASTD_ASSERT_UNIQUE_CAPABILITY(__VA_ARGS__) ASTD_RELEASE(__VA_ARGS__)

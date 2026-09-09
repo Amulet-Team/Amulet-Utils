@@ -108,10 +108,10 @@ public:
     }
 
     // TODO: The following methods require a non-acquiring version of TRY_ACQUIRE
-    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_SHARED_CAPABILITY(true) {
+    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_ACQUIRED_SHARED_SCOPED(true) {
         return std::shared_lock<Mutex>::owns_lock();
     }
-    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_SHARED_CAPABILITY(true) {
+    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_ACQUIRED_SHARED_SCOPED(true) {
         return std::shared_lock<Mutex>::operator bool();
     }
 };

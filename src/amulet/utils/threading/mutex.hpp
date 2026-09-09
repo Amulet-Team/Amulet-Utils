@@ -123,10 +123,10 @@ public:
     }
 
     // TODO: The following methods require a non-acquiring version of TRY_ACQUIRE
-    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_UNIQUE_CAPABILITY(true) {
+    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_ACQUIRED_UNIQUE_SCOPED(true) {
         return std::unique_lock<Mutex>::owns_lock();
     }
-    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_UNIQUE_CAPABILITY(true) {
+    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_ACQUIRED_UNIQUE_SCOPED(true) {
         return std::unique_lock<Mutex>::operator bool();
     }
 };
