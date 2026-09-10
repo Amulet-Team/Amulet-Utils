@@ -71,11 +71,11 @@
 
 // Requires the read component.
 #define ASTD_REQUIRES_COMPONENT_READ(mtx) \
-    ASTD_REQUIRES_CAPABILITY_READ(mtx)   \
+    ASTD_REQUIRES_CAPABILITY_READ(mtx)    \
     ASTD_REQUIRES_CAPABILITY_READ(mtx.read_capability)
 
 // Requires the read and write components.
-#define ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)         \
+#define ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)        \
     ASTD_REQUIRES_CAPABILITY_READ_WRITE(mtx)           \
     ASTD_REQUIRES_CAPABILITY_READ(mtx.read_capability) \
     ASTD_REQUIRES_CAPABILITY_READ(mtx.write_capability)
@@ -153,21 +153,21 @@
     _ASTD_ACQUIRE_CAPABILITY_READ(mtx)    \
     _ASTD_ACQUIRE_CAPABILITY_READ(mtx.read_capability)
 
-#define _ASTD_ACQUIRE_COMPONENT_READ_WRITE(mtx)        \
-    _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(mtx)           \
+#define _ASTD_ACQUIRE_COMPONENT_READ_WRITE(mtx)              \
+    _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(mtx)                 \
     _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(mtx.read_capability) \
     _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(mtx.write_capability)
 
-#define _ASTD_ACQUIRE_COMPONENT_UNIQUE(mode, mtx)              \
+#define _ASTD_ACQUIRE_COMPONENT_UNIQUE(mode, mtx)          \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.unique_capability) \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.read_only_capability)
 
-#define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mode, mtx)              \
+#define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mode, mtx)          \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_read_only_capability) \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_capability)           \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.read_only_capability)
 
-#define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mode, mtx)              \
+#define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_read_write_capability) \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_capability)
 
@@ -245,21 +245,21 @@
     _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx)    \
     _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.read_capability)
 
-#define _ASTD_TRY_ACQUIRE_COMPONENT_READ_WRITE(value, mtx)        \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, mtx)           \
+#define _ASTD_TRY_ACQUIRE_COMPONENT_READ_WRITE(value, mtx)              \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, mtx)                 \
     _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, mtx.read_capability) \
     _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, mtx.write_capability)
 
-#define _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(mode, value, mtx)              \
+#define _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(mode, value, mtx)          \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.unique_capability) \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.read_only_capability)
 
-#define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mode, value, mtx)              \
+#define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mode, value, mtx)          \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_read_only_capability) \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_capability)           \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.read_only_capability)
 
-#define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mode, value, mtx)              \
+#define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mode, value, mtx)          \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_read_write_capability) \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_capability)
 
@@ -337,21 +337,21 @@
     _ASTD_RELEASE_CAPABILITY_READ(mtx)    \
     _ASTD_RELEASE_CAPABILITY_READ(mtx.read_capability)
 
-#define _ASTD_RELEASE_COMPONENT_READ_WRITE(mtx)        \
-    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx)           \
+#define _ASTD_RELEASE_COMPONENT_READ_WRITE(mtx)              \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx)                 \
     _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.read_capability) \
     _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.write_capability)
 
-#define _ASTD_RELEASE_COMPONENT_UNIQUE(mode, mtx)              \
+#define _ASTD_RELEASE_COMPONENT_UNIQUE(mode, mtx)          \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.unique_capability) \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.read_only_capability)
 
-#define _ASTD_RELEASE_COMPONENT_SHARED_READ_ONLY(mode, mtx)              \
+#define _ASTD_RELEASE_COMPONENT_SHARED_READ_ONLY(mode, mtx)          \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_read_only_capability) \
-    _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_capability)           \
+    _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_capability)       \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.read_only_capability)
 
-#define _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(mode, mtx)              \
+#define _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_read_write_capability) \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_capability)
 
