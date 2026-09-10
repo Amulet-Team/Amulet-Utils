@@ -67,7 +67,7 @@ public:
         return *this;
     }
 
-    void swap( shared_lock& other ) noexcept ASTD_SWAP_CAPABILITIES(other) {
+    void swap( shared_lock& other ) noexcept ASTD_SWAP_CAPABILITIES(other, (*this)) {
         std::shared_lock<Mutex>::swap(other);
     }
 

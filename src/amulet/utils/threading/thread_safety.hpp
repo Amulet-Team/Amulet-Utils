@@ -475,8 +475,8 @@
 #define ASTD_RELEASE_IF_HELD(...) ASTD_ASSERT_UNIQUE_CAPABILITY(__VA_ARGS__) ASTD_RELEASE(__VA_ARGS__)
 
 // Required to swap the capabilities of two locks.
-// Swap the capabilities of `a` and `b` (a, b) or (a)
-#define ASTD_SWAP_CAPABILITIES(a, ...)
+// Swap the capabilities of `a` and `b` (a, b)
+#define ASTD_SWAP_CAPABILITIES(a, b)
 
 // Required by the move operators.
 // Move the capabilities from `a` to `b` (a, b)
