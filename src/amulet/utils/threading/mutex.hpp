@@ -72,16 +72,16 @@ public:
 
     // Move
     // TODO: Add annotations if Clang supports moving, swapping and disowning capabilities
-    unique_lock( unique_lock&& other ) noexcept ASTD_MOVE_CAPABILITIES(other, (*this))
+    unique_lock( unique_lock&& other ) noexcept ASTD_MOVE_SCOPED_CAPABILITIES(other, (*this))
         : std::unique_lock<Mutex>(std::forward<unique_lock>(other)) {}
 
-    unique_lock& operator=( unique_lock&& other ) noexcept ASTD_MOVE_CAPABILITIES(other, (*this))
+    unique_lock& operator=( unique_lock&& other ) noexcept ASTD_MOVE_SCOPED_CAPABILITIES(other, (*this))
     {
         std::unique_lock<Mutex>::operator=(std::forward<unique_lock>(other));
         return *this;
     }
 
-    void swap( unique_lock& other ) noexcept ASTD_SWAP_CAPABILITIES(other, (*this)) {
+    void swap( unique_lock& other ) noexcept ASTD_SWAP_SCOPED_CAPABILITIES(other, (*this)) {
         std::unique_lock<Mutex>::swap(other);
     }
 
@@ -90,7 +90,7 @@ public:
     }
 
     // Destructor
-    ~unique_lock() ASTD_RELEASE_IF_HELD() {}
+    ~unique_lock() ASTD_RELEASE_UNIQUE_SCOPED() { }
 
     void unlock() ASTD_RELEASE_UNIQUE_SCOPED()
     {
@@ -135,7 +135,7 @@ public:
 
 template< class Mutex >
 void swap( astd::unique_lock<Mutex>& lhs,
-           astd::unique_lock<Mutex>& rhs ) noexcept ASTD_SWAP_CAPABILITIES(lhs, rhs) {
+           astd::unique_lock<Mutex>& rhs ) noexcept ASTD_SWAP_SCOPED_CAPABILITIES(lhs, rhs) {
     lhs.swap(rhs);
 }
 
