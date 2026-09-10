@@ -71,9 +71,12 @@ namespace {
     void EventLoop::_event_loop() ASTD_EXCLUDES_ALL(_mutex)
     {
         std::function<void()> event;
-        while (!_exit) {
+        while (true) {
             {
                 astd::unique_lock lock(_mutex);
+                if (_exit) {
+                    break;
+                }
                 if (_events.empty()) {
                     // If there are no events to process, wait until more are added.
                     _condition.wait(lock);
