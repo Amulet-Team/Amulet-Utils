@@ -155,21 +155,21 @@
 
 #define _ASTD_ACQUIRE_COMPONENT_READ_WRITE(mtx)        \
     _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(mtx)           \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.read_capability) \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.write_capability)
+    _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(mtx.read_capability) \
+    _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(mtx.write_capability)
 
-#define _ASTD_ACQUIRE_COMPONENT_UNIQUE(mtx)              \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.unique_capability) \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.read_only_capability)
+#define _ASTD_ACQUIRE_COMPONENT_UNIQUE(mode, mtx)              \
+    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.unique_capability) \
+    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.read_only_capability)
 
-#define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mtx)              \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.shared_read_only_capability) \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.shared_capability)           \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.read_only_capability)
+#define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mode, mtx)              \
+    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_read_only_capability) \
+    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_capability)           \
+    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.read_only_capability)
 
-#define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mtx)              \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.shared_read_write_capability) \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.shared_capability)
+#define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mode, mtx)              \
+    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_read_write_capability) \
+    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_capability)
 
 // ************************************************************
 // Internal acquire macros.
@@ -177,27 +177,27 @@
 
 #define _ASTD_ACQUIRE_Read_Unique(mtx) \
     _ASTD_ACQUIRE_COMPONENT_READ(mtx)  \
-    _ASTD_ACQUIRE_COMPONENT_UNIQUE(mtx)
+    _ASTD_ACQUIRE_COMPONENT_UNIQUE(READ, mtx)
 
 #define _ASTD_ACQUIRE_Read_SharedReadOnly(mtx) \
     _ASTD_ACQUIRE_COMPONENT_READ(mtx)          \
-    _ASTD_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mtx)
+    _ASTD_ACQUIRE_COMPONENT_SHARED_READ_ONLY(READ, mtx)
 
 #define _ASTD_ACQUIRE_Read_SharedReadWrite(mtx) \
     _ASTD_ACQUIRE_COMPONENT_READ(mtx)           \
-    _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mtx)
+    _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(READ, mtx)
 
 #define _ASTD_ACQUIRE_ReadWrite_Unique(mtx) \
     _ASTD_ACQUIRE_COMPONENT_READ_WRITE(mtx) \
-    _ASTD_ACQUIRE_COMPONENT_UNIQUE(mtx)
+    _ASTD_ACQUIRE_COMPONENT_UNIQUE(READ_WRITE, mtx)
 
 #define _ASTD_ACQUIRE_ReadWrite_SharedReadOnly(mtx) \
     _ASTD_ACQUIRE_COMPONENT_READ_WRITE(mtx)         \
-    _ASTD_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mtx)
+    _ASTD_ACQUIRE_COMPONENT_SHARED_READ_ONLY(READ_WRITE, mtx)
 
 #define _ASTD_ACQUIRE_ReadWrite_SharedReadWrite(mtx) \
     _ASTD_ACQUIRE_COMPONENT_READ_WRITE(mtx)          \
-    _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mtx)
+    _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(READ_WRITE, mtx)
 
 // ************************************************************
 // Public acquire macros.
@@ -247,21 +247,21 @@
 
 #define _ASTD_TRY_ACQUIRE_COMPONENT_READ_WRITE(value, mtx)        \
     _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, mtx)           \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.read_capability) \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.write_capability)
+    _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, mtx.read_capability) \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, mtx.write_capability)
 
-#define _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(value, mtx)              \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.unique_capability) \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.read_only_capability)
+#define _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(mode, value, mtx)              \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.unique_capability) \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.read_only_capability)
 
-#define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_ONLY(value, mtx)              \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.shared_read_only_capability) \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.shared_capability)           \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.read_only_capability)
+#define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mode, value, mtx)              \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_read_only_capability) \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_capability)           \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.read_only_capability)
 
-#define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(value, mtx)              \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.shared_read_write_capability) \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.shared_capability)
+#define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mode, value, mtx)              \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_read_write_capability) \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_capability)
 
 // ************************************************************
 // Internal try acquire macros.
@@ -269,27 +269,27 @@
 
 #define _ASTD_TRY_ACQUIRE_Read_Unique(value, mtx) \
     _ASTD_TRY_ACQUIRE_COMPONENT_READ(value, mtx)  \
-    _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(value, mtx)
+    _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(READ, value, mtx)
 
 #define _ASTD_TRY_ACQUIRE_Read_SharedReadOnly(value, mtx) \
     _ASTD_TRY_ACQUIRE_COMPONENT_READ(value, mtx)          \
-    _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_ONLY(value, mtx)
+    _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_ONLY(READ, value, mtx)
 
 #define _ASTD_TRY_ACQUIRE_Read_SharedReadWrite(value, mtx) \
     _ASTD_TRY_ACQUIRE_COMPONENT_READ(value, mtx)           \
-    _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(value, mtx)
+    _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(READ, value, mtx)
 
 #define _ASTD_TRY_ACQUIRE_ReadWrite_Unique(value, mtx) \
     _ASTD_TRY_ACQUIRE_COMPONENT_READ_WRITE(value, mtx) \
-    _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(value, mtx)
+    _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(READ_WRITE, value, mtx)
 
 #define _ASTD_TRY_ACQUIRE_ReadWrite_SharedReadOnly(value, mtx) \
     _ASTD_TRY_ACQUIRE_COMPONENT_READ_WRITE(value, mtx)         \
-    _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_ONLY(value, mtx)
+    _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_ONLY(READ_WRITE, value, mtx)
 
 #define _ASTD_TRY_ACQUIRE_ReadWrite_SharedReadWrite(value, mtx) \
     _ASTD_TRY_ACQUIRE_COMPONENT_READ_WRITE(value, mtx)          \
-    _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(value, mtx)
+    _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(READ_WRITE, value, mtx)
 
 // ************************************************************
 // Public try acquire macros.
@@ -339,21 +339,21 @@
 
 #define _ASTD_RELEASE_COMPONENT_READ_WRITE(mtx)        \
     _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx)           \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx.read_capability) \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx.write_capability)
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.read_capability) \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.write_capability)
 
-#define _ASTD_RELEASE_COMPONENT_UNIQUE(mtx)              \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx.unique_capability) \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx.read_only_capability)
+#define _ASTD_RELEASE_COMPONENT_UNIQUE(mode, mtx)              \
+    _ASTD_RELEASE_CAPABILITY_##mode(mtx.unique_capability) \
+    _ASTD_RELEASE_CAPABILITY_##mode(mtx.read_only_capability)
 
-#define _ASTD_RELEASE_COMPONENT_SHARED_READ_ONLY(mtx)              \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx.shared_read_only_capability) \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx.shared_capability)           \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx.read_only_capability)
+#define _ASTD_RELEASE_COMPONENT_SHARED_READ_ONLY(mode, mtx)              \
+    _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_read_only_capability) \
+    _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_capability)           \
+    _ASTD_RELEASE_CAPABILITY_##mode(mtx.read_only_capability)
 
-#define _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(mtx)              \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx.shared_read_write_capability) \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx.shared_capability)
+#define _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(mode, mtx)              \
+    _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_read_write_capability) \
+    _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_capability)
 
 // ************************************************************
 // Internal release macros.
@@ -361,27 +361,27 @@
 
 #define _ASTD_RELEASE_Read_Unique(mtx) \
     _ASTD_RELEASE_COMPONENT_READ(mtx)  \
-    _ASTD_RELEASE_COMPONENT_UNIQUE(mtx)
+    _ASTD_RELEASE_COMPONENT_UNIQUE(READ, mtx)
 
 #define _ASTD_RELEASE_Read_SharedReadOnly(mtx) \
     _ASTD_RELEASE_COMPONENT_READ(mtx)          \
-    _ASTD_RELEASE_COMPONENT_SHARED_READ_ONLY(mtx)
+    _ASTD_RELEASE_COMPONENT_SHARED_READ_ONLY(READ, mtx)
 
 #define _ASTD_RELEASE_Read_SharedReadWrite(mtx) \
     _ASTD_RELEASE_COMPONENT_READ(mtx)           \
-    _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(mtx)
+    _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(READ, mtx)
 
 #define _ASTD_RELEASE_ReadWrite_Unique(mtx) \
     _ASTD_RELEASE_COMPONENT_READ_WRITE(mtx) \
-    _ASTD_RELEASE_COMPONENT_UNIQUE(mtx)
+    _ASTD_RELEASE_COMPONENT_UNIQUE(READ_WRITE, mtx)
 
 #define _ASTD_RELEASE_ReadWrite_SharedReadOnly(mtx) \
     _ASTD_RELEASE_COMPONENT_READ_WRITE(mtx)         \
-    _ASTD_RELEASE_COMPONENT_SHARED_READ_ONLY(mtx)
+    _ASTD_RELEASE_COMPONENT_SHARED_READ_ONLY(READ_WRITE, mtx)
 
 #define _ASTD_RELEASE_ReadWrite_SharedReadWrite(mtx) \
     _ASTD_RELEASE_COMPONENT_READ_WRITE(mtx)          \
-    _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(mtx)
+    _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(READ_WRITE, mtx)
 
 // ************************************************************
 // Public release macros.
