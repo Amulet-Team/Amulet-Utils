@@ -49,7 +49,7 @@ public:
     explicit unique_lock( Mutex& m ) ASTD_ACQUIRE_UNIQUE(m)
         : std::unique_lock<Mutex>(m) {}
 
-    unique_lock( Mutex& m, std::defer_lock_t ) noexcept ASTD_EXCLUDES(m)
+    unique_lock( Mutex& m, std::defer_lock_t ) noexcept ASTD_EXCLUDES(ReadWrite, Unique, m)
         : std::unique_lock<Mutex>(m, std::defer_lock) {}
 
     unique_lock( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES_UNIQUE(m)

@@ -34,7 +34,7 @@ public:
     explicit shared_lock(Mutex& m) ASTD_ACQUIRE_SHARED(m)
         : std::shared_lock<Mutex>(m) {}
 
-    shared_lock(Mutex& m, std::defer_lock_t) noexcept ASTD_EXCLUDES(m)
+    shared_lock(Mutex& m, std::defer_lock_t) noexcept ASTD_EXCLUDES(Read, SharedReadOnly, m)
         : std::shared_lock<Mutex>(m, std::defer_lock) {}
 
     shared_lock(Mutex& m, std::adopt_lock_t) ASTD_REQUIRES_COMPONENT_READ(m) ASTD_REQUIRES_COMPONENT_SHARED_READ_ONLY(m)

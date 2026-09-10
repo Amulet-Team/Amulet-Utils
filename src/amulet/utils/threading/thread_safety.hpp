@@ -416,9 +416,81 @@
     __ASTD_ATTRIBUTE__(release_generic_capability(__VA_ARGS__))
 
 // ************************************************************
+// Excludes
+// ************************************************************
 
-#define ASTD_EXCLUDES(...) \
+#define _ASTD_EXCLUDES_CAPABILITY(...) \
     __ASTD_ATTRIBUTE__(locks_excluded(__VA_ARGS__))
+
+// ************************************************************
+// Internal excludes component macros.
+// ************************************************************
+
+#define _ASTD_EXCLUDES_COMPONENT_READ(mtx) \
+    _ASTD_EXCLUDES_CAPABILITY(mtx)         \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.read_capability)
+
+#define _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx) \
+    _ASTD_EXCLUDES_COMPONENT_READ(mtx)           \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.write_capability)
+
+#define _ASTD_EXCLUDES_COMPONENT_UNIQUE(mtx)         \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.unique_capability) \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.read_only_capability)
+
+#define _ASTD_EXCLUDES_COMPONENT_SHARED_READ_ONLY(mtx)         \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_only_capability) \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_capability)           \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.read_only_capability)
+
+#define _ASTD_EXCLUDES_COMPONENT_SHARED_READ_WRITE(mtx)         \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_write_capability) \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_capability)
+
+// ************************************************************
+// Internal excludes macros.
+// ************************************************************
+
+#define _ASTD_EXCLUDES_Read_Unique(mtx) \
+    _ASTD_EXCLUDES_COMPONENT_READ(mtx)  \
+    _ASTD_EXCLUDES_COMPONENT_UNIQUE(mtx)
+
+#define _ASTD_EXCLUDES_Read_SharedReadOnly(mtx) \
+    _ASTD_EXCLUDES_COMPONENT_READ(mtx)          \
+    _ASTD_EXCLUDES_COMPONENT_SHARED_READ_ONLY(mtx)
+
+#define _ASTD_EXCLUDES_Read_SharedReadWrite(mtx) \
+    _ASTD_EXCLUDES_COMPONENT_READ(mtx)           \
+    _ASTD_EXCLUDES_COMPONENT_SHARED_READ_WRITE(mtx)
+
+#define _ASTD_EXCLUDES_ReadWrite_Unique(mtx) \
+    _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx) \
+    _ASTD_EXCLUDES_COMPONENT_UNIQUE(mtx)
+
+#define _ASTD_EXCLUDES_ReadWrite_SharedReadOnly(mtx) \
+    _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx)         \
+    _ASTD_EXCLUDES_COMPONENT_SHARED_READ_ONLY(mtx)
+
+#define _ASTD_EXCLUDES_ReadWrite_SharedReadWrite(mtx) \
+    _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx)          \
+    _ASTD_EXCLUDES_COMPONENT_SHARED_READ_WRITE(mtx)
+
+// ************************************************************
+// Public excludes macros
+// ************************************************************
+
+#define ASTD_EXCLUDES(access, shared, mtx) \
+    _ASTD_EXCLUDES_##access##_##shared(mtx)
+
+#define ASTD_EXCLUDES_ALL(mtx)                                 \
+    _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx)                   \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.unique_capability)           \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_capability)           \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.read_only_capability)        \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_only_capability) \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_write_capability)
+
+// ************************************************************
 
 #define ASTD_ASSERT_UNIQUE_CAPABILITY(...) \
     __ASTD_ATTRIBUTE__(assert_capability(__VA_ARGS__))
@@ -444,7 +516,7 @@
 // Required by lock try_to_acquire constructors
 // Marks the capability as both locked and unlocked.
 // Its state must be inspected and left in the unlocked or locked state.
-#define ASTD_MAYBE_ACQUIRE(access, share, mtx) ASTD_EXCLUDES(mtx)
+#define ASTD_MAYBE_ACQUIRE(access, share, mtx) ASTD_EXCLUDES(access, share, mtx)
 #define ASTD_MAYBE_ACQUIRE_UNIQUE(mtx) ASTD_MAYBE_ACQUIRE(ReadWrite, Unique, mtx)
 #define ASTD_MAYBE_ACQUIRE_SHARED(mtx) ASTD_MAYBE_ACQUIRE(Read, SharedReadOnly, mtx)
 

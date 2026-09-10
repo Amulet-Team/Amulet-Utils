@@ -37,7 +37,7 @@ private:
     };
 
 public:
-    std::filesystem::path get_temp_dir() ASTD_EXCLUDES(_mutex)
+    std::filesystem::path get_temp_dir() ASTD_EXCLUDES_ALL(_mutex)
     {
         astd::lock_guard lock(_mutex);
         if (_temp_dir.empty()) {
@@ -46,7 +46,7 @@ public:
         return _temp_dir;
     }
 
-    void set_temp_dir(std::filesystem::path path) ASTD_EXCLUDES(_mutex)
+    void set_temp_dir(std::filesystem::path path) ASTD_EXCLUDES_ALL(_mutex)
     {
         if (!std::filesystem::is_directory(path)) {
             throw std::runtime_error("Temporary path is not a directory.");
