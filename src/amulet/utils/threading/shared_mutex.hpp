@@ -14,12 +14,12 @@ namespace astd {
 class ASTD_CAPABILITY("mutex") shared_mutex : private std::shared_mutex, public base_shared_mutex {
 public:
     using std::shared_mutex::shared_mutex;
-    void lock() ASTD_ACQUIRE_UNIQUE(this) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::shared_mutex::lock(); }
-    void lock_shared() ASTD_ACQUIRE_SHARED(this) ASTD_ACQUIRE_SHARED(shared_capability) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::shared_mutex::lock_shared(); }
-    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE(true, this) ASTD_NO_THREAD_SAFETY_ANALYSIS { return std::shared_mutex::try_lock(); }
-    [[nodiscard]] bool try_lock_shared() ASTD_TRY_ACQUIRE_SHARED(true, this) ASTD_TRY_ACQUIRE_SHARED(true, shared_capability) ASTD_NO_THREAD_SAFETY_ANALYSIS { return std::shared_mutex::try_lock_shared(); }
-    void unlock() ASTD_RELEASE_UNIQUE(this) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::shared_mutex::unlock(); }
-    void unlock_shared() ASTD_RELEASE_SHARED(this) ASTD_RELEASE_SHARED(shared_capability) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::shared_mutex::unlock_shared(); }
+    void lock() ASTD_ACQUIRE_UNIQUE((*this)) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::shared_mutex::lock(); }
+    void lock_shared() ASTD_ACQUIRE_SHARED((*this)) ASTD_ACQUIRE_SHARED(shared_capability) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::shared_mutex::lock_shared(); }
+    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE(true, (*this)) ASTD_NO_THREAD_SAFETY_ANALYSIS { return std::shared_mutex::try_lock(); }
+    [[nodiscard]] bool try_lock_shared() ASTD_TRY_ACQUIRE_SHARED(true, (*this)) ASTD_TRY_ACQUIRE_SHARED(true, shared_capability) ASTD_NO_THREAD_SAFETY_ANALYSIS { return std::shared_mutex::try_lock_shared(); }
+    void unlock() ASTD_RELEASE_UNIQUE((*this)) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::shared_mutex::unlock(); }
+    void unlock_shared() ASTD_RELEASE_SHARED((*this)) ASTD_RELEASE_SHARED(shared_capability) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::shared_mutex::unlock_shared(); }
 };
 
 template<class Mutex>

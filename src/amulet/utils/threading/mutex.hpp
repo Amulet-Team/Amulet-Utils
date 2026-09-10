@@ -13,17 +13,17 @@ namespace astd {
 class ASTD_CAPABILITY("mutex") mutex : private std::mutex, public base_mutex {
 public:
     using std::mutex::mutex;
-    void lock() ASTD_ACQUIRE_UNIQUE(this) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::mutex::lock(); }
-    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE(true, this) ASTD_NO_THREAD_SAFETY_ANALYSIS { return std::mutex::try_lock(); }
-    void unlock() ASTD_RELEASE_UNIQUE(this) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::mutex::unlock(); }
+    void lock() ASTD_ACQUIRE_UNIQUE((*this)) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::mutex::lock(); }
+    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE(true, (*this)) ASTD_NO_THREAD_SAFETY_ANALYSIS { return std::mutex::try_lock(); }
+    void unlock() ASTD_RELEASE_UNIQUE((*this)) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::mutex::unlock(); }
 };
 
 class ASTD_CAPABILITY("recursive mutex") recursive_mutex : private std::recursive_mutex, public base_mutex {
 public:
     using std::recursive_mutex::recursive_mutex;
-    void lock() ASTD_ACQUIRE_UNIQUE(this) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::recursive_mutex::lock(); }
-    [[nodiscard]] bool try_lock() noexcept ASTD_TRY_ACQUIRE_UNIQUE(true, this) ASTD_NO_THREAD_SAFETY_ANALYSIS { return std::recursive_mutex::try_lock(); }
-    void unlock() ASTD_RELEASE_UNIQUE(this) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::recursive_mutex::unlock(); }
+    void lock() ASTD_ACQUIRE_UNIQUE((*this)) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::recursive_mutex::lock(); }
+    [[nodiscard]] bool try_lock() noexcept ASTD_TRY_ACQUIRE_UNIQUE(true, (*this)) ASTD_NO_THREAD_SAFETY_ANALYSIS { return std::recursive_mutex::try_lock(); }
+    void unlock() ASTD_RELEASE_UNIQUE((*this)) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::recursive_mutex::unlock(); }
 };
 
 template<class Mutex>
