@@ -39,6 +39,7 @@ public:
 };
 
 template<class Mutex>
+    requires std::is_base_of_v<base_mutex, Mutex>
 class [[nodiscard]] ASTD_SCOPED_CAPABILITY unique_lock : private std::unique_lock<Mutex> {
 public:
     using mutex_type = Mutex;

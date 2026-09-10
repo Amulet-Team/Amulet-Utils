@@ -11,7 +11,7 @@
 
 namespace astd {
 
-class ASTD_CAPABILITY("mutex") shared_mutex : private std::shared_mutex, public base_shared_mutex {
+class ASTD_CAPABILITY("mutex") shared_mutex : private std::shared_mutex, public base_mutex {
 public:
     using std::shared_mutex::shared_mutex;
     void lock() ASTD_ACQUIRE_UNIQUE((*this)) ASTD_NO_THREAD_SAFETY_ANALYSIS { std::shared_mutex::lock(); }
@@ -23,7 +23,7 @@ public:
 };
 
 template<class Mutex>
-    requires std::is_base_of_v<base_shared_mutex, Mutex>
+    requires std::is_base_of_v<base_mutex, Mutex>
 class [[nodiscard]] ASTD_SCOPED_CAPABILITY shared_lock : private std::shared_lock<Mutex> {
 public:
     using mutex_type = Mutex;

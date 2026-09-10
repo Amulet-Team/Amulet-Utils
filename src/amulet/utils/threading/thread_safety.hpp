@@ -479,9 +479,11 @@
 // Public excludes macros
 // ************************************************************
 
+// Exlude all components required to acquire the mutex in the specified state.
 #define ASTD_EXCLUDES(access, shared, mtx) \
     _ASTD_EXCLUDES_##access##_##shared(mtx)
 
+// Exclude all components of the mutex.
 #define ASTD_EXCLUDES_ALL(mtx)                                 \
     _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx)                   \
     _ASTD_EXCLUDES_CAPABILITY(mtx.unique_capability)           \
@@ -580,10 +582,6 @@ public:
     WriteCapability write_capability;
     UniqueCapability unique_capability;
     ReadOnlyCapability read_only_capability;
-};
-
-class base_shared_mutex : public base_mutex {
-public:
     SharedReadOnlyCapability shared_read_only_capability;
     SharedReadWriteCapability shared_read_write_capability;
     SharedCapability shared_capability;
