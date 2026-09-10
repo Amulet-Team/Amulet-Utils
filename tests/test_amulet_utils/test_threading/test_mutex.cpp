@@ -565,7 +565,7 @@ void TestSharedLock::test_unique_adopt_constructor_unlocked(){
 }
 
 void TestSharedLock::test_shared_adopt_constructor_unlocked(){
-    astd::shared_lock lock(m, std::adopt_lock); // expected-error {{calling function 'shared_lock' requires holding mutex 'm'}} expected-error {{calling function 'shared_lock' requires holding SharedCapability 'm.shared_capability'}}
+    astd::shared_lock lock(m, std::adopt_lock); // expected-error {{calling function 'shared_lock' requires holding mutex 'm'}} expected-error {{calling function 'shared_lock' requires holding ReadCapability 'm.read_capability'}} expected-error {{calling function 'shared_lock' requires holding SharedCapability 'm.shared_capability'}} expected-error {{calling function 'shared_lock' requires holding SharedReadOnlyCapability 'm.shared_read_only_capability'}}
 }
 
 void TestSharedLock::test_unique_adopt_constructor_locked_unique(){
