@@ -33,10 +33,10 @@
 // Requirements
 // ************************************************************
 
-#define _ASTD_REQUIRES_CAPABILITY_READ_WRITE(...) \
+#define ASTD_REQUIRES_CAPABILITY_READ_WRITE(...) \
     __ASTD_ATTRIBUTE__(requires_capability(__VA_ARGS__))
 
-#define _ASTD_REQUIRES_CAPABILITY_READ(...) \
+#define ASTD_REQUIRES_CAPABILITY_READ(...) \
     __ASTD_ATTRIBUTE__(requires_shared_capability(__VA_ARGS__))
 
 // ************************************************************
@@ -47,38 +47,38 @@
 // Require that the mutex is held in unique mode.
 // This does not check read/write permissions of this thread.
 #define ASTD_REQUIRES_COMPONENT_UNIQUE(mtx) \
-    _ASTD_REQUIRES_CAPABILITY_READ(mtx.unique_capability)
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.unique_capability)
 
 // Require that the mutex is held in shared read only mode.
 // This does not check read/write permissions of this thread.
 #define ASTD_REQUIRES_COMPONENT_SHARED_READ_ONLY(mtx) \
-    _ASTD_REQUIRES_CAPABILITY_READ(mtx.shared_read_only_capability)
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.shared_read_only_capability)
 
 // Require that the mutex is held in shared read write mode.
 // This does not check read/write permissions of this thread.
 #define ASTD_REQUIRES_COMPONENT_SHARED_READ_WRITE(mtx) \
-    _ASTD_REQUIRES_CAPABILITY_READ(mtx.shared_read_write_capability)
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.shared_read_write_capability)
 
 // Require that the mutex is held in one of the shared modes.
 // This does not check read/write permissions of this thread.
 #define ASTD_REQUIRES_COMPONENT_SHARED(mtx) \
-    _ASTD_REQUIRES_CAPABILITY_READ(mtx.shared_capability)
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.shared_capability)
 
 // Require that the mutex is held in a mode that does not allow parallel writes.
 // This does not check read/write permissions of this thread.
 #define ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx) \
-    _ASTD_REQUIRES_CAPABILITY_READ(mtx.read_only_capability)
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.read_only_capability)
 
 // Requires the read component.
 #define ASTD_REQUIRES_COMPONENT_READ(mtx) \
-    _ASTD_REQUIRES_CAPABILITY_READ(mtx)   \
-    _ASTD_REQUIRES_CAPABILITY_READ(mtx.read_capability)
+    ASTD_REQUIRES_CAPABILITY_READ(mtx)   \
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.read_capability)
 
 // Requires the read and write components.
 #define ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)         \
-    _ASTD_REQUIRES_CAPABILITY_READ_WRITE(mtx)           \
-    _ASTD_REQUIRES_CAPABILITY_READ(mtx.read_capability) \
-    _ASTD_REQUIRES_CAPABILITY_READ(mtx.write_capability)
+    ASTD_REQUIRES_CAPABILITY_READ_WRITE(mtx)           \
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.read_capability) \
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.write_capability)
 
 // ************************************************************
 // Internal requirement macros.
