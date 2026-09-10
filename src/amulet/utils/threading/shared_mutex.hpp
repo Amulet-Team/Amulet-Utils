@@ -58,10 +58,10 @@ public:
 
     // Move
     // TODO: Add annotations if Clang supports moving, swapping and disowning capabilities
-    shared_lock( shared_lock&& other ) noexcept ASTD_MOVE_SCOPED_CAPABILITIES(other, (*this))
+    shared_lock( shared_lock&& other ) noexcept ASTD_MOVE_SCOPED_CAPABILITIES(other)
         : std::shared_lock<Mutex>(std::forward<shared_lock>(other)) {}
 
-    shared_lock& operator=( shared_lock&& other ) noexcept ASTD_MOVE_SCOPED_CAPABILITIES(other, (*this))
+    shared_lock& operator=( shared_lock&& other ) noexcept ASTD_MOVE_SCOPED_CAPABILITIES(other)
     {
         std::shared_lock<Mutex>::operator=(std::forward<shared_lock>(other));
         return *this;

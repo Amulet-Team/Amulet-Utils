@@ -72,10 +72,10 @@ public:
 
     // Move
     // TODO: Add annotations if Clang supports moving, swapping and disowning capabilities
-    unique_lock( unique_lock&& other ) noexcept ASTD_MOVE_SCOPED_CAPABILITIES(other, (*this))
+    unique_lock( unique_lock&& other ) noexcept ASTD_MOVE_SCOPED_CAPABILITIES(other)
         : std::unique_lock<Mutex>(std::forward<unique_lock>(other)) {}
 
-    unique_lock& operator=( unique_lock&& other ) noexcept ASTD_MOVE_SCOPED_CAPABILITIES(other, (*this))
+    unique_lock& operator=( unique_lock&& other ) noexcept ASTD_MOVE_SCOPED_CAPABILITIES(other)
     {
         std::unique_lock<Mutex>::operator=(std::forward<unique_lock>(other));
         return *this;

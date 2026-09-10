@@ -470,14 +470,12 @@
 
 // ************************************************************
 
-// Required to swap the capabilities of two locks.
-// Swap the capabilities of `a` and `b` (a, b)
+// Swap the capabilities managed by two scoped capabilities.
 #define ASTD_SWAP_SCOPED_CAPABILITIES(a, b)
 
-// Required by the move operators.
-// Move the capabilities from `a` to `b` (a, b)
-// Any capabilities in `b` are released.
-#define ASTD_MOVE_SCOPED_CAPABILITIES(a, b) ASTD_RELEASE_UNIQUE_SCOPED(b)
+// Move the capabilities manged by scoped capability `other` into `this`.
+// Any capabilities in `this` are released before the move.
+#define ASTD_MOVE_SCOPED_CAPABILITIES(other) ASTD_RELEASE_UNIQUE_SCOPED()
 
 namespace astd {
 
