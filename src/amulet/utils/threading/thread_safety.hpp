@@ -479,9 +479,9 @@
 #define ASTD_SWAP_CAPABILITIES(a, ...)
 
 // Required by the move operators.
-// Move the capabilities from `a` to `b` (a, b) or (a)
+// Move the capabilities from `a` to `b` (a, b)
 // Any capabilities in `b` are released.
-#define ASTD_MOVE_CAPABILITIES(from, ...) ASTD_RELEASE_IF_HELD(__VA_ARGS__)
+#define ASTD_MOVE_CAPABILITIES(a, b) ASTD_RELEASE_IF_HELD(b)
 
 namespace astd {
 
