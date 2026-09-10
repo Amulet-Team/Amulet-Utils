@@ -4,9 +4,9 @@
 #include <thread>
 
 #include <amulet/utils/logging/logging.hpp>
-#include <amulet/utils/threading/thread_safety.hpp>
-#include <amulet/utils/threading/mutex.hpp>
 #include <amulet/utils/threading/condition_variable.hpp>
+#include <amulet/utils/threading/mutex.hpp>
+#include <amulet/utils/threading/thread_safety.hpp>
 
 #include "event.hpp"
 
@@ -70,17 +70,19 @@ namespace {
 
     void EventLoop::_event_loop() ASTD_EXCLUDES(_mutex)
     {
-        astd::unique_lock lock(_mutex);
+        std::function<void()> event;
         while (!_exit) {
-            if (_events.empty()) {
-                // If there are no events to process, wait until more are added.
-                _condition.wait(lock);
-                // Re-check the exit condition.
-                continue;
+            {
+                astd::unique_lock lock(_mutex);
+                if (_events.empty()) {
+                    // If there are no events to process, wait until more are added.
+                    _condition.wait(lock);
+                    // Re-check the exit condition.
+                    continue;
+                }
+                event = std::move(_events.front());
+                _events.pop_front();
             }
-            auto event = std::move(_events.front());
-            _events.pop_front();
-            lock.unlock();
             try {
                 event();
             } catch (const std::exception& e) {
@@ -88,7 +90,6 @@ namespace {
             } catch (...) {
                 Amulet::error("Unhandled exception in event loop.");
             }
-            lock.lock();
         }
         debug("EventLoop::_event_loop() exit");
     }
