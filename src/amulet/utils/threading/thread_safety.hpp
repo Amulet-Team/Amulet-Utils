@@ -157,13 +157,13 @@
 // Require the mutex is held in this state.
 // Argument 2 is the requirement for this thread. Read < ReadWrite
 // Argument 3 is the requirement for other threads. SharedReadWrite < SharedReadOnly < Unique
-// ASTD_REQUIRES_COMPATIBLE(Read, Unique, mtx)
-// ASTD_REQUIRES_COMPATIBLE(ReadWrite, Unique, mtx)
-// ASTD_REQUIRES_COMPATIBLE(Read, SharedReadOnly, mtx)
-// ASTD_REQUIRES_COMPATIBLE(ReadWrite, SharedReadOnly, mtx)
-// ASTD_REQUIRES_COMPATIBLE(Read, SharedReadWrite, mtx)
-// ASTD_REQUIRES_COMPATIBLE(ReadWrite, SharedReadWrite, mtx)
-#define ASTD_REQUIRES_COMPATIBLE(access, share, mtx) _ASTD_REQUIRES_##access##_##share(mtx)
+// ASTD_REQUIRES(Read, Unique, mtx)
+// ASTD_REQUIRES(ReadWrite, Unique, mtx)
+// ASTD_REQUIRES(Read, SharedReadOnly, mtx)
+// ASTD_REQUIRES(ReadWrite, SharedReadOnly, mtx)
+// ASTD_REQUIRES(Read, SharedReadWrite, mtx)
+// ASTD_REQUIRES(ReadWrite, SharedReadWrite, mtx)
+#define ASTD_REQUIRES(access, share, mtx) _ASTD_REQUIRES_##access##_##share(mtx)
 
 // Require the mutex is held in a compatible state.
 // Argument 2 is the minimum requirement for this thread. Read < ReadWrite
