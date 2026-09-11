@@ -579,18 +579,20 @@
     _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_capability) \
     _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.write_capability)
 
+// clang-format off
 #define _ASTD_ASSERT_COMPONENT_UNIQUE(mode, mtx)          \
     _ASTD_ASSERT_CAPABILITY_##mode(mtx.unique_capability) \
-        _ASTD_ASSERT_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
 
 #define _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(mode, mtx)          \
     _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_read_only_capability) \
-        _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)       \
-            _ASTD_ASSERT_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)           \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
 
 #define _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
     _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_read_write_capability) \
-        _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)
+// clang-format on
 
 // ************************************************************
 // Internal assert macros.
