@@ -41,45 +41,49 @@
 
 // ************************************************************
 // Component requirement macros.
-// These should only be used when absolutely necessary.
 // ************************************************************
+
+// Require that the mutex is held in a mode that does not allow parallel writes.
+// This does not check read/write permissions of this thread.
+#define _ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx) \
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.no_parallel_writes_capability)
 
 // Require that the mutex is held in unique mode.
 // This does not check read/write permissions of this thread.
-#define ASTD_REQUIRES_COMPONENT_UNIQUE(mtx) \
+#define _ASTD_REQUIRES_COMPONENT_UNIQUE(mtx)         \
+    _ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx) \
     ASTD_REQUIRES_CAPABILITY_READ(mtx.unique_capability)
+
+// Require that the mutex is held in one of the shared modes.
+// This does not check read/write permissions of this thread.
+#define _ASTD_REQUIRES_COMPONENT_SHARED(mtx) \
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.shared_capability)
 
 // Require that the mutex is held in shared read only mode.
 // This does not check read/write permissions of this thread.
-#define ASTD_REQUIRES_COMPONENT_SHARED_READ_ONLY(mtx) \
+#define _ASTD_REQUIRES_COMPONENT_SHARED_READ_ONLY(mtx) \
+    _ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx)   \
+    _ASTD_REQUIRES_COMPONENT_SHARED(mtx)               \
     ASTD_REQUIRES_CAPABILITY_READ(mtx.shared_read_only_capability)
 
 // Require that the mutex is held in shared read write mode.
 // This does not check read/write permissions of this thread.
-#define ASTD_REQUIRES_COMPONENT_SHARED_READ_WRITE(mtx) \
+#define _ASTD_REQUIRES_COMPONENT_SHARED_READ_WRITE(mtx) \
+    _ASTD_REQUIRES_COMPONENT_SHARED(mtx)                \
     ASTD_REQUIRES_CAPABILITY_READ(mtx.shared_read_write_capability)
 
-// Require that the mutex is held in one of the shared modes.
-// This does not check read/write permissions of this thread.
-#define ASTD_REQUIRES_COMPONENT_SHARED(mtx) \
-    ASTD_REQUIRES_CAPABILITY_READ(mtx.shared_capability)
-
-// Require that the mutex is held in a mode that does not allow parallel writes.
-// This does not check read/write permissions of this thread.
-#define ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx) \
-    ASTD_REQUIRES_CAPABILITY_READ(mtx.no_parallel_writes_capability)
-
-// Requires that this thread can only read.
-#define ASTD_REQUIRES_COMPONENT_READ_ONLY(mtx) \
-    ASTD_REQUIRES_CAPABILITY_READ(mtx.read_only_capability)
-
 // Requires the read component.
-#define ASTD_REQUIRES_COMPONENT_READ(mtx) \
-    ASTD_REQUIRES_CAPABILITY_READ(mtx)    \
+#define _ASTD_REQUIRES_COMPONENT_READ(mtx) \
+    ASTD_REQUIRES_CAPABILITY_READ(mtx)     \
     ASTD_REQUIRES_CAPABILITY_READ(mtx.read_capability)
 
+// Requires that this thread can only read.
+#define _ASTD_REQUIRES_COMPONENT_READ_ONLY(mtx) \
+    _ASTD_REQUIRES_COMPONENT_READ(mtx)          \
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.read_only_capability)
+
 // Requires the read and write components.
-#define ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)        \
+#define _ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)       \
     ASTD_REQUIRES_CAPABILITY_READ_WRITE(mtx)           \
     ASTD_REQUIRES_CAPABILITY_READ(mtx.read_capability) \
     ASTD_REQUIRES_CAPABILITY_READ(mtx.write_capability)
@@ -89,55 +93,94 @@
 // ************************************************************
 
 // Require read permission. No limits to other threads.
+#define _ASTD_REQUIRES_COMPATIBLE_Read_SharedReadWrite(mtx) \
+    _ASTD_REQUIRES_COMPONENT_READ(mtx)
+
+// Require read and write permission. No limits to other threads.
+#define _ASTD_REQUIRES_COMPATIBLE_ReadWrite_SharedReadWrite(mtx) \
+    _ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)
+
+// Require read permission. Other threads may only read.
+#define _ASTD_REQUIRES_COMPATIBLE_Read_SharedReadOnly(mtx) \
+    _ASTD_REQUIRES_COMPONENT_READ(mtx)                     \
+    _ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx)
+
+// Require read and write permission. Other threads may only read.
+#define _ASTD_REQUIRES_COMPATIBLE_ReadWrite_SharedReadOnly(mtx) \
+    _ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)                    \
+    _ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx)
+
+// Require exclusive read permission.
+#define _ASTD_REQUIRES_COMPATIBLE_Read_Unique(mtx) \
+    _ASTD_REQUIRES_COMPONENT_READ(mtx)             \
+    _ASTD_REQUIRES_COMPONENT_UNIQUE(mtx)
+
+// Require exclusive read and write permission.
+#define _ASTD_REQUIRES_COMPATIBLE_ReadWrite_Unique(mtx) \
+    _ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)            \
+    _ASTD_REQUIRES_COMPONENT_UNIQUE(mtx)
+
+// Require read permission. No limits to other threads.
 #define _ASTD_REQUIRES_Read_SharedReadWrite(mtx) \
-    ASTD_REQUIRES_COMPONENT_READ(mtx)
+    _ASTD_REQUIRES_COMPONENT_READ_ONLY(mtx)      \
+    _ASTD_REQUIRES_COMPONENT_SHARED_READ_WRITE(mtx)
 
 // Require read and write permission. No limits to other threads.
 #define _ASTD_REQUIRES_ReadWrite_SharedReadWrite(mtx) \
-    ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)
+    _ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)          \
+    _ASTD_REQUIRES_COMPONENT_SHARED_READ_WRITE(mtx)
 
 // Require read permission. Other threads may only read.
 #define _ASTD_REQUIRES_Read_SharedReadOnly(mtx) \
-    ASTD_REQUIRES_COMPONENT_READ(mtx)           \
-    ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx)
+    _ASTD_REQUIRES_COMPONENT_READ_ONLY(mtx)     \
+    _ASTD_REQUIRES_COMPONENT_SHARED_READ_ONLY(mtx)
 
 // Require read and write permission. Other threads may only read.
 #define _ASTD_REQUIRES_ReadWrite_SharedReadOnly(mtx) \
-    ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)          \
-    ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx)
+    _ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)         \
+    _ASTD_REQUIRES_COMPONENT_SHARED_READ_ONLY(mtx)
 
 // Require exclusive read permission.
-#define _ASTD_REQUIRES_Read_Unique(mtx)             \
-    ASTD_REQUIRES_COMPONENT_READ(mtx)               \
-    ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx) \
-    ASTD_REQUIRES_COMPONENT_UNIQUE(mtx)
+#define _ASTD_REQUIRES_Read_Unique(mtx)     \
+    _ASTD_REQUIRES_COMPONENT_READ_ONLY(mtx) \
+    _ASTD_REQUIRES_COMPONENT_UNIQUE(mtx)
 
 // Require exclusive read and write permission.
-#define _ASTD_REQUIRES_ReadWrite_Unique(mtx)        \
-    ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx)         \
-    ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx) \
-    ASTD_REQUIRES_COMPONENT_UNIQUE(mtx)
+#define _ASTD_REQUIRES_ReadWrite_Unique(mtx) \
+    _ASTD_REQUIRES_COMPONENT_READ_WRITE(mtx) \
+    _ASTD_REQUIRES_COMPONENT_UNIQUE(mtx)
 
 // ************************************************************
 // Public requirement macros.
 // ************************************************************
 
+// Require the mutex is held in this state.
+// Argument 2 is the requirement for this thread. Read < ReadWrite
+// Argument 3 is the requirement for other threads. SharedReadWrite < SharedReadOnly < Unique
+// ASTD_REQUIRES_COMPATIBLE(Read, Unique, mtx)
+// ASTD_REQUIRES_COMPATIBLE(ReadWrite, Unique, mtx)
+// ASTD_REQUIRES_COMPATIBLE(Read, SharedReadOnly, mtx)
+// ASTD_REQUIRES_COMPATIBLE(ReadWrite, SharedReadOnly, mtx)
+// ASTD_REQUIRES_COMPATIBLE(Read, SharedReadWrite, mtx)
+// ASTD_REQUIRES_COMPATIBLE(ReadWrite, SharedReadWrite, mtx)
+#define ASTD_REQUIRES_COMPATIBLE(access, share, mtx) _ASTD_REQUIRES_##access##_##share(mtx)
+
 // Require the mutex is held in a compatible state.
 // Argument 2 is the minimum requirement for this thread. Read < ReadWrite
 // Argument 3 is the upper limit of what other threads can do. SharedReadWrite < SharedReadOnly < Unique
-// ASTD_REQUIRES(Read, Unique, mtx)
-// ASTD_REQUIRES(ReadWrite, Unique, mtx)
-// ASTD_REQUIRES(Read, SharedReadOnly, mtx)
-// ASTD_REQUIRES(ReadWrite, SharedReadOnly, mtx)
-// ASTD_REQUIRES(Read, SharedReadWrite, mtx)
-// ASTD_REQUIRES(ReadWrite, SharedReadWrite, mtx)
-#define ASTD_REQUIRES(access, share, mtx) _ASTD_REQUIRES_##access##_##share(mtx)
+// ASTD_REQUIRES_COMPATIBLE(Read, Unique, mtx)
+// ASTD_REQUIRES_COMPATIBLE(ReadWrite, Unique, mtx)
+// ASTD_REQUIRES_COMPATIBLE(Read, SharedReadOnly, mtx)
+// ASTD_REQUIRES_COMPATIBLE(ReadWrite, SharedReadOnly, mtx)
+// ASTD_REQUIRES_COMPATIBLE(Read, SharedReadWrite, mtx)
+// ASTD_REQUIRES_COMPATIBLE(ReadWrite, SharedReadWrite, mtx)
+#define ASTD_REQUIRES_COMPATIBLE(access, share, mtx) _ASTD_REQUIRES_COMPATIBLE_##access##_##share(mtx)
 
 // This thread may read and write. Other threads are blocked.
-#define ASTD_REQUIRES_UNIQUE(mtx) ASTD_REQUIRES(ReadWrite, Unique, mtx)
+#define ASTD_REQUIRES_UNIQUE(mtx) ASTD_REQUIRES_COMPATIBLE(ReadWrite, Unique, mtx)
 
 // This thread (and other threads) may read. No writing is allowed by any thread.
-#define ASTD_REQUIRES_READ_ONLY(mtx) ASTD_REQUIRES(Read, SharedReadOnly, mtx)
+#define ASTD_REQUIRES_READ_ONLY(mtx) ASTD_REQUIRES_COMPATIBLE(Read, SharedReadOnly, mtx)
 
 // ************************************************************
 // Acquire permissions
