@@ -69,6 +69,10 @@
 #define ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx) \
     ASTD_REQUIRES_CAPABILITY_READ(mtx.no_parallel_writes_capability)
 
+// Requires that this thread can only read.
+#define ASTD_REQUIRES_COMPONENT_READ_ONLY(mtx) \
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.read_only_capability)
+
 // Requires the read component.
 #define ASTD_REQUIRES_COMPONENT_READ(mtx) \
     ASTD_REQUIRES_CAPABILITY_READ(mtx)    \
@@ -149,9 +153,10 @@
 // Internal acquire component macros.
 // ************************************************************
 
-#define _ASTD_ACQUIRE_COMPONENT_READ(mtx) \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx)    \
-    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.read_capability)
+#define _ASTD_ACQUIRE_COMPONENT_READ(mtx)              \
+    _ASTD_ACQUIRE_CAPABILITY_READ(mtx)                 \
+    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.read_capability) \
+    _ASTD_ACQUIRE_CAPABILITY_READ(mtx.read_only_capability)
 
 #define _ASTD_ACQUIRE_COMPONENT_READ_WRITE(mtx)              \
     _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(mtx)                 \
@@ -243,9 +248,10 @@
 // Internal try acquire component macros.
 // ************************************************************
 
-#define _ASTD_TRY_ACQUIRE_COMPONENT_READ(value, mtx) \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx)    \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.read_capability)
+#define _ASTD_TRY_ACQUIRE_COMPONENT_READ(value, mtx)              \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx)                 \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.read_capability) \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, mtx.read_only_capability)
 
 #define _ASTD_TRY_ACQUIRE_COMPONENT_READ_WRITE(value, mtx)              \
     _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, mtx)                 \
@@ -337,9 +343,10 @@
 // Internal release component macros.
 // ************************************************************
 
-#define _ASTD_RELEASE_COMPONENT_READ(mtx) \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx)    \
-    _ASTD_RELEASE_CAPABILITY_READ(mtx.read_capability)
+#define _ASTD_RELEASE_COMPONENT_READ(mtx)              \
+    _ASTD_RELEASE_CAPABILITY_READ(mtx)                 \
+    _ASTD_RELEASE_CAPABILITY_READ(mtx.read_capability) \
+    _ASTD_RELEASE_CAPABILITY_READ(mtx.read_only_capability)
 
 #define _ASTD_RELEASE_COMPONENT_READ_WRITE(mtx)              \
     _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx)                 \
@@ -432,12 +439,14 @@
 // Internal excludes component macros.
 // ************************************************************
 
-#define _ASTD_EXCLUDES_COMPONENT_READ(mtx) \
-    _ASTD_EXCLUDES_CAPABILITY(mtx)         \
-    _ASTD_EXCLUDES_CAPABILITY(mtx.read_capability)
+#define _ASTD_EXCLUDES_COMPONENT_READ(mtx)         \
+    _ASTD_EXCLUDES_CAPABILITY(mtx)                 \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.read_capability) \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.read_only_capability)
 
-#define _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx) \
-    _ASTD_EXCLUDES_COMPONENT_READ(mtx)           \
+#define _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx)   \
+    _ASTD_EXCLUDES_CAPABILITY(mtx)                 \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.read_capability) \
     _ASTD_EXCLUDES_CAPABILITY(mtx.write_capability)
 
 #define _ASTD_EXCLUDES_COMPONENT_UNIQUE(mtx)         \
@@ -635,6 +644,9 @@ namespace astd {
 // Allowed to read
 class ASTD_CAPABILITY("ReadCapability") ReadCapability { };
 
+// Allowed to read but not write
+class ASTD_CAPABILITY("ReadOnlyCapability") ReadOnlyCapability { };
+
 // Allowed to write
 class ASTD_CAPABILITY("WriteCapability") WriteCapability { };
 
@@ -658,6 +670,7 @@ class ASTD_CAPABILITY("NoParallelWritesCapability") NoParallelWritesCapability {
 class base_mutex {
 public:
     ReadCapability read_capability;
+    ReadOnlyCapability read_only_capability;
     WriteCapability write_capability;
     UniqueCapability unique_capability;
     NoParallelWritesCapability no_parallel_writes_capability;
