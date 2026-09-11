@@ -175,6 +175,9 @@
 // Internal acquire macros.
 // ************************************************************
 
+#define _ASTD_ACQUIRE_Read_Scoped() \
+    _ASTD_ACQUIRE_CAPABILITY_READ()
+
 #define _ASTD_ACQUIRE_Read_Unique(mtx) \
     _ASTD_ACQUIRE_COMPONENT_READ(mtx)  \
     _ASTD_ACQUIRE_COMPONENT_UNIQUE(READ, mtx)
@@ -186,6 +189,9 @@
 #define _ASTD_ACQUIRE_Read_SharedReadWrite(mtx) \
     _ASTD_ACQUIRE_COMPONENT_READ(mtx)           \
     _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(READ, mtx)
+
+#define _ASTD_ACQUIRE_ReadWrite_Scoped() \
+    _ASTD_ACQUIRE_CAPABILITY_READ_WRITE()
 
 #define _ASTD_ACQUIRE_ReadWrite_Unique(mtx) \
     _ASTD_ACQUIRE_COMPONENT_READ_WRITE(mtx) \
@@ -206,26 +212,22 @@
 // Acquire the mutex in the specified state.
 // Argument 2 specifies what this thread can do.
 // Argument 3 specifies what other threads can do.
+// ASTD_ACQUIRE(Read, Scoped)
+// ASTD_ACQUIRE(ReadWrite, Scoped)
 // ASTD_ACQUIRE(Read, Unique, mtx)
 // ASTD_ACQUIRE(ReadWrite, Unique, mtx)
 // ASTD_ACQUIRE(Read, SharedReadOnly, mtx)
 // ASTD_ACQUIRE(ReadWrite, SharedReadOnly, mtx)
 // ASTD_ACQUIRE(Read, SharedReadWrite, mtx)
 // ASTD_ACQUIRE(ReadWrite, SharedReadWrite, mtx)
-#define ASTD_ACQUIRE(access, share, mtx) \
-    _ASTD_ACQUIRE_##access##_##share(mtx)
+#define ASTD_ACQUIRE(access, share, ...) \
+    _ASTD_ACQUIRE_##access##_##share(__VA_ARGS__)
 
 // Acquire the mutex with read and write permissions. Other threads are blocked.
 #define ASTD_ACQUIRE_UNIQUE(mtx) ASTD_ACQUIRE(ReadWrite, Unique, mtx)
 
 // Acquire the mutex with read permission. Other threads may also read (but not write).
 #define ASTD_ACQUIRE_SHARED(mtx) ASTD_ACQUIRE(Read, SharedReadOnly, mtx)
-
-// Acquire all mutexes acquired by this scope object in unique mode.
-#define ASTD_ACQUIRE_UNIQUE_SCOPED() _ASTD_ACQUIRE_CAPABILITY_READ_WRITE()
-
-// Acquire all mutexes acquired by this scope object in shared mode.
-#define ASTD_ACQUIRE_SHARED_SCOPED() _ASTD_ACQUIRE_CAPABILITY_READ()
 
 // ************************************************************
 // Try acquire permissions
@@ -267,6 +269,9 @@
 // Internal try acquire macros.
 // ************************************************************
 
+#define _ASTD_TRY_ACQUIRE_Read_Scoped(value) \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value)
+
 #define _ASTD_TRY_ACQUIRE_Read_Unique(value, mtx) \
     _ASTD_TRY_ACQUIRE_COMPONENT_READ(value, mtx)  \
     _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(READ, value, mtx)
@@ -278,6 +283,9 @@
 #define _ASTD_TRY_ACQUIRE_Read_SharedReadWrite(value, mtx) \
     _ASTD_TRY_ACQUIRE_COMPONENT_READ(value, mtx)           \
     _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(READ, value, mtx)
+
+#define _ASTD_TRY_ACQUIRE_ReadWrite_Scoped(value) \
+    _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value)
 
 #define _ASTD_TRY_ACQUIRE_ReadWrite_Unique(value, mtx) \
     _ASTD_TRY_ACQUIRE_COMPONENT_READ_WRITE(value, mtx) \
@@ -298,26 +306,22 @@
 // Try to acquire the mutex in the specified state.
 // Argument 2 specifies what this thread can do.
 // Argument 3 specifies what other threads can do.
+// ASTD_TRY_ACQUIRE(Read, Scoped, value)
+// ASTD_TRY_ACQUIRE(ReadWrite, Scoped, value)
 // ASTD_TRY_ACQUIRE(Read, Unique, value, mtx)
 // ASTD_TRY_ACQUIRE(ReadWrite, Unique, value, mtx)
 // ASTD_TRY_ACQUIRE(Read, SharedReadOnly, value, mtx)
 // ASTD_TRY_ACQUIRE(ReadWrite, SharedReadOnly, value, mtx)
 // ASTD_TRY_ACQUIRE(Read, SharedReadWrite, value, mtx)
 // ASTD_TRY_ACQUIRE(ReadWrite, SharedReadWrite, value, mtx)
-#define ASTD_TRY_ACQUIRE(access, share, value, mtx) \
-    _ASTD_TRY_ACQUIRE_##access##_##share(value, mtx)
+#define ASTD_TRY_ACQUIRE(access, share, value, ...) \
+    _ASTD_TRY_ACQUIRE_##access##_##share(value, __VA_ARGS__)
 
 #define ASTD_TRY_ACQUIRE_UNIQUE(value, mtx) \
     ASTD_TRY_ACQUIRE(ReadWrite, Unique, value, mtx)
 
 #define ASTD_TRY_ACQUIRE_SHARED(value, mtx) \
     ASTD_TRY_ACQUIRE(Read, SharedReadOnly, value, mtx)
-
-#define ASTD_TRY_ACQUIRE_UNIQUE_SCOPED(value) \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value)
-
-#define ASTD_TRY_ACQUIRE_SHARED_SCOPED(value) \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value)
 
 // ************************************************************
 // Release macros.
@@ -359,6 +363,9 @@
 // Internal release macros.
 // ************************************************************
 
+#define _ASTD_RELEASE_Read_Scoped() \
+    _ASTD_RELEASE_CAPABILITY_READ()
+
 #define _ASTD_RELEASE_Read_Unique(mtx) \
     _ASTD_RELEASE_COMPONENT_READ(mtx)  \
     _ASTD_RELEASE_COMPONENT_UNIQUE(READ, mtx)
@@ -370,6 +377,9 @@
 #define _ASTD_RELEASE_Read_SharedReadWrite(mtx) \
     _ASTD_RELEASE_COMPONENT_READ(mtx)           \
     _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(READ, mtx)
+
+#define _ASTD_RELEASE_ReadWrite_Scoped() \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE()
 
 #define _ASTD_RELEASE_ReadWrite_Unique(mtx) \
     _ASTD_RELEASE_COMPONENT_READ_WRITE(mtx) \
@@ -391,26 +401,22 @@
 // Argument 2 specifies what this thread can do.
 // Argument 3 specifies what other threads can do.
 // These arguments must match the arguments the mutex was acquired with.
+// ASTD_ACQUIRE(Read, Scoped)
+// ASTD_ACQUIRE(ReadWrite, Scoped)
 // ASTD_ACQUIRE(Read, Unique, mtx)
 // ASTD_ACQUIRE(ReadWrite, Unique, mtx)
 // ASTD_ACQUIRE(Read, SharedReadOnly, mtx)
 // ASTD_ACQUIRE(ReadWrite, SharedReadOnly, mtx)
 // ASTD_ACQUIRE(Read, SharedReadWrite, mtx)
 // ASTD_ACQUIRE(ReadWrite, SharedReadWrite, mtx)
-#define ASTD_RELEASE(access, share, mtx) \
-    _ASTD_RELEASE_##access##_##share(mtx)
+#define ASTD_RELEASE(access, share, ...) \
+    _ASTD_RELEASE_##access##_##share(__VA_ARGS__)
 
 // Release the mutex with unique read and write permissions.
 #define ASTD_RELEASE_UNIQUE(mtx) ASTD_RELEASE(ReadWrite, Unique, mtx)
 
 // Release the mutex with shared read-only permission.
 #define ASTD_RELEASE_SHARED(mtx) ASTD_RELEASE(Read, SharedReadOnly, mtx)
-
-// Release all mutexes acquired by this scope.
-#define ASTD_RELEASE_UNIQUE_SCOPED() _ASTD_RELEASE_CAPABILITY_READ_WRITE()
-
-// Release all mutexes acquired by this scope.
-#define ASTD_RELEASE_SHARED_SCOPED() _ASTD_RELEASE_CAPABILITY_READ()
 
 #define ASTD_RELEASE_GENERIC(...) \
     __ASTD_ATTRIBUTE__(release_generic_capability(__VA_ARGS__))
@@ -493,12 +499,89 @@
     _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_write_capability)
 
 // ************************************************************
+// Assert capability
+// ************************************************************
 
-#define ASTD_ASSERT_UNIQUE_CAPABILITY(...) \
+#define _ASTD_ASSERT_CAPABILITY_READ(...) \
+    __ASTD_ATTRIBUTE__(assert_shared_capability(__VA_ARGS__))
+
+#define _ASTD_ASSERT_CAPABILITY_READ_WRITE(...) \
     __ASTD_ATTRIBUTE__(assert_capability(__VA_ARGS__))
 
-#define ASTD_ASSERT_SHARED_CAPABILITY(...) \
-    __ASTD_ATTRIBUTE__(assert_shared_capability(__VA_ARGS__))
+// ************************************************************
+// Internal assert component macros.
+// ************************************************************
+
+#define _ASTD_ASSERT_COMPONENT_READ(mtx) \
+    _ASTD_ASSERT_CAPABILITY_READ(mtx)    \
+    _ASTD_ASSERT_CAPABILITY_READ(mtx.read_capability)
+
+#define _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx)              \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx)                 \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_capability) \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.write_capability)
+
+#define _ASTD_ASSERT_COMPONENT_UNIQUE(mode, mtx)          \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.unique_capability) \
+        _ASTD_ASSERT_CAPABILITY_##mode(mtx.read_only_capability)
+
+#define _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(mode, mtx)          \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_read_only_capability) \
+        _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)       \
+            _ASTD_ASSERT_CAPABILITY_##mode(mtx.read_only_capability)
+
+#define _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_read_write_capability) \
+        _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)
+
+// ************************************************************
+// Internal assert macros.
+// ************************************************************
+
+#define _ASTD_ASSERT_Read_Scoped() \
+    _ASTD_ASSERT_CAPABILITY_READ()
+
+#define _ASTD_ASSERT_Read_Unique(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ(mtx)  \
+    _ASTD_ASSERT_COMPONENT_UNIQUE(READ, mtx)
+
+#define _ASTD_ASSERT_Read_SharedReadOnly(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ(mtx)          \
+    _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(READ, mtx)
+
+#define _ASTD_ASSERT_Read_SharedReadWrite(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ(mtx)           \
+    _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(READ, mtx)
+
+#define _ASTD_ASSERT_ReadWrite_Scoped() \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE()
+
+#define _ASTD_ASSERT_ReadWrite_Unique(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx) \
+    _ASTD_ASSERT_COMPONENT_UNIQUE(READ_WRITE, mtx)
+
+#define _ASTD_ASSERT_ReadWrite_SharedReadOnly(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx)         \
+    _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(READ_WRITE, mtx)
+
+#define _ASTD_ASSERT_ReadWrite_SharedReadWrite(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx)          \
+    _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(READ_WRITE, mtx)
+
+// ************************************************************
+// Public assert capability
+// ************************************************************
+
+#define ASTD_ASSERT_CAPABILITY(access, share, ...) \
+    _ASTD_ASSERT_##access##_##share(__VA_ARGS__)
+
+#define ASTD_ASSERT_UNIQUE_CAPABILITY(mtx) \
+    ASTD_ASSERT_CAPABILITY(ReadWrite, Unique, mtx))
+
+#define ASTD_ASSERT_SHARED_CAPABILITY(mtx) \
+    ASTD_ASSERT_CAPABILITY(Read, SharedReadOnly, mtx))
+
+// ************************************************************
 
 #define ASTD_RETURN_CAPABILITY(...) \
     __ASTD_ATTRIBUTE__(lock_returned(__VA_ARGS__))
@@ -532,15 +615,11 @@
 // The function must return "value" if the mutex is held.
 // Argument 2 specifies what this thread can do.
 // Argument 3 specifies what other threads can do.
-#define ASTD_CHECK_ACQUIRED(access, share, value, mtx) \
-    ASTD_TRY_ACQUIRE(access, share, value, mtx)
+#define ASTD_CHECK_ACQUIRED(access, share, value, ...) \
+    ASTD_TRY_ACQUIRE(access, share, value, __VA_ARGS__)
 
 #define ASTD_CHECK_ACQUIRED_UNIQUE(value, mtx) ASTD_CHECK_ACQUIRED(ReadWrite, Unique, value, mtx)
 #define ASTD_CHECK_ACQUIRED_SHARED(value, mtx) ASTD_CHECK_ACQUIRED(Read, SharedReadOnly, value, mtx)
-
-// Check acquired annotation for all mutexes in this scope.
-#define ASTD_CHECK_ACQUIRED_UNIQUE_SCOPED(value) ASTD_TRY_ACQUIRE_UNIQUE_SCOPED(value)
-#define ASTD_CHECK_ACQUIRED_SHARED_SCOPED(value) ASTD_TRY_ACQUIRE_SHARED_SCOPED(value)
 
 // ************************************************************
 
@@ -549,7 +628,7 @@
 
 // Move the capabilities manged by scoped capability `other` into `this`.
 // Any capabilities in `this` are released before the move.
-#define ASTD_MOVE_SCOPED_CAPABILITIES(other) ASTD_RELEASE_UNIQUE_SCOPED()
+#define ASTD_MOVE_SCOPED_CAPABILITIES(other) ASTD_RELEASE(ReadWrite, Scoped)
 
 namespace astd {
 

@@ -35,7 +35,7 @@ public:
     lock_guard( Mutex& m, std::adopt_lock_t ) ASTD_REQUIRES_UNIQUE(m) : std::lock_guard<Mutex>(m, std::adopt_lock) {}
     lock_guard( const lock_guard& ) = delete;
     lock_guard& operator=( const lock_guard& ) = delete;
-    ~lock_guard() ASTD_RELEASE_UNIQUE_SCOPED() {}
+    ~lock_guard() ASTD_RELEASE(ReadWrite, Scoped) {}
 };
 
 template<class Mutex>
@@ -91,29 +91,29 @@ public:
     }
 
     // Destructor
-    ~unique_lock() ASTD_RELEASE_UNIQUE_SCOPED() { }
+    ~unique_lock() ASTD_ASSERT_CAPABILITY(ReadWrite, Scoped) ASTD_RELEASE(ReadWrite, Scoped) { }
 
-    void unlock() ASTD_RELEASE_UNIQUE_SCOPED()
+    void unlock() ASTD_RELEASE(ReadWrite, Scoped)
     {
         std::unique_lock<Mutex>::unlock();
     }
 
-    void lock() ASTD_ACQUIRE_UNIQUE_SCOPED() {
+    void lock() ASTD_ACQUIRE(ReadWrite, Scoped) {
         std::unique_lock<Mutex>::lock();
     }
 
-    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE_UNIQUE_SCOPED(true) {
+    [[nodiscard]] bool try_lock() ASTD_TRY_ACQUIRE(ReadWrite, Scoped, true) {
         return std::unique_lock<Mutex>::try_lock();
     }
 
     template< class Rep, class Period >
-    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration) ASTD_TRY_ACQUIRE_UNIQUE_SCOPED(true)
+    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration) ASTD_TRY_ACQUIRE(ReadWrite, Scoped, true)
     {
         return std::unique_lock<Mutex>::try_lock_for(timeout_duration);
     }
 
     template< class Clock, class Duration >
-    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time) ASTD_TRY_ACQUIRE_UNIQUE_SCOPED(true)
+    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time) ASTD_TRY_ACQUIRE(ReadWrite, Scoped, true)
     {
         return std::unique_lock<Mutex>::try_lock_until(timeout_time);
     }
@@ -124,10 +124,10 @@ public:
     }
 
     // TODO: The following methods require a non-acquiring version of TRY_ACQUIRE
-    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_ACQUIRED_UNIQUE_SCOPED(true) {
+    [[nodiscard]] bool owns_lock() const noexcept ASTD_CHECK_ACQUIRED(ReadWrite, Scoped, true) {
         return std::unique_lock<Mutex>::owns_lock();
     }
-    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_ACQUIRED_UNIQUE_SCOPED(true) {
+    [[nodiscard]] explicit operator bool() const noexcept ASTD_CHECK_ACQUIRED(ReadWrite, Scoped, true) {
         return std::unique_lock<Mutex>::operator bool();
     }
 };
