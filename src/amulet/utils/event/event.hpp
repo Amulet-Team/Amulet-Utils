@@ -89,7 +89,7 @@ public:
     // The token must be kept alive for the callback to work.
     // The token is used to disconnect the callback when it is not needed.
     // Thread safe.
-    tokenT connect(callbackT callback, ConnectionMode mode = ConnectionMode::Direct) ASTD_EXCLUDES(_mutex)
+    tokenT connect(callbackT callback, ConnectionMode mode = ConnectionMode::Direct) ASTD_EXCLUDES_ALL(_mutex)
     {
         astd::lock_guard lock(_mutex);
         auto storage = std::make_shared<storageT>(std::move(callback), mode);
@@ -100,7 +100,7 @@ public:
     // Disconnect a callback.
     // Token is the value returned by connect.
     // Thread safe.
-    void disconnect(const tokenT& token) ASTD_EXCLUDES(_mutex)
+    void disconnect(const tokenT& token) ASTD_EXCLUDES_ALL(_mutex)
     {
         if (!token.storage_ptr) {
             return;
@@ -115,7 +115,7 @@ public:
     // Call all callbacks with the given arguments from this thread.
     // Blocks until all callbacks are processed.
     // Thread safe.
-    void dispatch(Args... args) ASTD_EXCLUDES(_mutex)
+    void dispatch(Args... args) ASTD_EXCLUDES_ALL(_mutex)
     {
         AmuletLog(5, "dispatch");
         WeakSet<storageT> temp_callbacks;
