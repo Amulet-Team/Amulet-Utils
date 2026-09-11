@@ -636,10 +636,10 @@
     _ASTD_ASSERT_##access##_##share(__VA_OPT__(__VA_ARGS__))
 
 #define ASTD_ASSERT_UNIQUE_CAPABILITY(mtx) \
-    ASTD_ASSERT_CAPABILITY(ReadWrite, Unique, mtx))
+    ASTD_ASSERT_CAPABILITY(ReadWrite, Unique, mtx)
 
 #define ASTD_ASSERT_SHARED_CAPABILITY(mtx) \
-    ASTD_ASSERT_CAPABILITY(Read, SharedReadOnly, mtx))
+    ASTD_ASSERT_CAPABILITY(Read, SharedReadOnly, mtx)
 
 // ************************************************************
 
