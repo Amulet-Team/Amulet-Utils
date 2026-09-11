@@ -96,7 +96,7 @@ public:
     // Destructor
     ~shared_lock() ASTD_ASSERT_CAPABILITY(ReadWrite, Scoped) ASTD_RELEASE(ReadWrite, Scoped) { }
 
-    void unlock() ASTD_RELEASE(Read, Scoped)
+    void unlock() ASTD_RELEASE(ReadWrite, Scoped)
     {
         std::shared_lock<Mutex>::unlock();
     }
