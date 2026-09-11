@@ -648,7 +648,7 @@ void TestSharedLock::test_unique_adopt_constructor_locked_shared()
 {
     m.lock_shared(); // expected-note {{SharedCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}}
     astd::unique_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding mutex 'm' exclusively}} expected-error {{calling function 'unique_lock' requires holding WriteCapability 'm.write_capability'}} expected-error {{calling function 'unique_lock' requires holding UniqueCapability 'm.unique_capability'}}
-} // expected-error {{SharedCapability 'm.shared_capability' is still held at the end of function}} expected-error expected-error {{ReadOnlyCapability 'm.read_only_capability' is still held at the end of function}} {{SharedReadOnlyCapability 'm.shared_read_only_capability' is still held at the end of function}}
+} // expected-error {{SharedCapability 'm.shared_capability' is still held at the end of function}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is still held at the end of function}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is still held at the end of function}}
 
 void TestSharedLock::test_shared_adopt_constructor_locked_shared()
 {
