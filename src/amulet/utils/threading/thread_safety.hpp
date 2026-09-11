@@ -221,7 +221,7 @@
 // ASTD_ACQUIRE(Read, SharedReadWrite, mtx)
 // ASTD_ACQUIRE(ReadWrite, SharedReadWrite, mtx)
 #define ASTD_ACQUIRE(access, share, ...) \
-    _ASTD_ACQUIRE_##access##_##share(__VA_ARGS__)
+    _ASTD_ACQUIRE_##access##_##share(__VA_OPT__(__VA_ARGS__))
 
 // Acquire the mutex with read and write permissions. Other threads are blocked.
 #define ASTD_ACQUIRE_UNIQUE(mtx) ASTD_ACQUIRE(ReadWrite, Unique, mtx)
@@ -234,10 +234,10 @@
 // ************************************************************
 
 #define _ASTD_TRY_ACQUIRE_CAPABILITY_READ(value, ...) \
-    __ASTD_ATTRIBUTE__(try_acquire_shared_capability(value __VA_OPT__(, ) __VA_ARGS__))
+    __ASTD_ATTRIBUTE__(try_acquire_shared_capability(value __VA_OPT__(, __VA_ARGS__)))
 
 #define _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, ...) \
-    __ASTD_ATTRIBUTE__(try_acquire_capability(value __VA_OPT__(, ) __VA_ARGS__))
+    __ASTD_ATTRIBUTE__(try_acquire_capability(value __VA_OPT__(, __VA_ARGS__)))
 
 // ************************************************************
 // Internal try acquire component macros.
@@ -315,7 +315,7 @@
 // ASTD_TRY_ACQUIRE(Read, SharedReadWrite, value, mtx)
 // ASTD_TRY_ACQUIRE(ReadWrite, SharedReadWrite, value, mtx)
 #define ASTD_TRY_ACQUIRE(access, share, value, ...) \
-    _ASTD_TRY_ACQUIRE_##access##_##share(value, __VA_ARGS__)
+    _ASTD_TRY_ACQUIRE_##access##_##share(value __VA_OPT__(, __VA_ARGS__))
 
 #define ASTD_TRY_ACQUIRE_UNIQUE(value, mtx) \
     ASTD_TRY_ACQUIRE(ReadWrite, Unique, value, mtx)
@@ -410,7 +410,7 @@
 // ASTD_ACQUIRE(Read, SharedReadWrite, mtx)
 // ASTD_ACQUIRE(ReadWrite, SharedReadWrite, mtx)
 #define ASTD_RELEASE(access, share, ...) \
-    _ASTD_RELEASE_##access##_##share(__VA_ARGS__)
+    _ASTD_RELEASE_##access##_##share(__VA_OPT__(__VA_ARGS__))
 
 // Release the mutex with unique read and write permissions.
 #define ASTD_RELEASE_UNIQUE(mtx) ASTD_RELEASE(ReadWrite, Unique, mtx)
@@ -573,7 +573,7 @@
 // ************************************************************
 
 #define ASTD_ASSERT_CAPABILITY(access, share, ...) \
-    _ASTD_ASSERT_##access##_##share(__VA_ARGS__)
+    _ASTD_ASSERT_##access##_##share(__VA_OPT__(__VA_ARGS__))
 
 #define ASTD_ASSERT_UNIQUE_CAPABILITY(mtx) \
     ASTD_ASSERT_CAPABILITY(ReadWrite, Unique, mtx))
