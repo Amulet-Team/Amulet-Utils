@@ -94,7 +94,7 @@ public:
     }
 
     // Destructor
-    ~shared_lock() ASTD_ASSERT_CAPABILITY(Read, Scoped) ASTD_RELEASE(Read, Scoped) { }
+    ~shared_lock() ASTD_ASSERT_CAPABILITY(ReadWrite, Scoped) ASTD_RELEASE(ReadWrite, Scoped) { }
 
     void unlock() ASTD_RELEASE(Read, Scoped)
     {
