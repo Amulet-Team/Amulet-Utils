@@ -163,6 +163,7 @@
     _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(mtx.read_capability) \
     _ASTD_ACQUIRE_CAPABILITY_READ_WRITE(mtx.write_capability)
 
+// clang-format off
 #define _ASTD_ACQUIRE_COMPONENT_UNIQUE(mode, mtx)          \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.unique_capability) \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
@@ -175,6 +176,7 @@
 #define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_read_write_capability) \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_capability)
+// clang-format on
 
 // ************************************************************
 // Internal acquire macros.
@@ -258,6 +260,7 @@
     _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, mtx.read_capability) \
     _ASTD_TRY_ACQUIRE_CAPABILITY_READ_WRITE(value, mtx.write_capability)
 
+// clang-format off
 #define _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(mode, value, mtx)          \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.unique_capability) \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.no_parallel_writes_capability)
@@ -270,6 +273,7 @@
 #define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mode, value, mtx)          \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_read_write_capability) \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_capability)
+// clang-format on
 
 // ************************************************************
 // Internal try acquire macros.
@@ -353,6 +357,7 @@
     _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.read_capability) \
     _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.write_capability)
 
+// clang-format off
 #define _ASTD_RELEASE_COMPONENT_UNIQUE(mode, mtx)          \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.unique_capability) \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
@@ -365,6 +370,7 @@
 #define _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_read_write_capability) \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_capability)
+// clang-format on
 
 // ************************************************************
 // Internal release macros.
