@@ -34,29 +34,29 @@ void TestMutex::test_lock_unlock()
 
 void TestMutex::test_lock()
 {
-    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{WriteCapability 'm.write_capability' is still held at the end of function}} expected-error {{UniqueCapability 'm.unique_capability' is still held at the end of function}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is still held at the end of function}}
+    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{WriteCapability 'm.write_capability' is still held at the end of function}} expected-error {{UniqueCapability 'm.unique_capability' is still held at the end of function}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is still held at the end of function}}
 
 void TestMutex::test_unlock()
 {
-    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
 }
 
 void TestMutex::test_lock_lock()
 {
-    m.lock(); // expected-note 2 {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-    m.lock(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring ReadOnlyCapability 'm.read_only_capability' that is already held}}
-} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{WriteCapability 'm.write_capability' is still held at the end of function}} expected-error {{UniqueCapability 'm.unique_capability' is still held at the end of function}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is still held at the end of function}}
+    m.lock(); // expected-note 2 {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+    m.lock(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring NoParallelWritesCapability 'm.no_parallel_writes_capability' that is already held}}
+} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{WriteCapability 'm.write_capability' is still held at the end of function}} expected-error {{UniqueCapability 'm.unique_capability' is still held at the end of function}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is still held at the end of function}}
 
 void TestMutex::test_try_lock()
 {
-    auto locked = m.try_lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
+    auto locked = m.try_lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
     if (locked) {
         v += 1;
     } else {
         v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     }
-} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is not held on every path through here}}
+} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here}}
 
 void TestMutex::test_try_lock_unlock_1()
 {
@@ -66,36 +66,36 @@ void TestMutex::test_try_lock_unlock_1()
         m.unlock();
     } else {
         v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
-        m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+        m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
     }
 }
 
 void TestMutex::test_try_lock_unlock_2()
 {
-    auto locked = m.try_lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
+    auto locked = m.try_lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
     if (locked) {
         v += 1;
     } else {
         v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     }
-    m.unlock(); // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is not held on every path through here}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+    m.unlock(); // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
 }
 
 void TestMutex::test_try_lock_unlock_3()
 {
     auto locked = m.try_lock();
-    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
 }
 
 void TestMutex::test_lock_try_lock()
 {
-    m.lock(); // expected-note 2 {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-    auto locked = m.try_lock(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring ReadOnlyCapability 'm.read_only_capability' that is already held}}
+    m.lock(); // expected-note 2 {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+    auto locked = m.try_lock(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring NoParallelWritesCapability 'm.no_parallel_writes_capability' that is already held}}
     if (locked) {
         v += 1;
         m.unlock();
     }
-} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is not held on every path through here}}
+} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here}}
 
 void TestMutex::test()
 {
@@ -201,8 +201,8 @@ void TestUniqueLock::test_scoped_constructor_unlock_2()
 
 void TestUniqueLock::test_lock_constructor_locked()
 {
-    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-    astd::unique_lock lock(m); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring ReadOnlyCapability 'm.read_only_capability' that is already held}}
+    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+    astd::unique_lock lock(m); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring NoParallelWritesCapability 'm.no_parallel_writes_capability' that is already held}}
     m.unlock();
 }
 
@@ -217,12 +217,12 @@ void TestUniqueLock::test_defer_constructor_unlocked()
 void TestUniqueLock::test_defer_constructor_locked()
 {
     m.lock();
-    astd::unique_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'unique_lock' while mutex 'm' is held}} expected-error {{cannot call function 'unique_lock' while ReadCapability 'm.read_capability' is held}} expected-error {{cannot call function 'unique_lock' while WriteCapability 'm.write_capability' is held}} expected-error {{cannot call function 'unique_lock' while UniqueCapability 'm.unique_capability' is held}} expected-error {{cannot call function 'unique_lock' while ReadOnlyCapability 'm.read_only_capability' is held}}
+    astd::unique_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'unique_lock' while mutex 'm' is held}} expected-error {{cannot call function 'unique_lock' while ReadCapability 'm.read_capability' is held}} expected-error {{cannot call function 'unique_lock' while WriteCapability 'm.write_capability' is held}} expected-error {{cannot call function 'unique_lock' while UniqueCapability 'm.unique_capability' is held}} expected-error {{cannot call function 'unique_lock' while NoParallelWritesCapability 'm.no_parallel_writes_capability' is held}}
 }
 
 void TestUniqueLock::test_adopt_constructor_unlocked()
 {
-    astd::unique_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding mutex 'm' exclusively}} expected-error {{calling function 'unique_lock' requires holding ReadCapability 'm.read_capability'}} expected-error {{calling function 'unique_lock' requires holding WriteCapability 'm.write_capability'}} expected-error {{calling function 'unique_lock' requires holding ReadOnlyCapability 'm.read_only_capability'}} expected-error {{calling function 'unique_lock' requires holding UniqueCapability 'm.unique_capability'}}
+    astd::unique_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding mutex 'm' exclusively}} expected-error {{calling function 'unique_lock' requires holding ReadCapability 'm.read_capability'}} expected-error {{calling function 'unique_lock' requires holding WriteCapability 'm.write_capability'}} expected-error {{calling function 'unique_lock' requires holding NoParallelWritesCapability 'm.no_parallel_writes_capability'}} expected-error {{calling function 'unique_lock' requires holding UniqueCapability 'm.unique_capability'}}
 }
 
 void TestUniqueLock::test_adopt_constructor_locked()
@@ -305,59 +305,59 @@ void TestSharedMutex::test_lock_shared_unlock_shared_write()
 
 void TestSharedMutex::test_lock_unlock_shared()
 {
-    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}}
+    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}}
     v += 1;
-    m.unlock_shared(); // expected-error {{releasing mutex 'm' using shared access, expected exclusive access}} expected-error {{releasing SharedCapability 'm.shared_capability' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' using shared access, expected exclusive access}} expected-error {{releasing SharedReadOnlyCapability 'm.shared_read_only_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' using shared access, expected exclusive access}}
+    m.unlock_shared(); // expected-error {{releasing mutex 'm' using shared access, expected exclusive access}} expected-error {{releasing SharedCapability 'm.shared_capability' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' using shared access, expected exclusive access}} expected-error {{releasing SharedReadOnlyCapability 'm.shared_read_only_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' using shared access, expected exclusive access}}
 } // expected-error {{WriteCapability 'm.write_capability' is still held at the end of function}} expected-error {{UniqueCapability 'm.unique_capability' is still held at the end of function}}
 
 void TestSharedMutex::test_lock_shared_unlock()
 {
-    m.lock_shared(); // expected-note {{mutex acquired here}} expected-note {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}}
+    m.lock_shared(); // expected-note {{mutex acquired here}} expected-note {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}}
     auto a = v;
-    m.unlock(); // expected-error {{releasing mutex 'm' using exclusive access, expected shared access}} expected-error {{releasing ReadCapability 'm.read_capability' using exclusive access, expected shared access}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' using exclusive access, expected shared access}}
+    m.unlock(); // expected-error {{releasing mutex 'm' using exclusive access, expected shared access}} expected-error {{releasing ReadCapability 'm.read_capability' using exclusive access, expected shared access}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' using exclusive access, expected shared access}}
 } // expected-error {{SharedCapability 'm.shared_capability' is still held at the end of function}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is still held at the end of function}}
 
 void TestSharedMutex::test_lock()
 {
-    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{WriteCapability 'm.write_capability' is still held at the end of function}} expected-error {{UniqueCapability 'm.unique_capability' is still held at the end of function}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is still held at the end of function}}
+    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{WriteCapability 'm.write_capability' is still held at the end of function}} expected-error {{UniqueCapability 'm.unique_capability' is still held at the end of function}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is still held at the end of function}}
 
 void TestSharedMutex::test_unlock()
 {
-    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
 }
 
 void TestSharedMutex::test_lock_shared()
 {
-    m.lock_shared(); // expected-note {{mutex acquired here}} expected-note {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{SharedCapability 'm.shared_capability' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is still held at the end of function}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is still held at the end of function}}
+    m.lock_shared(); // expected-note {{mutex acquired here}} expected-note {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{SharedCapability 'm.shared_capability' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is still held at the end of function}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is still held at the end of function}}
 
 void TestSharedMutex::test_unlock_shared()
 {
-    m.unlock_shared(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing SharedCapability 'm.shared_capability' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing SharedReadOnlyCapability 'm.shared_read_only_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+    m.unlock_shared(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing SharedCapability 'm.shared_capability' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing SharedReadOnlyCapability 'm.shared_read_only_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
 }
 
 void TestSharedMutex::test_lock_lock()
 {
-    m.lock(); // expected-note 2 {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-    m.lock(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring ReadOnlyCapability 'm.read_only_capability' that is already held}}
-} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{WriteCapability 'm.write_capability' is still held at the end of function}} expected-error {{UniqueCapability 'm.unique_capability' is still held at the end of function}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is still held at the end of function}}
+    m.lock(); // expected-note 2 {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+    m.lock(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring NoParallelWritesCapability 'm.no_parallel_writes_capability' that is already held}}
+} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{WriteCapability 'm.write_capability' is still held at the end of function}} expected-error {{UniqueCapability 'm.unique_capability' is still held at the end of function}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is still held at the end of function}}
 
 void TestSharedMutex::test_lock_shared_lock_shared()
 {
-    m.lock_shared(); // expected-note 2 {{mutex acquired here}} expected-note 2 {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-    m.lock_shared(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring SharedCapability 'm.shared_capability' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring SharedReadOnlyCapability 'm.shared_read_only_capability' that is already held}} expected-error {{acquiring ReadOnlyCapability 'm.read_only_capability' that is already held}}
-} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{SharedCapability 'm.shared_capability' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is still held at the end of function}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is still held at the end of function}}
+    m.lock_shared(); // expected-note 2 {{mutex acquired here}} expected-note 2 {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+    m.lock_shared(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring SharedCapability 'm.shared_capability' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring SharedReadOnlyCapability 'm.shared_read_only_capability' that is already held}} expected-error {{acquiring NoParallelWritesCapability 'm.no_parallel_writes_capability' that is already held}}
+} // expected-error {{mutex 'm' is still held at the end of function}} expected-error {{SharedCapability 'm.shared_capability' is still held at the end of function}} expected-error {{ReadCapability 'm.read_capability' is still held at the end of function}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is still held at the end of function}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is still held at the end of function}}
 
 void TestSharedMutex::test_try_lock()
 {
-    auto locked = m.try_lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
+    auto locked = m.try_lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
     if (locked) {
         v += 1;
     } else {
         v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     }
-} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is not held on every path through here}}
+} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here}}
 
 void TestSharedMutex::test_try_lock_unlock_1()
 {
@@ -367,36 +367,36 @@ void TestSharedMutex::test_try_lock_unlock_1()
         m.unlock();
     } else {
         v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
-        m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+        m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
     }
 }
 
 void TestSharedMutex::test_try_lock_unlock_2()
 {
-    auto locked = m.try_lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
+    auto locked = m.try_lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
     if (locked) {
         v += 1;
     } else {
         v += 1; // expected-error {{writing variable 'v' requires holding mutex 'm' exclusively}}
     }
-    m.unlock(); // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is not held on every path through here}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+    m.unlock(); // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
 }
 
 void TestSharedMutex::test_try_lock_unlock_3()
 {
     auto locked = m.try_lock();
-    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
 }
 
 void TestSharedMutex::test_try_lock_shared()
 {
-    auto locked = m.try_lock_shared(); // expected-note {{mutex acquired here}} expected-note {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
+    auto locked = m.try_lock_shared(); // expected-note {{mutex acquired here}} expected-note {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
     if (locked) {
         auto a = v;
     } else {
         auto a = v; // expected-error {{reading variable 'v' requires holding mutex 'm'}}
     }
-} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{SharedCapability 'm.shared_capability' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is not held on every path through here}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is not held on every path through here}}
+} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{SharedCapability 'm.shared_capability' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is not held on every path through here}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here}}
 
 void TestSharedMutex::test_try_lock_shared_unlock_shared_1()
 {
@@ -406,46 +406,46 @@ void TestSharedMutex::test_try_lock_shared_unlock_shared_1()
         m.unlock_shared();
     } else {
         auto a = v; // expected-error {{reading variable 'v' requires holding mutex 'm'}}
-        m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+        m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
     }
 }
 
 void TestSharedMutex::test_try_lock_shared_unlock_shared_2()
 {
-    auto locked = m.try_lock_shared(); // expected-note {{mutex acquired here}} expected-note {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
+    auto locked = m.try_lock_shared(); // expected-note {{mutex acquired here}} expected-note {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
     if (locked) {
         auto a = v;
     } else {
         auto a = v; // expected-error {{reading variable 'v' requires holding mutex 'm'}}
     }
-    m.unlock_shared(); // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}} expected-error {{SharedCapability 'm.shared_capability' is not held on every path through here}} expected-error {{releasing SharedCapability 'm.shared_capability' that was not held}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is not held on every path through here}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is not held on every path through here}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing SharedReadOnlyCapability 'm.shared_read_only_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+    m.unlock_shared(); // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{releasing mutex 'm' that was not held}} expected-error {{SharedCapability 'm.shared_capability' is not held on every path through here}} expected-error {{releasing SharedCapability 'm.shared_capability' that was not held}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is not held on every path through here}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing SharedReadOnlyCapability 'm.shared_read_only_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
 }
 
 void TestSharedMutex::test_try_lock_shared_unlock_shared_3()
 {
     auto locked = m.try_lock_shared();
-    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing ReadOnlyCapability 'm.read_only_capability' that was not held}}
+    m.unlock(); // expected-error {{releasing mutex 'm' that was not held}} expected-error {{releasing ReadCapability 'm.read_capability' that was not held}} expected-error {{releasing WriteCapability 'm.write_capability' that was not held}} expected-error {{releasing UniqueCapability 'm.unique_capability' that was not held}} expected-error {{releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held}}
 }
 
 void TestSharedMutex::test_lock_try_lock()
 {
-    m.lock(); // expected-note 2 {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-    auto locked = m.try_lock(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring ReadOnlyCapability 'm.read_only_capability' that is already held}}
+    m.lock(); // expected-note 2 {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+    auto locked = m.try_lock(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring NoParallelWritesCapability 'm.no_parallel_writes_capability' that is already held}}
     if (locked) {
         v += 1;
         m.unlock();
     }
-} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is not held on every path through here}}
+} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{WriteCapability 'm.write_capability' is not held on every path through here}} expected-error {{UniqueCapability 'm.unique_capability' is not held on every path through here}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here}}
 
 void TestSharedMutex::test_lock_shared_try_lock_shared()
 {
-    m.lock_shared(); // expected-note 2 {{mutex acquired here}} expected-note 2 {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-    auto locked = m.try_lock_shared(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring SharedCapability 'm.shared_capability' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring SharedReadOnlyCapability 'm.shared_read_only_capability' that is already held}} expected-error {{acquiring ReadOnlyCapability 'm.read_only_capability' that is already held}}
+    m.lock_shared(); // expected-note 2 {{mutex acquired here}} expected-note 2 {{SharedCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{SharedReadOnlyCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+    auto locked = m.try_lock_shared(); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring SharedCapability 'm.shared_capability' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring SharedReadOnlyCapability 'm.shared_read_only_capability' that is already held}} expected-error {{acquiring NoParallelWritesCapability 'm.no_parallel_writes_capability' that is already held}}
     if (locked) {
         auto a = v;
         m.unlock_shared();
     }
-} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{SharedCapability 'm.shared_capability' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is not held on every path through here}} expected-error {{ReadOnlyCapability 'm.read_only_capability' is not held on every path through here}}
+} // expected-error {{mutex 'm' is not held on every path through here}} expected-error {{SharedCapability 'm.shared_capability' is not held on every path through here}} expected-error {{ReadCapability 'm.read_capability' is not held on every path through here}} expected-error {{SharedReadOnlyCapability 'm.shared_read_only_capability' is not held on every path through here}} expected-error {{NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here}}
 
 void TestSharedMutex::test()
 {
@@ -583,15 +583,15 @@ void TestSharedLock::test_shared_scoped_constructor_unlock_2()
 
 void TestSharedLock::test_unique_lock_constructor_locked()
 {
-    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-    astd::unique_lock lock(m); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring ReadOnlyCapability 'm.read_only_capability' that is already held}}
+    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+    astd::unique_lock lock(m); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring WriteCapability 'm.write_capability' that is already held}} expected-error {{acquiring UniqueCapability 'm.unique_capability' that is already held}} expected-error {{acquiring NoParallelWritesCapability 'm.no_parallel_writes_capability' that is already held}}
     m.unlock();
 }
 
 void TestSharedLock::test_shared_lock_constructor_locked()
 {
-    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{ReadOnlyCapability acquired here}}
-    astd::shared_lock lock(m); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring ReadOnlyCapability 'm.read_only_capability' that is already held}}
+    m.lock(); // expected-note {{mutex acquired here}} expected-note {{ReadCapability acquired here}} expected-note {{NoParallelWritesCapability acquired here}}
+    astd::shared_lock lock(m); // expected-error {{acquiring mutex 'm' that is already held}} expected-error {{acquiring ReadCapability 'm.read_capability' that is already held}} expected-error {{acquiring NoParallelWritesCapability 'm.no_parallel_writes_capability' that is already held}}
     m.unlock();
 }
 
@@ -614,23 +614,23 @@ void TestSharedLock::test_shared_defer_constructor_unlocked()
 void TestSharedLock::test_unique_defer_constructor_locked()
 {
     m.lock();
-    astd::unique_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'unique_lock' while mutex 'm' is held}} expected-error {{cannot call function 'unique_lock' while ReadCapability 'm.read_capability' is held}} expected-error {{cannot call function 'unique_lock' while WriteCapability 'm.write_capability' is held}} expected-error {{cannot call function 'unique_lock' while UniqueCapability 'm.unique_capability' is held}} expected-error {{cannot call function 'unique_lock' while ReadOnlyCapability 'm.read_only_capability' is held}}
+    astd::unique_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'unique_lock' while mutex 'm' is held}} expected-error {{cannot call function 'unique_lock' while ReadCapability 'm.read_capability' is held}} expected-error {{cannot call function 'unique_lock' while WriteCapability 'm.write_capability' is held}} expected-error {{cannot call function 'unique_lock' while UniqueCapability 'm.unique_capability' is held}} expected-error {{cannot call function 'unique_lock' while NoParallelWritesCapability 'm.no_parallel_writes_capability' is held}}
 }
 
 void TestSharedLock::test_shared_defer_constructor_locked()
 {
     m.lock(); // expected-note {{WriteCapability acquired here}} expected-note {{UniqueCapability acquired here}}
-    astd::shared_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'shared_lock' while mutex 'm' is held}} expected-error {{cannot call function 'shared_lock' while ReadCapability 'm.read_capability' is held}} expected-error {{cannot call function 'shared_lock' while ReadOnlyCapability 'm.read_only_capability' is held}}
+    astd::shared_lock lock(m, std::defer_lock); // expected-error {{cannot call function 'shared_lock' while mutex 'm' is held}} expected-error {{cannot call function 'shared_lock' while ReadCapability 'm.read_capability' is held}} expected-error {{cannot call function 'shared_lock' while NoParallelWritesCapability 'm.no_parallel_writes_capability' is held}}
 } // expected-error {{WriteCapability 'm.write_capability' is still held at the end of function}} expected-error {{UniqueCapability 'm.unique_capability' is still held at the end of function}}
 
 void TestSharedLock::test_unique_adopt_constructor_unlocked()
 {
-    astd::unique_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding mutex 'm' exclusively}} expected-error {{calling function 'unique_lock' requires holding ReadCapability 'm.read_capability'}} expected-error {{calling function 'unique_lock' requires holding WriteCapability 'm.write_capability'}} expected-error {{calling function 'unique_lock' requires holding ReadOnlyCapability 'm.read_only_capability'}} expected-error {{calling function 'unique_lock' requires holding UniqueCapability 'm.unique_capability'}}
+    astd::unique_lock lock(m, std::adopt_lock); // expected-error {{calling function 'unique_lock' requires holding mutex 'm' exclusively}} expected-error {{calling function 'unique_lock' requires holding ReadCapability 'm.read_capability'}} expected-error {{calling function 'unique_lock' requires holding WriteCapability 'm.write_capability'}} expected-error {{calling function 'unique_lock' requires holding NoParallelWritesCapability 'm.no_parallel_writes_capability'}} expected-error {{calling function 'unique_lock' requires holding UniqueCapability 'm.unique_capability'}}
 }
 
 void TestSharedLock::test_shared_adopt_constructor_unlocked()
 {
-    astd::shared_lock lock(m, std::adopt_lock); // expected-error {{calling function 'shared_lock' requires holding mutex 'm'}} expected-error {{calling function 'shared_lock' requires holding ReadCapability 'm.read_capability'}} expected-error {{calling function 'shared_lock' requires holding ReadOnlyCapability 'm.read_only_capability'}} expected-error {{calling function 'shared_lock' requires holding SharedCapability 'm.shared_capability'}} expected-error {{calling function 'shared_lock' requires holding SharedReadOnlyCapability 'm.shared_read_only_capability'}}
+    astd::shared_lock lock(m, std::adopt_lock); // expected-error {{calling function 'shared_lock' requires holding mutex 'm'}} expected-error {{calling function 'shared_lock' requires holding ReadCapability 'm.read_capability'}} expected-error {{calling function 'shared_lock' requires holding NoParallelWritesCapability 'm.no_parallel_writes_capability'}} expected-error {{calling function 'shared_lock' requires holding SharedCapability 'm.shared_capability'}} expected-error {{calling function 'shared_lock' requires holding SharedReadOnlyCapability 'm.shared_read_only_capability'}}
 }
 
 void TestSharedLock::test_unique_adopt_constructor_locked_unique()

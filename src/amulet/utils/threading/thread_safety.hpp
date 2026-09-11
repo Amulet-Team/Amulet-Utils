@@ -67,7 +67,7 @@
 // Require that the mutex is held in a mode that does not allow parallel writes.
 // This does not check read/write permissions of this thread.
 #define ASTD_REQUIRES_COMPONENT_NO_PARALLEL_WRITES(mtx) \
-    ASTD_REQUIRES_CAPABILITY_READ(mtx.read_only_capability)
+    ASTD_REQUIRES_CAPABILITY_READ(mtx.no_parallel_writes_capability)
 
 // Requires the read component.
 #define ASTD_REQUIRES_COMPONENT_READ(mtx) \
@@ -160,12 +160,12 @@
 
 #define _ASTD_ACQUIRE_COMPONENT_UNIQUE(mode, mtx)          \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.unique_capability) \
-    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.read_only_capability)
+    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
 
 #define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mode, mtx)          \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_read_only_capability) \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_capability)           \
-    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.read_only_capability)
+    _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
 
 #define _ASTD_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
     _ASTD_ACQUIRE_CAPABILITY_##mode(mtx.shared_read_write_capability) \
@@ -254,12 +254,12 @@
 
 #define _ASTD_TRY_ACQUIRE_COMPONENT_UNIQUE(mode, value, mtx)          \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.unique_capability) \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.read_only_capability)
+    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.no_parallel_writes_capability)
 
 #define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_ONLY(mode, value, mtx)          \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_read_only_capability) \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_capability)           \
-    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.read_only_capability)
+    _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.no_parallel_writes_capability)
 
 #define _ASTD_TRY_ACQUIRE_COMPONENT_SHARED_READ_WRITE(mode, value, mtx)          \
     _ASTD_TRY_ACQUIRE_CAPABILITY_##mode(value, mtx.shared_read_write_capability) \
@@ -348,12 +348,12 @@
 
 #define _ASTD_RELEASE_COMPONENT_UNIQUE(mode, mtx)          \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.unique_capability) \
-    _ASTD_RELEASE_CAPABILITY_##mode(mtx.read_only_capability)
+    _ASTD_RELEASE_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
 
 #define _ASTD_RELEASE_COMPONENT_SHARED_READ_ONLY(mode, mtx)          \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_read_only_capability) \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_capability)       \
-    _ASTD_RELEASE_CAPABILITY_##mode(mtx.read_only_capability)
+    _ASTD_RELEASE_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
 
 #define _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
     _ASTD_RELEASE_CAPABILITY_##mode(mtx.shared_read_write_capability) \
@@ -442,12 +442,12 @@
 
 #define _ASTD_EXCLUDES_COMPONENT_UNIQUE(mtx)         \
     _ASTD_EXCLUDES_CAPABILITY(mtx.unique_capability) \
-    _ASTD_EXCLUDES_CAPABILITY(mtx.read_only_capability)
+    _ASTD_EXCLUDES_CAPABILITY(mtx.no_parallel_writes_capability)
 
 #define _ASTD_EXCLUDES_COMPONENT_SHARED_READ_ONLY(mtx)         \
     _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_only_capability) \
     _ASTD_EXCLUDES_CAPABILITY(mtx.shared_capability)           \
-    _ASTD_EXCLUDES_CAPABILITY(mtx.read_only_capability)
+    _ASTD_EXCLUDES_CAPABILITY(mtx.no_parallel_writes_capability)
 
 #define _ASTD_EXCLUDES_COMPONENT_SHARED_READ_WRITE(mtx)         \
     _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_write_capability) \
@@ -490,12 +490,12 @@
     _ASTD_EXCLUDES_##access##_##shared(mtx)
 
 // Exclude all components of the mutex.
-#define ASTD_EXCLUDES_ALL(mtx)                                 \
-    _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx)                   \
-    _ASTD_EXCLUDES_CAPABILITY(mtx.unique_capability)           \
-    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_capability)           \
-    _ASTD_EXCLUDES_CAPABILITY(mtx.read_only_capability)        \
-    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_only_capability) \
+#define ASTD_EXCLUDES_ALL(mtx)                                   \
+    _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx)                     \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.unique_capability)             \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_capability)             \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.no_parallel_writes_capability) \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_only_capability)   \
     _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_write_capability)
 
 // ************************************************************
@@ -523,12 +523,12 @@
 
 #define _ASTD_ASSERT_COMPONENT_UNIQUE(mode, mtx)          \
     _ASTD_ASSERT_CAPABILITY_##mode(mtx.unique_capability) \
-        _ASTD_ASSERT_CAPABILITY_##mode(mtx.read_only_capability)
+        _ASTD_ASSERT_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
 
 #define _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(mode, mtx)          \
     _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_read_only_capability) \
         _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)       \
-            _ASTD_ASSERT_CAPABILITY_##mode(mtx.read_only_capability)
+            _ASTD_ASSERT_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
 
 #define _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
     _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_read_write_capability) \
@@ -653,14 +653,14 @@ class ASTD_CAPABILITY("SharedCapability") SharedCapability { };
 
 // Held in either unique or shared read only mode.
 // Ensures that other threads cannot mutate in parallel.
-class ASTD_CAPABILITY("ReadOnlyCapability") ReadOnlyCapability { };
+class ASTD_CAPABILITY("NoParallelWritesCapability") NoParallelWritesCapability { };
 
 class base_mutex {
 public:
     ReadCapability read_capability;
     WriteCapability write_capability;
     UniqueCapability unique_capability;
-    ReadOnlyCapability read_only_capability;
+    NoParallelWritesCapability no_parallel_writes_capability;
     SharedReadOnlyCapability shared_read_only_capability;
     SharedReadWriteCapability shared_read_write_capability;
     SharedCapability shared_capability;
