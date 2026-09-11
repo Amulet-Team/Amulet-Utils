@@ -44,7 +44,7 @@ public:
     {
     }
 
-    shared_lock(Mutex& m, std::adopt_lock_t) ASTD_REQUIRES(Read, SharedReadOnly) ASTD_REQUIRES_COMPONENT_SHARED(m) ASTD_REQUIRES_COMPONENT_SHARED_READ_ONLY(m)
+    shared_lock(Mutex& m, std::adopt_lock_t) ASTD_REQUIRES(Read, SharedReadOnly, m) ASTD_REQUIRES_COMPONENT_SHARED(m) ASTD_REQUIRES_COMPONENT_SHARED_READ_ONLY(m)
         : std::shared_lock<Mutex>(m, std::adopt_lock)
     {
     }
