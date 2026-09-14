@@ -28,13 +28,6 @@ static Amulet::EventToken<int, std::string>& get_default_log_handler_token()
     return default_log_handler_token;
 }
 
-static void default_log_handler(int level, const std::string& msg)
-{
-    static std::mutex mutex;
-    std::lock_guard lock(mutex);
-    std::cout << msg << std::endl;
-}
-
 void print(const std::string& msg)
 {
     static std::mutex mutex;
@@ -53,7 +46,8 @@ Amulet::Event<int, std::string>& get_logger()
     // Setup the default log handler.
     static bool init_hanler = true;
     if (init_hanler) {
-        get_default_log_handler_token() = logger.connect(default_log_handler);
+        get_default_log_handler_token() = logger.connect(
+            static_cast<void (*)(int, const std::string&)>(print));
         init_hanler = false;
     }
     return logger;
@@ -91,7 +85,8 @@ void critical(const std::string& msg)
 
 void register_default_log_handler()
 {
-    get_default_log_handler_token() = get_logger().connect(default_log_handler);
+    get_default_log_handler_token() = get_logger().connect(
+        static_cast<void (*)(int, const std::string&)>(print));
 }
 
 void unregister_default_log_handler()
