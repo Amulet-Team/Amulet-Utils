@@ -1,6 +1,5 @@
 #pragma once
 
-#include <format>
 #include <functional>
 #include <memory>
 #include <stdexcept>
@@ -131,7 +130,7 @@ public:
 
         std::shared_ptr<std::tuple<Args...>> async_args;
 
-        AmuletPrint(5, std::format("calling {} callbacks", temp_callbacks.size()));
+        AmuletPrint(5, "calling " + std::to_string(temp_callbacks.size()) + " callbacks");
         for (const auto& storage_weak_ptr : temp_callbacks) {
             auto storage_ptr = storage_weak_ptr.lock();
             if (!storage_ptr) {
@@ -152,7 +151,7 @@ public:
                 try {
                     storage.callback(args...);
                 } catch (const std::exception& e) {
-                    AmuletPrint(40, std::format("Error in callback: {}", e.what()));
+                    AmuletPrint(40, "Error in callback: " + std::string(e.what()));
                 } catch (...) {
                     AmuletPrint(40, "Error in callback.");
                 }
@@ -176,7 +175,7 @@ public:
                     try {
                         std::apply(storage.callback, *async_args);
                     } catch (const std::exception& e) {
-                        AmuletPrint(40, std::format("Error in async callback: {}", e.what()));
+                        AmuletPrint(40, "Error in async callback: " + std::string(e.what()));
                     } catch (...) {
                         AmuletPrint(40, "Error in async callback.");
                     }
