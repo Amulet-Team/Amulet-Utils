@@ -70,13 +70,13 @@ AMULET_UTILS_EXPORT void print(int level, const std::string& msg);
 
 } // namespace Amulet
 
-// Some places can't use the normal logging system.
-// This macro can be used to log directly.
-#define AmuletLog(level, msg)               \
-    {                                       \
-        if (get_min_log_level() <= level) { \
-            std::cout << msg << std::endl;  \
-        }                                   \
+// A macro to improve performance of frequent log calls.
+// This macro will check the log level before processing msg.
+#define AmuletLog(level, msg)                  \
+    {                                          \
+        if (get_min_log_level() <= level) {    \
+            get_logger().dispatch(level, msg); \
+        }                                      \
     }
 
 // A macro to improve performance of frequent print calls.

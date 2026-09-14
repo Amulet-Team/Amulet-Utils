@@ -61,9 +61,7 @@ Amulet::Event<int, std::string>& get_logger()
 
 void log(int level, const std::string& msg)
 {
-    if (get_min_log_level() <= level) {
-        get_logger().dispatch(level, msg);
-    }
+    AmuletLog(level, msg);
 }
 
 void debug(const std::string& msg)
