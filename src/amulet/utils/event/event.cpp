@@ -70,8 +70,8 @@ namespace {
 
     void EventLoop::_event_loop() ASTD_EXCLUDES_ALL(_mutex)
     {
-        std::function<void()> event;
         while (true) {
+            std::function<void()> event;
             {
                 astd::unique_lock lock(_mutex);
                 if (_exit) {
