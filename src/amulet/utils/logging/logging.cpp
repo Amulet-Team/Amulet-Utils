@@ -6,15 +6,20 @@
 
 namespace Amulet {
 
-int& get_min_log_level()
+static std::atomic_int& _get_min_log_level()
 {
-    static int min_log_level = 20;
+    static std::atomic_int min_log_level = 20;
     return min_log_level;
+}
+
+int get_min_log_level()
+{
+    return _get_min_log_level();
 }
 
 void set_min_log_level(int level)
 {
-    get_min_log_level() = level;
+    _get_min_log_level() = level;
 }
 
 static Amulet::EventToken<int, std::string>& get_default_log_handler_token() {

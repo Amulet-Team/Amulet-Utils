@@ -23,7 +23,7 @@ AMULET_UTILS_EXPORT void unregister_default_log_handler();
 // Get the maximum message level that will be logged.
 // Registered handlers may be more strict.
 // Thread safe.
-AMULET_UTILS_EXPORT int& get_min_log_level();
+AMULET_UTILS_EXPORT int get_min_log_level();
 
 // Set the maximum message level that will be logged.
 // Registered handlers may be more strict.
