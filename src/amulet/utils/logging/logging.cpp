@@ -35,6 +35,18 @@ static void default_log_handler(int level, const std::string& msg)
     std::cout << msg << std::endl;
 }
 
+void print(const std::string& msg)
+{
+    static std::mutex mutex;
+    std::lock_guard lock(mutex);
+    std::cout << msg << std::endl;
+}
+
+void print(int level, const std::string& msg)
+{
+    AmuletPrint(level, msg);
+}
+
 Amulet::Event<int, std::string>& get_logger()
 {
     static Amulet::Event<int, std::string> logger;

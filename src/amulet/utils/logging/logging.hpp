@@ -59,7 +59,16 @@ AMULET_UTILS_EXPORT void error(const std::string& msg);
 // Thread safe.
 AMULET_UTILS_EXPORT void critical(const std::string& msg);
 
-}
+// Print directly to cout. Messages are synchronised.
+// This should only be used in places that can't use the normal logging system.
+AMULET_UTILS_EXPORT void print(const std::string& msg);
+
+// Print directly to cout if the current error level is less than or equal to the specified level.
+// Messages are synchronised.
+// This should only be used in places that can't use the normal logging system.
+AMULET_UTILS_EXPORT void print(int level, const std::string& msg);
+
+} // namespace Amulet
 
 // Some places can't use the normal logging system.
 // This macro can be used to log directly.
@@ -67,6 +76,15 @@ AMULET_UTILS_EXPORT void critical(const std::string& msg);
     {                                       \
         if (get_min_log_level() <= level) { \
             std::cout << msg << std::endl;  \
+        }                                   \
+    }
+
+// A macro to improve performance of frequent print calls.
+// This macro will check the log level before processing msg.
+#define AmuletPrint(level, msg)             \
+    {                                       \
+        if (get_min_log_level() <= level) { \
+            print(msg);                     \
         }                                   \
     }
 
