@@ -22,7 +22,8 @@ void set_min_log_level(int level)
     _get_min_log_level() = level;
 }
 
-static Amulet::EventToken<int, std::string>& get_default_log_handler_token() {
+static Amulet::EventToken<int, std::string>& get_default_log_handler_token()
+{
     static Amulet::EventToken<int, std::string> default_log_handler_token;
     return default_log_handler_token;
 }
