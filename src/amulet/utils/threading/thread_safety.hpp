@@ -692,6 +692,8 @@
 
 namespace astd {
 
+#if defined(AMULET_THREAD_SAFETY_ANALYSIS)
+
 // Allowed to read
 class ASTD_CAPABILITY("ReadCapability") ReadCapability { };
 
@@ -729,5 +731,11 @@ public:
     SharedReadWriteCapability shared_read_write_capability;
     SharedCapability shared_capability;
 };
+
+#else
+
+class base_mutex { };
+
+#endif
 
 } // namespace astd
