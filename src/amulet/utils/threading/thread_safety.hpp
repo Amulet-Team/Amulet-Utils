@@ -560,7 +560,10 @@
 
 // Exclude all components of the mutex.
 #define ASTD_EXCLUDES_ALL(mtx)                                   \
-    _ASTD_EXCLUDES_COMPONENT_READ_WRITE(mtx)                     \
+    _ASTD_EXCLUDES_CAPABILITY(mtx)                               \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.read_only_capability)          \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.read_capability)               \
+    _ASTD_EXCLUDES_CAPABILITY(mtx.write_capability)              \
     _ASTD_EXCLUDES_CAPABILITY(mtx.unique_capability)             \
     _ASTD_EXCLUDES_CAPABILITY(mtx.shared_capability)             \
     _ASTD_EXCLUDES_CAPABILITY(mtx.no_parallel_writes_capability) \
