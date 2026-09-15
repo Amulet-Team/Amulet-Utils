@@ -449,6 +449,17 @@
     _ASTD_RELEASE_COMPONENT_READ_WRITE(mtx)          \
     _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(READ_WRITE, mtx)
 
+#define _ASTD_RELEASE_All_All(mtx)                                         \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx)                               \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.read_only_capability)          \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.read_capability)               \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.write_capability)              \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.unique_capability)             \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.no_parallel_writes_capability) \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.shared_read_only_capability)   \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.shared_read_write_capability)  \
+    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.shared_capability)
+
 // ************************************************************
 // Public release macros.
 // ************************************************************
@@ -627,6 +638,17 @@
 #define _ASTD_ASSERT_ReadWrite_SharedReadWrite(mtx) \
     _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx)          \
     _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(READ_WRITE, mtx)
+
+#define _ASTD_ASSERT_All_All(mtx)                                         \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx)                               \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_only_capability)          \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_capability)               \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.write_capability)              \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.unique_capability)             \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.no_parallel_writes_capability) \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_read_only_capability)   \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_read_write_capability)  \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_capability)
 
 // ************************************************************
 // Public assert capability
