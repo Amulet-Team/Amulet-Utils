@@ -587,48 +587,48 @@ private:
 
 public:
     OrderedLockGuard(OrderedMutex& mutex)
-        ASTD_ACQUIRE(ReadWrite, Unique, mutex)
         requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::Unique)
+        ASTD_ACQUIRE(ReadWrite, Unique, mutex)
         : mutex(mutex)
     {
         mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
     }
 
     OrderedLockGuard(OrderedMutex& mutex)
-        ASTD_ACQUIRE(ReadWrite, SharedReadOnly, mutex)
         requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+        ASTD_ACQUIRE(ReadWrite, SharedReadOnly, mutex)
         : mutex(mutex)
     {
         mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
     }
 
     OrderedLockGuard(OrderedMutex& mutex)
-        ASTD_ACQUIRE(ReadWrite, SharedReadWrite, mutex)
         requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+        ASTD_ACQUIRE(ReadWrite, SharedReadWrite, mutex)
         : mutex(mutex)
     {
         mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
     }
 
     OrderedLockGuard(OrderedMutex& mutex)
-        ASTD_ACQUIRE(Read, Unique, mutex)
         requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::Unique)
+        ASTD_ACQUIRE(Read, Unique, mutex)
         : mutex(mutex)
     {
         mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
     }
 
     OrderedLockGuard(OrderedMutex& mutex)
-        ASTD_ACQUIRE(Read, SharedReadOnly, mutex)
         requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+        ASTD_ACQUIRE(Read, SharedReadOnly, mutex)
         : mutex(mutex)
     {
         mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
     }
 
     OrderedLockGuard(OrderedMutex& mutex)
-        ASTD_ACQUIRE(Read, SharedReadWrite, mutex)
         requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+        ASTD_ACQUIRE(Read, SharedReadWrite, mutex)
         : mutex(mutex)
     {
         mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
