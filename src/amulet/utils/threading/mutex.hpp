@@ -27,6 +27,7 @@ public:
 };
 
 template <class Mutex>
+    requires std::is_base_of_v<base_mutex, Mutex>
 class [[nodiscard]] ASTD_SCOPED_CAPABILITY lock_guard : private std::lock_guard<Mutex> {
 public:
     using std::lock_guard<Mutex>::lock_guard;
