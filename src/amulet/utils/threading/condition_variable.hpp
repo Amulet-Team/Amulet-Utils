@@ -20,37 +20,37 @@ public:
     // reinterpret_cast is not really correct here but I can't work out how to correctly achieve this.
     // This code is not actually used at runtime so this should be fine.
 
-    void wait(astd::unique_lock<astd::mutex>& lock) ASTD_REQUIRES_UNIQUE(lock)
+    void wait(astd::unique_lock<astd::mutex>& lock) ASTD_REQUIRES_CAPABILITY_READ_WRITE(lock)
     {
         std::condition_variable::wait(reinterpret_cast<std::unique_lock<std::mutex>&>(lock));
     }
 
     template <class Predicate>
-    void wait(astd::unique_lock<astd::mutex>& lock, Predicate pred) ASTD_REQUIRES_UNIQUE(lock)
+    void wait(astd::unique_lock<astd::mutex>& lock, Predicate pred) ASTD_REQUIRES_CAPABILITY_READ_WRITE(lock)
     {
         std::condition_variable::wait(reinterpret_cast<std::unique_lock<std::mutex>&>(lock), pred);
     }
 
     template <class Rep, class Period>
-    std::cv_status wait_for(astd::unique_lock<astd::mutex>& lock, const std::chrono::duration<Rep, Period>& rel_time) ASTD_REQUIRES_UNIQUE(lock)
+    std::cv_status wait_for(astd::unique_lock<astd::mutex>& lock, const std::chrono::duration<Rep, Period>& rel_time) ASTD_REQUIRES_CAPABILITY_READ_WRITE(lock)
     {
         return std::condition_variable::wait_for(reinterpret_cast<std::unique_lock<std::mutex>&>(lock), rel_time);
     }
 
     template <class Rep, class Period, class Predicate>
-    bool wait_for(astd::unique_lock<astd::mutex>& lock, const std::chrono::duration<Rep, Period>& rel_time, Predicate pred) ASTD_REQUIRES_UNIQUE(lock)
+    bool wait_for(astd::unique_lock<astd::mutex>& lock, const std::chrono::duration<Rep, Period>& rel_time, Predicate pred) ASTD_REQUIRES_CAPABILITY_READ_WRITE(lock)
     {
         return std::condition_variable::wait_for(reinterpret_cast<std::unique_lock<std::mutex>&>(lock), rel_time, pred);
     }
 
     template <class Clock, class Duration>
-    std::cv_status wait_until(astd::unique_lock<astd::mutex>& lock, const std::chrono::time_point<Clock, Duration>& abs_time) ASTD_REQUIRES_UNIQUE(lock)
+    std::cv_status wait_until(astd::unique_lock<astd::mutex>& lock, const std::chrono::time_point<Clock, Duration>& abs_time) ASTD_REQUIRES_CAPABILITY_READ_WRITE(lock)
     {
         return std::condition_variable::wait_until(reinterpret_cast<std::unique_lock<std::mutex>&>(lock), abs_time);
     }
 
     template <class Clock, class Duration, class Predicate>
-    bool wait_until(astd::unique_lock<astd::mutex>& lock, const std::chrono::time_point<Clock, Duration>& abs_time, Predicate pred) ASTD_REQUIRES_UNIQUE(lock)
+    bool wait_until(astd::unique_lock<astd::mutex>& lock, const std::chrono::time_point<Clock, Duration>& abs_time, Predicate pred) ASTD_REQUIRES_CAPABILITY_READ_WRITE(lock)
     {
         return std::condition_variable::wait_until(reinterpret_cast<std::unique_lock<std::mutex>&>(lock), abs_time, pred);
     }

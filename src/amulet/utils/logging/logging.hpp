@@ -23,7 +23,7 @@ AMULET_UTILS_EXPORT void unregister_default_log_handler();
 // Get the maximum message level that will be logged.
 // Registered handlers may be more strict.
 // Thread safe.
-AMULET_UTILS_EXPORT int& get_min_log_level();
+AMULET_UTILS_EXPORT int get_min_log_level();
 
 // Set the maximum message level that will be logged.
 // Registered handlers may be more strict.
@@ -59,14 +59,32 @@ AMULET_UTILS_EXPORT void error(const std::string& msg);
 // Thread safe.
 AMULET_UTILS_EXPORT void critical(const std::string& msg);
 
-}
+// Print directly to cout. Messages are synchronised.
+// This should only be used in places that can't use the normal logging system.
+AMULET_UTILS_EXPORT void print(const std::string& msg);
 
-// Some places can't use the normal logging system.
-// This macro can be used to log directly.
-#define AmuletLog(level, msg)                     \
+// Print directly to cout if the current error level is less than or equal to the specified level.
+// Messages are synchronised.
+// This should only be used in places that can't use the normal logging system.
+AMULET_UTILS_EXPORT void print(int level, const std::string& msg);
+
+} // namespace Amulet
+
+// A macro to improve performance of frequent log calls.
+// This macro will check the log level before processing msg.
+#define AmuletLog(level, msg)                  \
+    {                                          \
+        if (get_min_log_level() <= level) {    \
+            get_logger().dispatch(level, msg); \
+        }                                      \
+    }
+
+// A macro to improve performance of frequent print calls.
+// This macro will check the log level before processing msg.
+#define AmuletPrint(level, msg)             \
     {                                       \
         if (get_min_log_level() <= level) { \
-            std::cout << msg << std::endl;  \
+            print(msg);                     \
         }                                   \
     }
 
