@@ -923,37 +923,37 @@ void TestOrderedMutex::test()
 void TestOrderedMutex::test_modes()
 {
     {
-        m.lock<ThreadAccessMode::Read, ThreadShareMode::Unique>();
+        m.lock<Amulet::ThreadAccessMode::Read, Amulet::ThreadShareMode::Unique>();
         int a = v;
         v += 1; // expected-error-re {{{{^writing variable 'v' requires holding OrderedMutex 'm' exclusively$}}}}
         m.unlock();
     }
     {
-        m.lock<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>();
+        m.lock<Amulet::ThreadAccessMode::Read, Amulet::ThreadShareMode::SharedReadOnly>();
         int a = v;
         v += 1; // expected-error-re {{{{^writing variable 'v' requires holding OrderedMutex 'm' exclusively$}}}}
         m.unlock();
     }
     {
-        m.lock<ThreadAccessMode::Read, ThreadShareMode::SharedReadWrite>();
+        m.lock<Amulet::ThreadAccessMode::Read, Amulet::ThreadShareMode::SharedReadWrite>();
         int a = v;
         v += 1; // expected-error-re {{{{^writing variable 'v' requires holding OrderedMutex 'm' exclusively$}}}}
         m.unlock();
     }
     {
-        m.lock<ThreadAccessMode::ReadWrite, ThreadShareMode::Unique>();
+        m.lock<Amulet::ThreadAccessMode::ReadWrite, Amulet::ThreadShareMode::Unique>();
         int a = v;
         v += 1;
         m.unlock();
     }
     {
-        m.lock<ThreadAccessMode::ReadWrite, ThreadShareMode::SharedReadOnly>();
+        m.lock<Amulet::ThreadAccessMode::ReadWrite, Amulet::ThreadShareMode::SharedReadOnly>();
         int a = v;
         v += 1;
         m.unlock();
     }
     {
-        m.lock<ThreadAccessMode::ReadWrite, ThreadShareMode::SharedReadWrite>();
+        m.lock<Amulet::ThreadAccessMode::ReadWrite, Amulet::ThreadShareMode::SharedReadWrite>();
         int a = v;
         v += 1;
         m.unlock();
