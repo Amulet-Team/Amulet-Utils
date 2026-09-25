@@ -696,7 +696,7 @@ void TestSharedLock::test_shared_assign_lock_unlock()
 
 class TestOrderedMutex {
 private:
-    astd::ordered_mutex m;
+    Amulet::ordered_mutex m;
     int v ASTD_GUARDED_BY(m);
 
 public:
