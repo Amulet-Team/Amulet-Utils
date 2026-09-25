@@ -1,3 +1,4 @@
+#include <atomic>
 #include <iostream>
 #include <mutex>
 #include <string>
@@ -6,46 +7,65 @@
 
 namespace Amulet {
 
-int& get_min_log_level()
+class LogState {
+public:
+    std::atomic_int min_log_level = 20;
+    std::mutex cout_mutex;
+    Amulet::EventToken<int, std::string> default_log_handler_token;
+    Amulet::Event<int, std::string> logger;
+
+    void register_default_log_handler()
+    {
+        default_log_handler_token = logger.connect(
+            static_cast<void (*)(int, const std::string&)>(print));
+    }
+
+    LogState()
+    {
+        register_default_log_handler();
+    }
+};
+
+static LogState& _get_log_state()
 {
-    static int min_log_level = 20;
-    return min_log_level;
+    static LogState logger;
+    return logger;
+}
+
+int get_min_log_level()
+{
+    return _get_log_state().min_log_level;
 }
 
 void set_min_log_level(int level)
 {
-    get_min_log_level() = level;
+    _get_log_state().min_log_level = level;
 }
 
-static Amulet::EventToken<int, std::string>& get_default_log_handler_token() {
-    static Amulet::EventToken<int, std::string> default_log_handler_token;
-    return default_log_handler_token;
-}
-
-static void default_log_handler(int level, const std::string& msg)
+static Amulet::EventToken<int, std::string>& get_default_log_handler_token()
 {
-    static std::mutex mutex;
-    std::lock_guard lock(mutex);
+    return _get_log_state().default_log_handler_token;
+}
+
+void print(const std::string& msg)
+{
+    std::lock_guard lock(_get_log_state().cout_mutex);
     std::cout << msg << std::endl;
+}
+
+void print(int level, const std::string& msg)
+{
+    AmuletPrint(level, msg);
 }
 
 Amulet::Event<int, std::string>& get_logger()
 {
-    static Amulet::Event<int, std::string> logger;
-    // Setup the default log handler.
-    static bool init_hanler = true;
-    if (init_hanler) {
-        get_default_log_handler_token() = logger.connect(default_log_handler);
-        init_hanler = false;
-    }
-    return logger;
+    return _get_log_state().logger;
 }
 
 void log(int level, const std::string& msg)
 {
-    if (get_min_log_level() <= level) {
-        get_logger().dispatch(level, msg);
-    }
+    AmuletLog(level, msg);
 }
 
 void debug(const std::string& msg)
@@ -75,7 +95,7 @@ void critical(const std::string& msg)
 
 void register_default_log_handler()
 {
-    get_default_log_handler_token() = get_logger().connect(default_log_handler);
+    _get_log_state().register_default_log_handler();
 }
 
 void unregister_default_log_handler()

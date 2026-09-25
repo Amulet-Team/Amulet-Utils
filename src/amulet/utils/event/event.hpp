@@ -8,9 +8,9 @@
 
 #include <amulet/utils/dll.hpp>
 #include <amulet/utils/logging/logging.hpp>
-#include <amulet/utils/weak.hpp>
-#include <amulet/utils/threading/thread_safety.hpp>
 #include <amulet/utils/threading/mutex.hpp>
+#include <amulet/utils/threading/thread_safety.hpp>
+#include <amulet/utils/weak.hpp>
 
 namespace Amulet {
 
@@ -89,7 +89,7 @@ public:
     // The token must be kept alive for the callback to work.
     // The token is used to disconnect the callback when it is not needed.
     // Thread safe.
-    tokenT connect(callbackT callback, ConnectionMode mode = ConnectionMode::Direct) ASTD_EXCLUDES(_mutex)
+    tokenT connect(callbackT callback, ConnectionMode mode = ConnectionMode::Direct) ASTD_EXCLUDES_ALL(_mutex)
     {
         astd::lock_guard lock(_mutex);
         auto storage = std::make_shared<storageT>(std::move(callback), mode);
@@ -100,7 +100,7 @@ public:
     // Disconnect a callback.
     // Token is the value returned by connect.
     // Thread safe.
-    void disconnect(const tokenT& token) ASTD_EXCLUDES(_mutex)
+    void disconnect(const tokenT& token) ASTD_EXCLUDES_ALL(_mutex)
     {
         if (!token.storage_ptr) {
             return;
@@ -115,9 +115,9 @@ public:
     // Call all callbacks with the given arguments from this thread.
     // Blocks until all callbacks are processed.
     // Thread safe.
-    void dispatch(Args... args) ASTD_EXCLUDES(_mutex)
+    void dispatch(Args... args) ASTD_EXCLUDES_ALL(_mutex)
     {
-        AmuletLog(5, "dispatch");
+        AmuletPrint(5, "dispatch");
         WeakSet<storageT> temp_callbacks;
         {
             // Copy callbacks
@@ -130,11 +130,11 @@ public:
 
         std::shared_ptr<std::tuple<Args...>> async_args;
 
-        AmuletLog(5, "calling " + std::to_string(temp_callbacks.size()) + " callbacks");
+        AmuletPrint(5, "calling " + std::to_string(temp_callbacks.size()) + " callbacks");
         for (const auto& storage_weak_ptr : temp_callbacks) {
             auto storage_ptr = storage_weak_ptr.lock();
             if (!storage_ptr) {
-                AmuletLog(5, "skipping destroyed callback");
+                AmuletPrint(5, "skipping destroyed callback");
                 // The token was destroyed before calling disconnect.
                 null_storage.emplace_back(storage_weak_ptr);
                 continue;
@@ -142,7 +142,7 @@ public:
             auto& storage = *storage_ptr;
             switch (storage.mode) {
             case ConnectionMode::Direct: {
-                AmuletLog(5, "calling direct");
+                AmuletPrint(5, "calling direct");
                 astd::lock_guard storage_lock(storage.mutex);
                 if (storage.disconnected) {
                     // The callback was disconnected between getting the callback and processing it.
@@ -151,13 +151,13 @@ public:
                 try {
                     storage.callback(args...);
                 } catch (const std::exception& e) {
-                    AmuletLog(40, "Error in callback: " << e.what());
+                    AmuletPrint(40, "Error in callback: " + std::string(e.what()));
                 } catch (...) {
-                    AmuletLog(40, "Error in callback.");
+                    AmuletPrint(40, "Error in callback.");
                 }
             } break;
             case ConnectionMode::Async: {
-                AmuletLog(5, "calling async");
+                AmuletPrint(5, "calling async");
                 if (!async_args) {
                     async_args = std::make_shared<std::tuple<Args...>>(args...);
                 }
@@ -175,9 +175,9 @@ public:
                     try {
                         std::apply(storage.callback, *async_args);
                     } catch (const std::exception& e) {
-                        AmuletLog(40, "Error in async callback: " << e.what());
+                        AmuletPrint(40, "Error in async callback: " + std::string(e.what()));
                     } catch (...) {
-                        AmuletLog(40, "Error in async callback.");
+                        AmuletPrint(40, "Error in async callback.");
                     }
                 });
             } break;

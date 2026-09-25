@@ -213,7 +213,7 @@ void init_lock(py::module m_parent)
                         throw Amulet::LockNotAcquired("Lock was not acquired.");
                     }
                 },
-                [&self](py::object, py::object, py::object) -> std::optional<bool> {
+                [&self](py::object, py::object, py::object) ASTD_NO_THREAD_SAFETY_ANALYSIS -> std::optional<bool> {
                     py::gil_scoped_release nogil;
                     self.unlock();
                     return false;

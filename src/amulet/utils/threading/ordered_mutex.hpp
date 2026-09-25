@@ -17,16 +17,17 @@
 #include <amulet/utils/threading/thread_safety.hpp>
 
 #include "deadlock.hpp"
+#include "thread_safety.hpp"
 
 namespace Amulet {
 
 namespace detail {
 
-template <template <typename...> class Template, typename T>
-struct is_specialization_of : std::false_type { };
+    template <template <typename...> class Template, typename T>
+    struct is_specialization_of : std::false_type { };
 
-template <template <typename...> class Template, typename... Args>
-struct is_specialization_of<Template, Template<Args...>> : std::true_type { };
+    template <template <typename...> class Template, typename... Args>
+    struct is_specialization_of<Template, Template<Args...>> : std::true_type { };
 
 }
 
@@ -45,7 +46,7 @@ enum class ThreadShareMode {
 // The acquirer can define the required permissions for this thread and permissions for other parallel threads.
 // It also supports cancelling waiting through a CancelManager instance.
 // The mutex is compatible with std::lock_guard, std::unique_lock and std::shared_lock.
-class OrderedMutex {
+class ASTD_CAPABILITY("OrderedMutex") OrderedMutex : public astd::base_mutex {
 protected:
     using LockMode = std::pair<ThreadAccessMode, ThreadShareMode>;
     struct ThreadState {
@@ -76,7 +77,7 @@ protected:
         ThreadAccessMode DesiredThreadAccessMode,
         ThreadShareMode DesiredThreadShareMode,
         class... Args>
-    std::conditional_t<ReturnBool, bool, void> _lock_imp(Args... args_pack) ASTD_EXCLUDES(mutex)
+    std::conditional_t<ReturnBool, bool, void> _lock_imp(Args... args_pack) ASTD_EXCLUDES_ALL(mutex)
     {
         // Lock the state.
         astd::unique_lock lock(mutex);
@@ -255,67 +256,18 @@ protected:
     }
 
     template <bool ReturnBool, bool Blocking, ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class... TimeoutTs>
-    std::conditional_t<ReturnBool, bool, void> _lock(TimeoutTs... timeout, AbstractCancelManager& cancel_manager) ASTD_EXCLUDES(mutex)
+    std::conditional_t<ReturnBool, bool, void> _lock(TimeoutTs... timeout, AbstractCancelManager& cancel_manager) ASTD_EXCLUDES_ALL(mutex)
     {
         return _lock_imp<ReturnBool, Blocking, DesiredThreadAccessMode, DesiredThreadShareMode, TimeoutTs..., AbstractCancelManager&>(timeout..., cancel_manager);
     }
 
     template <bool ReturnBool, bool Blocking, ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
-    std::conditional_t<ReturnBool, bool, void> _lock() ASTD_EXCLUDES(mutex)
+    std::conditional_t<ReturnBool, bool, void> _lock() ASTD_EXCLUDES_ALL(mutex)
     {
         return _lock_imp<ReturnBool, Blocking, DesiredThreadAccessMode, DesiredThreadShareMode>();
     }
 
-public:
-    // Constructors
-    OrderedMutex() = default;
-    OrderedMutex(const OrderedMutex&) = delete;
-    OrderedMutex(OrderedMutex&&) = delete;
-
-    // Destructor
-    ~OrderedMutex() = default;
-
-    // Locks the mutex in the requested mode (default is read write unique).
-    // Blocks until the mutex is acquired or the task is cancelled through the cancel manager.
-    // If the task is cancelled before the mutex is acquired, TaskCancelled is thrown.
-    // Thread safe.
-    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique>
-    void lock(AbstractCancelManager& cancel_manager = global_VoidCancelManager) ASTD_EXCLUDES(mutex)
-    {
-        _lock<false, true, DesiredThreadAccessMode, DesiredThreadShareMode>(cancel_manager);
-    }
-
-    // Tries to lock the mutex in the requested mode (default is read write unique).
-    // Immediately returns true if the mutex was locked and false if it wasn't.
-    // Thread safe
-    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique>
-    [[nodiscard]] bool try_lock() ASTD_EXCLUDES(mutex)
-    {
-        return _lock<true, false, DesiredThreadAccessMode, DesiredThreadShareMode>();
-    }
-
-    // Like try_lock but with a timeout duration.
-    // Returns true if the mutex was locked and false if it was not locked within the duration or if the task was cancelled.
-    // Thread safe.
-    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique, class Rep, class Period>
-    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager) ASTD_EXCLUDES(mutex)
-    {
-        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::duration<Rep, Period>&>(timeout_duration, cancel_manager);
-    }
-
-    // Like try_lock but with a timeout time.
-    // Returns true if the mutex was locked and false if it was not locked before the timeout time or if the task was cancelled.
-    // Thread safe.
-    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique, class Clock, class Duration>
-    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager) ASTD_EXCLUDES(mutex)
-    {
-        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::time_point<Clock, Duration>&>(timeout_time, cancel_manager);
-    }
-
-    // Unlock the mutex.
-    // Must be called by the thread that locked it.
-    // Thread safe.
-    void unlock() ASTD_EXCLUDES(mutex)
+    void _unlock() ASTD_EXCLUDES_ALL(mutex)
     {
         {
             // Lock the state.
@@ -365,36 +317,262 @@ public:
         condition.notify_all();
     }
 
+public:
+    // Constructors
+    OrderedMutex() = default;
+    OrderedMutex(const OrderedMutex&) = delete;
+    OrderedMutex(OrderedMutex&&) = delete;
+
+    // Destructor
+    ~OrderedMutex() = default;
+
+    // Locks the mutex in the requested mode (default is read write unique).
+    // Blocks until the mutex is acquired or the task is cancelled through the cancel manager.
+    // If the task is cancelled before the mutex is acquired, TaskCancelled is thrown.
+    // Thread safe.
+    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::Unique)
+    void lock(AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_ACQUIRE(ReadWrite, Unique, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        _lock<false, true, DesiredThreadAccessMode, DesiredThreadShareMode>(cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+    void lock(AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_ACQUIRE(ReadWrite, SharedReadOnly, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        _lock<false, true, DesiredThreadAccessMode, DesiredThreadShareMode>(cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+    void lock(AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_ACQUIRE(ReadWrite, SharedReadWrite, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        _lock<false, true, DesiredThreadAccessMode, DesiredThreadShareMode>(cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::Unique)
+    void lock(AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_ACQUIRE(Read, Unique, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        _lock<false, true, DesiredThreadAccessMode, DesiredThreadShareMode>(cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+    void lock(AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_ACQUIRE(Read, SharedReadOnly, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        _lock<false, true, DesiredThreadAccessMode, DesiredThreadShareMode>(cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+    void lock(AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_ACQUIRE(Read, SharedReadWrite, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        _lock<false, true, DesiredThreadAccessMode, DesiredThreadShareMode>(cancel_manager);
+    }
+
+    // Tries to lock the mutex in the requested mode (default is read write unique).
+    // Immediately returns true if the mutex was locked and false if it wasn't.
+    // Thread safe
+    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::Unique)
+    [[nodiscard]] bool try_lock()
+        ASTD_TRY_ACQUIRE(ReadWrite, Unique, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, false, DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+    [[nodiscard]] bool try_lock()
+        ASTD_TRY_ACQUIRE(ReadWrite, SharedReadOnly, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, false, DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+    [[nodiscard]] bool try_lock()
+        ASTD_TRY_ACQUIRE(ReadWrite, SharedReadWrite, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, false, DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::Unique)
+    [[nodiscard]] bool try_lock()
+        ASTD_TRY_ACQUIRE(Read, Unique, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, false, DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+    [[nodiscard]] bool try_lock()
+        ASTD_TRY_ACQUIRE(Read, SharedReadOnly, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, false, DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+    [[nodiscard]] bool try_lock()
+        ASTD_TRY_ACQUIRE(Read, SharedReadWrite, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, false, DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    // Like try_lock but with a timeout duration.
+    // Returns true if the mutex was locked and false if it was not locked within the duration or if the task was cancelled.
+    // Thread safe.
+    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique, class Rep, class Period>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::Unique)
+    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(ReadWrite, Unique, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::duration<Rep, Period>&>(timeout_duration, cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class Rep, class Period>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(ReadWrite, SharedReadOnly, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::duration<Rep, Period>&>(timeout_duration, cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class Rep, class Period>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(ReadWrite, SharedReadWrite, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::duration<Rep, Period>&>(timeout_duration, cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class Rep, class Period>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::Unique)
+    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(Read, Unique, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::duration<Rep, Period>&>(timeout_duration, cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class Rep, class Period>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(Read, SharedReadOnly, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::duration<Rep, Period>&>(timeout_duration, cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class Rep, class Period>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+    [[nodiscard]] bool try_lock_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(Read, SharedReadWrite, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::duration<Rep, Period>&>(timeout_duration, cancel_manager);
+    }
+
+    // Like try_lock but with a timeout time.
+    // Returns true if the mutex was locked and false if it was not locked before the timeout time or if the task was cancelled.
+    // Thread safe.
+    template <ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite, ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique, class Clock, class Duration>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::Unique)
+    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(ReadWrite, Unique, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::time_point<Clock, Duration>&>(timeout_time, cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class Clock, class Duration>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(ReadWrite, SharedReadOnly, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::time_point<Clock, Duration>&>(timeout_time, cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class Clock, class Duration>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(ReadWrite, SharedReadWrite, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::time_point<Clock, Duration>&>(timeout_time, cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class Clock, class Duration>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::Unique)
+    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(Read, Unique, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::time_point<Clock, Duration>&>(timeout_time, cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class Clock, class Duration>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(Read, SharedReadOnly, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::time_point<Clock, Duration>&>(timeout_time, cancel_manager);
+    }
+
+    template <ThreadAccessMode DesiredThreadAccessMode, ThreadShareMode DesiredThreadShareMode, class Clock, class Duration>
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+    [[nodiscard]] bool try_lock_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE(Read, SharedReadWrite, true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        return _lock<true, true, DesiredThreadAccessMode, DesiredThreadShareMode, const std::chrono::time_point<Clock, Duration>&>(timeout_time, cancel_manager);
+    }
+
+    // Unlock the mutex.
+    // Must be called by the thread that locked it.
+    // Thread safe.
+    void unlock()
+        ASTD_RELEASE(All, All, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+    {
+        _unlock();
+    }
+
     // SharedTimedLockable
 
     // An alias to lock<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>
-    void lock_shared() ASTD_EXCLUDES(mutex)
+    void lock_shared() ASTD_ACQUIRE_SHARED((*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
     {
         lock<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>();
     }
 
     // An alias to try_lock<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>
-    [[nodiscard]] bool try_lock_shared() ASTD_EXCLUDES(mutex)
+    [[nodiscard]] bool try_lock_shared()
+        ASTD_TRY_ACQUIRE_SHARED(true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
     {
         return try_lock<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>();
     }
 
     // An alias to unlock
-    void unlock_shared() ASTD_EXCLUDES(mutex)
+    void unlock_shared() ASTD_RELEASE_SHARED((*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
     {
-        unlock();
+        _unlock();
     }
 
     // An alias to try_lock_for<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>
     template <class Rep, class Period>
-    [[nodiscard]] bool try_lock_shared_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager) ASTD_EXCLUDES(mutex)
+    [[nodiscard]] bool try_lock_shared_for(const std::chrono::duration<Rep, Period>& timeout_duration, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE_SHARED(true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
     {
         return try_lock_for<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly, Rep, Period>(timeout_duration, cancel_manager);
     }
 
     // An alias to try_lock_until<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly>
     template <class Clock, class Duration>
-    [[nodiscard]] bool try_lock_shared_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager) ASTD_EXCLUDES(mutex)
+    [[nodiscard]] bool try_lock_shared_until(const std::chrono::time_point<Clock, Duration>& timeout_time, AbstractCancelManager& cancel_manager = global_VoidCancelManager)
+        ASTD_TRY_ACQUIRE_SHARED(true, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
     {
         return try_lock_until<ThreadAccessMode::Read, ThreadShareMode::SharedReadOnly, Clock, Duration>(timeout_time, cancel_manager);
     }
@@ -403,17 +581,60 @@ public:
 template <
     ThreadAccessMode DesiredThreadAccessMode = ThreadAccessMode::ReadWrite,
     ThreadShareMode DesiredThreadShareMode = ThreadShareMode::Unique>
-class OrderedLockGuard {
+class [[nodiscard]] ASTD_SCOPED_CAPABILITY OrderedLockGuard {
 private:
     OrderedMutex& mutex;
 
 public:
     OrderedLockGuard(OrderedMutex& mutex)
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::Unique)
+        ASTD_ACQUIRE(ReadWrite, Unique, mutex)
         : mutex(mutex)
     {
         mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
     }
-    ~OrderedLockGuard()
+
+    OrderedLockGuard(OrderedMutex& mutex)
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+        ASTD_ACQUIRE(ReadWrite, SharedReadOnly, mutex)
+        : mutex(mutex)
+    {
+        mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    OrderedLockGuard(OrderedMutex& mutex)
+        requires(DesiredThreadAccessMode == ThreadAccessMode::ReadWrite && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+        ASTD_ACQUIRE(ReadWrite, SharedReadWrite, mutex)
+        : mutex(mutex)
+    {
+        mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    OrderedLockGuard(OrderedMutex& mutex)
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::Unique)
+        ASTD_ACQUIRE(Read, Unique, mutex)
+        : mutex(mutex)
+    {
+        mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    OrderedLockGuard(OrderedMutex& mutex)
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadOnly)
+        ASTD_ACQUIRE(Read, SharedReadOnly, mutex)
+        : mutex(mutex)
+    {
+        mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    OrderedLockGuard(OrderedMutex& mutex)
+        requires(DesiredThreadAccessMode == ThreadAccessMode::Read && DesiredThreadShareMode == ThreadShareMode::SharedReadWrite)
+        ASTD_ACQUIRE(Read, SharedReadWrite, mutex)
+        : mutex(mutex)
+    {
+        mutex.lock<DesiredThreadAccessMode, DesiredThreadShareMode>();
+    }
+
+    ~OrderedLockGuard() ASTD_ASSERT_CAPABILITY(ReadWrite, Scoped) ASTD_RELEASE(ReadWrite, Scoped)
     {
         mutex.unlock();
     }
