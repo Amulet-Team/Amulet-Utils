@@ -535,7 +535,7 @@ public:
     // Must be called by the thread that locked it.
     // Thread safe.
     void unlock()
-        ASTD_ASSERT_CAPABILITY(All, All, (*this)) ASTD_RELEASE(All, All, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
+        ASTD_REQUIRES_CAPABILITY_READ(this) ASTD_ASSERT_CAPABILITY(All, All, (*this)) ASTD_RELEASE(All, All, (*this)) ASTD_EXCLUDES_ALL(mutex) ASTD_NO_THREAD_SAFETY_ANALYSIS
     {
         _unlock();
     }
