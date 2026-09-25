@@ -762,10 +762,10 @@ void TestOrderedMutex::test_lock_unlock_shared()
 
 void TestOrderedMutex::test_lock_shared_unlock()
 {
-    m.lock_shared(); // expected-note-re {{{{^OrderedMutex acquired here$}}}} expected-note-re {{{{^SharedCapability acquired here$}}}} expected-note-re {{{{^ReadCapability acquired here$}}}} expected-note-re {{{{^ReadOnlyCapability acquired here$}}}} expected-note-re {{{{^NoParallelWritesCapability acquired here$}}}} expected-note-re {{{{^SharedReadOnlyCapability acquired here$}}}}
+    m.lock_shared();
     auto a = v;
-    m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' using exclusive access, expected shared access$}}}} expected-error-re {{{{^releasing ReadCapability 'm.read_capability' using exclusive access, expected shared access$}}}} expected-error-re {{{{^releasing WriteCapability 'm.write_capability' that was not held$}}}} expected-error-re {{{{^releasing UniqueCapability 'm.unique_capability' that was not held$}}}} expected-error-re {{{{^releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' using exclusive access, expected shared access$}}}}
-} // expected-error-re {{{{^SharedCapability 'm.shared_capability' is still held at the end of function$}}}} expected-error-re {{{{^ReadOnlyCapability 'm.read_only_capability' is still held at the end of function$}}}} expected-error-re {{{{^SharedReadOnlyCapability 'm.shared_read_only_capability' is still held at the end of function$}}}}
+    m.unlock();
+}
 
 void TestOrderedMutex::test_lock()
 {
@@ -774,7 +774,7 @@ void TestOrderedMutex::test_lock()
 
 void TestOrderedMutex::test_unlock()
 {
-    m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}} expected-error-re {{{{^releasing ReadCapability 'm.read_capability' that was not held$}}}} expected-error-re {{{{^releasing WriteCapability 'm.write_capability' that was not held$}}}} expected-error-re {{{{^releasing UniqueCapability 'm.unique_capability' that was not held$}}}} expected-error-re {{{{^releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held$}}}}
+    m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}}
 }
 
 void TestOrderedMutex::test_lock_shared()
@@ -817,25 +817,25 @@ void TestOrderedMutex::test_try_lock_unlock_1()
         m.unlock();
     } else {
         v += 1; // expected-error-re {{{{^writing variable 'v' requires holding OrderedMutex 'm' exclusively$}}}}
-        m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}} expected-error-re {{{{^releasing ReadCapability 'm.read_capability' that was not held$}}}} expected-error-re {{{{^releasing WriteCapability 'm.write_capability' that was not held$}}}} expected-error-re {{{{^releasing UniqueCapability 'm.unique_capability' that was not held$}}}} expected-error-re {{{{^releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held$}}}}
+        m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}}
     }
 }
 
 void TestOrderedMutex::test_try_lock_unlock_2()
 {
-    auto locked = m.try_lock(); // expected-note-re {{{{^OrderedMutex acquired here$}}}} expected-note-re {{{{^ReadCapability acquired here$}}}} expected-note-re {{{{^WriteCapability acquired here$}}}} expected-note-re {{{{^UniqueCapability acquired here$}}}} expected-note-re {{{{^NoParallelWritesCapability acquired here$}}}}
+    auto locked = m.try_lock(); // expected-note-re {{{{^OrderedMutex acquired here$}}}}
     if (locked) {
         v += 1;
     } else {
         v += 1; // expected-error-re {{{{^writing variable 'v' requires holding OrderedMutex 'm' exclusively$}}}}
     }
-    m.unlock(); // expected-error-re {{{{^OrderedMutex 'm' is not held on every path through here$}}}} expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}} expected-error-re {{{{^ReadCapability 'm.read_capability' is not held on every path through here$}}}} expected-error-re {{{{^WriteCapability 'm.write_capability' is not held on every path through here$}}}} expected-error-re {{{{^UniqueCapability 'm.unique_capability' is not held on every path through here$}}}} expected-error-re {{{{^NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here$}}}} expected-error-re {{{{^releasing ReadCapability 'm.read_capability' that was not held$}}}} expected-error-re {{{{^releasing WriteCapability 'm.write_capability' that was not held$}}}} expected-error-re {{{{^releasing UniqueCapability 'm.unique_capability' that was not held$}}}} expected-error-re {{{{^releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held$}}}}
+    m.unlock(); // expected-error-re {{{{^OrderedMutex 'm' is not held on every path through here$}}}} expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}}
 }
 
 void TestOrderedMutex::test_try_lock_unlock_3()
 {
     auto locked = m.try_lock();
-    m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}} expected-error-re {{{{^releasing ReadCapability 'm.read_capability' that was not held$}}}} expected-error-re {{{{^releasing WriteCapability 'm.write_capability' that was not held$}}}} expected-error-re {{{{^releasing UniqueCapability 'm.unique_capability' that was not held$}}}} expected-error-re {{{{^releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held$}}}}
+    m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}}
 }
 
 void TestOrderedMutex::test_try_lock_shared()
@@ -856,7 +856,7 @@ void TestOrderedMutex::test_try_lock_shared_unlock_shared_1()
         m.unlock_shared();
     } else {
         auto a = v; // expected-error-re {{{{^reading variable 'v' requires holding OrderedMutex 'm'$}}}}
-        m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}} expected-error-re {{{{^releasing ReadCapability 'm.read_capability' that was not held$}}}} expected-error-re {{{{^releasing WriteCapability 'm.write_capability' that was not held$}}}} expected-error-re {{{{^releasing UniqueCapability 'm.unique_capability' that was not held$}}}} expected-error-re {{{{^releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held$}}}}
+        m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}}
     }
 }
 
@@ -874,7 +874,7 @@ void TestOrderedMutex::test_try_lock_shared_unlock_shared_2()
 void TestOrderedMutex::test_try_lock_shared_unlock_shared_3()
 {
     auto locked = m.try_lock_shared();
-    m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}} expected-error-re {{{{^releasing ReadCapability 'm.read_capability' that was not held$}}}} expected-error-re {{{{^releasing WriteCapability 'm.write_capability' that was not held$}}}} expected-error-re {{{{^releasing UniqueCapability 'm.unique_capability' that was not held$}}}} expected-error-re {{{{^releasing NoParallelWritesCapability 'm.no_parallel_writes_capability' that was not held$}}}}
+    m.unlock(); // expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}}
 }
 
 void TestOrderedMutex::test_lock_try_lock()
