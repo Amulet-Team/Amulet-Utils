@@ -377,6 +377,91 @@
     ASTD_TRY_ACQUIRE(Read, SharedReadOnly, value, mtx)
 
 // ************************************************************
+// Assert capability
+// ************************************************************
+
+#define _ASTD_ASSERT_CAPABILITY_READ(...) \
+    __ASTD_ATTRIBUTE__(assert_shared_capability(__VA_ARGS__))
+
+#define _ASTD_ASSERT_CAPABILITY_READ_WRITE(...) \
+    __ASTD_ATTRIBUTE__(assert_capability(__VA_ARGS__))
+
+// ************************************************************
+// Internal assert component macros.
+// ************************************************************
+
+#define _ASTD_ASSERT_COMPONENT_READ(mtx) \
+    _ASTD_ASSERT_CAPABILITY_READ(mtx)    \
+    _ASTD_ASSERT_CAPABILITY_READ(mtx.read_capability)
+
+#define _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx)              \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx)                 \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_capability) \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.write_capability)
+
+// clang-format off
+#define _ASTD_ASSERT_COMPONENT_UNIQUE(mode, mtx)          \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.unique_capability) \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
+
+#define _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(mode, mtx)          \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_read_only_capability) \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)           \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
+
+#define _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_read_write_capability) \
+    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)
+// clang-format on
+
+// ************************************************************
+// Internal assert macros.
+// ************************************************************
+
+#define _ASTD_ASSERT_Read_Scoped() \
+    _ASTD_ASSERT_CAPABILITY_READ()
+
+#define _ASTD_ASSERT_Read_Unique(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ(mtx)  \
+    _ASTD_ASSERT_COMPONENT_UNIQUE(READ, mtx)
+
+#define _ASTD_ASSERT_Read_SharedReadOnly(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ(mtx)          \
+    _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(READ, mtx)
+
+#define _ASTD_ASSERT_Read_SharedReadWrite(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ(mtx)           \
+    _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(READ, mtx)
+
+#define _ASTD_ASSERT_ReadWrite_Scoped() \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE()
+
+#define _ASTD_ASSERT_ReadWrite_Unique(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx) \
+    _ASTD_ASSERT_COMPONENT_UNIQUE(READ_WRITE, mtx)
+
+#define _ASTD_ASSERT_ReadWrite_SharedReadOnly(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx)         \
+    _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(READ_WRITE, mtx)
+
+#define _ASTD_ASSERT_ReadWrite_SharedReadWrite(mtx) \
+    _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx)          \
+    _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(READ_WRITE, mtx)
+
+// ************************************************************
+// Public assert capability
+// ************************************************************
+
+#define ASTD_ASSERT_CAPABILITY(access, share, ...) \
+    _ASTD_ASSERT_##access##_##share(__VA_OPT__(__VA_ARGS__))
+
+#define ASTD_ASSERT_UNIQUE_CAPABILITY(mtx) \
+    ASTD_ASSERT_CAPABILITY(ReadWrite, Unique, mtx)
+
+#define ASTD_ASSERT_SHARED_CAPABILITY(mtx) \
+    ASTD_ASSERT_CAPABILITY(Read, SharedReadOnly, mtx)
+
+// ************************************************************
 // Release macros.
 // ************************************************************
 
@@ -385,6 +470,9 @@
 
 #define _ASTD_RELEASE_CAPABILITY_READ_WRITE(...) \
     __ASTD_ATTRIBUTE__(release_capability(__VA_ARGS__))
+
+#define _ASTD_RELEASE_CAPABILITY_GENERIC(...) \
+    __ASTD_ATTRIBUTE__(release_generic_capability(__VA_ARGS__))
 
 // ************************************************************
 // Internal release component macros.
@@ -450,15 +538,23 @@
     _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(READ_WRITE, mtx)
 
 #define _ASTD_RELEASE_All_All(mtx)                                         \
-    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx)                               \
-    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.read_only_capability)          \
-    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.read_capability)               \
-    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.write_capability)              \
-    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.unique_capability)             \
-    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.no_parallel_writes_capability) \
-    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.shared_read_only_capability)   \
-    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.shared_read_write_capability)  \
-    _ASTD_RELEASE_CAPABILITY_READ_WRITE(mtx.shared_capability)
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx)                                  \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_only_capability)           \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.read_only_capability)          \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_capability)                \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.read_capability)               \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.write_capability)               \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.write_capability)              \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.unique_capability)              \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.unique_capability)             \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.no_parallel_writes_capability)  \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.no_parallel_writes_capability) \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_read_only_capability)    \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.shared_read_only_capability)   \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_read_write_capability)   \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.shared_read_write_capability)  \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_capability)              \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.shared_capability)
 
 // ************************************************************
 // Public release macros.
@@ -569,102 +665,6 @@
     _ASTD_EXCLUDES_CAPABILITY(mtx.no_parallel_writes_capability) \
     _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_only_capability)   \
     _ASTD_EXCLUDES_CAPABILITY(mtx.shared_read_write_capability)
-
-// ************************************************************
-// Assert capability
-// ************************************************************
-
-#define _ASTD_ASSERT_CAPABILITY_READ(...) \
-    __ASTD_ATTRIBUTE__(assert_shared_capability(__VA_ARGS__))
-
-#define _ASTD_ASSERT_CAPABILITY_READ_WRITE(...) \
-    __ASTD_ATTRIBUTE__(assert_capability(__VA_ARGS__))
-
-// ************************************************************
-// Internal assert component macros.
-// ************************************************************
-
-#define _ASTD_ASSERT_COMPONENT_READ(mtx) \
-    _ASTD_ASSERT_CAPABILITY_READ(mtx)    \
-    _ASTD_ASSERT_CAPABILITY_READ(mtx.read_capability)
-
-#define _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx)              \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx)                 \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_capability) \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.write_capability)
-
-// clang-format off
-#define _ASTD_ASSERT_COMPONENT_UNIQUE(mode, mtx)          \
-    _ASTD_ASSERT_CAPABILITY_##mode(mtx.unique_capability) \
-    _ASTD_ASSERT_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
-
-#define _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(mode, mtx)          \
-    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_read_only_capability) \
-    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)           \
-    _ASTD_ASSERT_CAPABILITY_##mode(mtx.no_parallel_writes_capability)
-
-#define _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(mode, mtx)          \
-    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_read_write_capability) \
-    _ASTD_ASSERT_CAPABILITY_##mode(mtx.shared_capability)
-// clang-format on
-
-// ************************************************************
-// Internal assert macros.
-// ************************************************************
-
-#define _ASTD_ASSERT_Read_Scoped() \
-    _ASTD_ASSERT_CAPABILITY_READ()
-
-#define _ASTD_ASSERT_Read_Unique(mtx) \
-    _ASTD_ASSERT_COMPONENT_READ(mtx)  \
-    _ASTD_ASSERT_COMPONENT_UNIQUE(READ, mtx)
-
-#define _ASTD_ASSERT_Read_SharedReadOnly(mtx) \
-    _ASTD_ASSERT_COMPONENT_READ(mtx)          \
-    _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(READ, mtx)
-
-#define _ASTD_ASSERT_Read_SharedReadWrite(mtx) \
-    _ASTD_ASSERT_COMPONENT_READ(mtx)           \
-    _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(READ, mtx)
-
-#define _ASTD_ASSERT_ReadWrite_Scoped() \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE()
-
-#define _ASTD_ASSERT_ReadWrite_Unique(mtx) \
-    _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx) \
-    _ASTD_ASSERT_COMPONENT_UNIQUE(READ_WRITE, mtx)
-
-#define _ASTD_ASSERT_ReadWrite_SharedReadOnly(mtx) \
-    _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx)         \
-    _ASTD_ASSERT_COMPONENT_SHARED_READ_ONLY(READ_WRITE, mtx)
-
-#define _ASTD_ASSERT_ReadWrite_SharedReadWrite(mtx) \
-    _ASTD_ASSERT_COMPONENT_READ_WRITE(mtx)          \
-    _ASTD_ASSERT_COMPONENT_SHARED_READ_WRITE(READ_WRITE, mtx)
-
-#define _ASTD_ASSERT_All_All(mtx)                                         \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx)                               \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_only_capability)          \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_capability)               \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.write_capability)              \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.unique_capability)             \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.no_parallel_writes_capability) \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_read_only_capability)   \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_read_write_capability)  \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_capability)
-
-// ************************************************************
-// Public assert capability
-// ************************************************************
-
-#define ASTD_ASSERT_CAPABILITY(access, share, ...) \
-    _ASTD_ASSERT_##access##_##share(__VA_OPT__(__VA_ARGS__))
-
-#define ASTD_ASSERT_UNIQUE_CAPABILITY(mtx) \
-    ASTD_ASSERT_CAPABILITY(ReadWrite, Unique, mtx)
-
-#define ASTD_ASSERT_SHARED_CAPABILITY(mtx) \
-    ASTD_ASSERT_CAPABILITY(Read, SharedReadOnly, mtx)
 
 // ************************************************************
 
