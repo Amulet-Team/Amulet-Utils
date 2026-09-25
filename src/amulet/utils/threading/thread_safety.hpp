@@ -537,23 +537,23 @@
     _ASTD_RELEASE_COMPONENT_READ_WRITE(mtx)          \
     _ASTD_RELEASE_COMPONENT_SHARED_READ_WRITE(READ_WRITE, mtx)
 
-#define _ASTD_RELEASE_All_All(mtx)                                         \
-    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx)                                  \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_only_capability)           \
-    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.read_only_capability)          \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_capability)                \
-    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.read_capability)               \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.write_capability)               \
-    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.write_capability)              \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.unique_capability)              \
-    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.unique_capability)             \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.no_parallel_writes_capability)  \
-    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.no_parallel_writes_capability) \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_read_only_capability)    \
-    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.shared_read_only_capability)   \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_read_write_capability)   \
-    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.shared_read_write_capability)  \
-    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_capability)              \
+#define _ASTD_RELEASE_All_All(mtx)                                        \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx)                                 \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_only_capability)          \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.read_only_capability)            \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.read_capability)               \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.read_capability)                 \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.write_capability)              \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.write_capability)                \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.unique_capability)             \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.unique_capability)               \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.no_parallel_writes_capability) \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.no_parallel_writes_capability)   \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_read_only_capability)   \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.shared_read_only_capability)     \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_read_write_capability)  \
+    _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.shared_read_write_capability)    \
+    _ASTD_ASSERT_CAPABILITY_READ_WRITE(mtx.shared_capability)             \
     _ASTD_RELEASE_CAPABILITY_GENERIC(mtx.shared_capability)
 
 // ************************************************************
