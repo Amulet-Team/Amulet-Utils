@@ -823,13 +823,13 @@ void TestOrderedMutex::test_try_lock_unlock_1()
 
 void TestOrderedMutex::test_try_lock_unlock_2()
 {
-    auto locked = m.try_lock(); // expected-note-re {{{{^OrderedMutex acquired here$}}}}
+    auto locked = m.try_lock(); // expected-note-re {{{{^OrderedMutex acquired here$}}}} expected-note-re {{{{^ReadCapability acquired here$}}}} expected-note-re {{{{^WriteCapability acquired here$}}}} expected-note-re {{{{^UniqueCapability acquired here$}}}} expected-note-re {{{{^NoParallelWritesCapability acquired here$}}}}
     if (locked) {
         v += 1;
     } else {
         v += 1; // expected-error-re {{{{^writing variable 'v' requires holding OrderedMutex 'm' exclusively$}}}}
     }
-    m.unlock(); // expected-error-re {{{{^OrderedMutex 'm' is not held on every path through here$}}}} expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}}
+    m.unlock(); // expected-error-re {{{{^OrderedMutex 'm' is not held on every path through here$}}}} expected-error-re {{{{^releasing OrderedMutex 'm' that was not held$}}}} expected-error-re {{{{^ReadCapability 'm.read_capability' is not held on every path through here$}}}} expected-error-re {{{{^WriteCapability 'm.write_capability' is not held on every path through here$}}}} expected-error-re {{{{^UniqueCapability 'm.unique_capability' is not held on every path through here$}}}} expected-error-re {{{{^NoParallelWritesCapability 'm.no_parallel_writes_capability' is not held on every path through here$}}}}
 }
 
 void TestOrderedMutex::test_try_lock_unlock_3()
