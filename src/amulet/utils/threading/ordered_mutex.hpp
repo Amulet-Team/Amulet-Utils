@@ -10,7 +10,6 @@
 #include <tuple>
 #include <type_traits>
 
-#include <amulet/utils/dll.hpp>
 #include <amulet/utils/task_manager/cancel_manager.hpp>
 #include <amulet/utils/threading/condition_variable.hpp>
 #include <amulet/utils/threading/mutex.hpp>
