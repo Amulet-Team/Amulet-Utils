@@ -129,6 +129,7 @@ static py::module init_progress_manager(py::module m_parent)
         &Amulet::AbstractProgressManager::get_child,
         py::arg("progress_min"),
         py::arg("progress_max"),
+        py::returns_non_null(),
         py::doc("Get a child ProgressManager.\n"
                 "If calling multiple functions, this allows segmenting the reported time.\n"
                 "Thread safe."));
